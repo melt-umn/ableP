@@ -10,7 +10,7 @@ IOVal<Integer> ::= args::[String] mainIO::IO
 }
 
 function processParseTree
-IOVal<Integer> ::= r_cst::Root_c pptIO::IO
+IOVal<Integer> ::= r_cst::Program_c pptIO::IO
 {
  local attribute print_pp :: IO;
  print_pp =  print (
