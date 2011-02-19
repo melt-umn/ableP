@@ -6,7 +6,7 @@ imports edu:umn:cs:melt:ableP:abstractsyntax ;
 synthesized attribute pp::String ;
 inherited attribute ppi::String;
 
-nonterminal Program_c with pp ;
+nonterminal Program_c with pp ;   -- same as thein v4.2.9 and v6.
 ----------------------------------------
 -- program	: units		{ yytext[0] = '\0'; }   
 
@@ -18,7 +18,7 @@ p::Program_c ::= u::Units_c
 --  p.ast_Program = program(u.ast_Units);  
 }
 
-nonterminal Units_c with pp ;
+nonterminal Units_c with pp ;   -- same as thein v4.2.9 and v6.
 ----------------------------------------
 -- units : unit
 --       | units unit

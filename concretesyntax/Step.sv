@@ -1,11 +1,5 @@
 grammar edu:umn:cs:melt:ableP:concretesyntax ;
 
-nonterminal Step_c with pp ;  --, ast_Stmt ;
-nonterminal Vis_c with pp ;
-nonterminal Asgn_c with pp ;
-nonterminal VarList_c with pp ;
-nonterminal IVar_c with pp;
-nonterminal ChInit_c with pp;
 
 --synthesized attribute ast_Vis::Vis occurs on Vis_c;
 --synthesized attribute ast_Asgn::Asgn occurs on Asgn_c;
@@ -14,43 +8,12 @@ nonterminal ChInit_c with pp;
 --synthesized attribute ast_VarDcl::VarDcl occurs on VarDcl_c;
 --synthesized attribute ast_ChInit::ChInit occurs on ChInit_c;
 
-nonterminal Type_c with pp ;
+--????????nonterminal Type_c with pp ;
 --synthesized attribute ast_Type::Type occurs on Type_c, BaseType_c;
 
--- Vis
-
-concrete production vis_hidden_c
-v::Vis_c ::= h::HIDDEN 
-{ v.pp = "hidden" ; 
---  v.ast_Vis = vis_hidden();
-}
-
-concrete production vis_show_c
-v::Vis_c ::= s::SHOW   
-{ v.pp = "show" ; 
---  v.ast_Vis = vis_show();
-}
-
-concrete production vis_islocal_c
-v::Vis_c ::= i::ISLOCAL 
-{ v.pp = "local" ; 
---  v.ast_Vis = vis_islocal();
-}
-
--- Asgn
-concrete production asgn_c
-a::Asgn_c ::= at::ASGN  
-{ a.pp = "=" ;
---  a.ast_Asgn = asgn();
-}
-
-concrete production asgn_empty_c
-a::Asgn_c ::= 
-{ a.pp = "";
---  a.ast_Asgn = asgn_empty();
-}
 
 -- Step
+nonterminal Step_c with pp ;  -- same as v4.2.9 and v6
 concrete production one_decl_c
 s::Step_c ::= od::OneDecl_c
 { s.pp = od.pp ;
@@ -76,9 +39,6 @@ s::Step_c ::= id::ID ':' xu::XU
 --  s.ast_Stmt = name_xu(id,xu);
 }
 
--- attribute ppi occurs on Stmt_c;
-
-
 concrete production step_stamt_c
 s::Step_c ::= st::Stmt_c
 { s.pp = st.pp;
@@ -95,13 +55,24 @@ s::Step_c ::= st1::Stmt_c un::UNLESS st2::Stmt_c
 }
 
 
---inherited attribute visibility::Vis;
---attribute visibility occurs on VarList_c,IDList_c;
---attribute visibility occurs on IVar_c,VarDcl_c;
 
+--VrefList
+nonterminal VrefList_c with pp;   -- same as v4.2.9 and v6
+
+concrete production single_varref_c
+vrl::VrefList_c ::= vref::Varref_c
+{ vrl.pp = vref.pp;
+--  vrl.ast_VrefList = single_varref(vref.ast_Expr);
+}
+
+concrete production comma_varref_c
+vrl1::VrefList_c ::= vref::Varref_c ',' vrl2::VrefList_c
+{ vrl1.pp = vref.pp ++ "," ++ vrl2.pp;
+--  vrl1.ast_VrefList = comma_varref(vref.ast_Expr,vrl2.ast_VrefList);
+}
 
 -- VarList
-
+nonterminal VarList_c with pp ;   -- same as v4.2.9 and v6
 --attribute ast_VarDcl occurs on VarList_c,IVar_c;
 
 concrete production one_var_c
@@ -125,6 +96,7 @@ vl::VarList_c ::= iv::IVar_c ',' vltail::VarList_c
 
 
 -- IVar
+nonterminal IVar_c with pp;   -- same as in v4.2.9 and v6
 --attribute typein occurs on IVar_c;
 --attribute treedcl occurs on IVar_c;
 
@@ -156,74 +128,15 @@ iv::IVar_c ::= vd::VarDcl_c a::ASGN ch::ChInit_c
 }
 
 -- ChInit
-concrete production ch_init_c
+nonterminal ChInit_c with pp;   -- same as in v4.2.9 and v6
+concrete production ch_init_c 
 ch::ChInit_c ::= '[' c::CONST ']' o::OF '{' tl::TypList_c '}'
 { ch.pp = "[ " ++ c.lexeme ++ " ]" ++ " of " ++ " { " ++ tl.pp ++ " } ";
 -- ch.ast_ChInit = ch_init(c,tl.ast_TypList);
 }
 
-
---TypList
-
-nonterminal  TypList_c with pp, ppi ;
-
-concrete production tl_basetype_c
-tl::TypList_c ::= bt::BaseType_c
-{ tl.pp = bt.pp;
---  tl.ast_TypList = tl_basetype(bt.ast_Type);
-}
-
-
---comma seperated type list
-concrete production tl_comma_c
-tl::TypList_c ::= bt::BaseType_c ',' tyl::TypList_c
-{ tl.pp = bt.pp ++ "," ++ tyl.pp;
---  tl.ast_TypList = tl_comma(bt.ast_Type,tyl.ast_TypList);
-}
-
---BaseType
-nonterminal BaseType_c with pp;
-
-{- ALWAYS COMMENTED OUT
---concrete production bt_type_c
---bt::BaseType_c ::= ty::TYPE
--- {
--- bt.pp = ty.lexeme;
--- bt.ast_Type = promela_typeexpr(ty);
--- }
--}
-
-concrete production bt_uname_c
-bt::BaseType_c ::= un::UNAME
-{ bt.pp = un.lexeme;
---  bt.ast_Type = named_type(un);
-}
-
-concrete production bt_error_c
-bt::BaseType_c ::= er::Error_c
-{ bt.pp = er.pp;
-}
-
---VrefList
-
-nonterminal VrefList_c with pp;
-
-concrete production single_varref_c
-vrl::VrefList_c ::= vref::Varref_c
-{ vrl.pp = vref.pp;
---  vrl.ast_VrefList = single_varref(vref.ast_Expr);
-}
-
-concrete production comma_varref_c
-vrl1::VrefList_c ::= vref::Varref_c ',' vrl2::VrefList_c
-{ vrl1.pp = vref.pp ++ "," ++ vrl2.pp;
---  vrl1.ast_VrefList = comma_varref(vref.ast_Expr,vrl2.ast_VrefList);
-}
-
 --VarDcl
-
-nonterminal VarDcl_c with pp, ppi ;
-
+nonterminal VarDcl_c with pp, ppi ;   -- same as in v4.2.9 and v6
 --attribute typein occurs on VarDcl_c;
 --attribute treedcl occurs on VarDcl_c;
 
@@ -253,8 +166,4 @@ vd::VarDcl_c ::= id::ID '[' cnt::CONST ']'
 
 
 
-concrete production type_base_type_c
-t::Type_c ::= bt::BaseType_c
-{ t.pp = bt.pp ;
--- t.ast_Type = bt.ast_Type ;
-}
+

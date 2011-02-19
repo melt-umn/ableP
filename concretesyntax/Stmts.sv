@@ -5,11 +5,10 @@ grammar edu:umn:cs:melt:ableP:concretesyntax;
 -- Stmt = stmnt
 -- Statement = Stmnt
 
-nonterminal Stmt_c with pp, ppi;
+nonterminal Stmt_c with pp, ppi;    -- same as in v4.2.9 and v6
 
 --synthesized attribute ast_Stmt :: Stmt ;
 --attribute ast_Stmt occurs on Stmt_c,Special_c;
-
 
 concrete production special_stmt_c
 stmt::Stmt_c ::= sc::Special_c
@@ -27,8 +26,7 @@ stmt::Stmt_c ::= st::Statement_c
 
 
 --Special
-
-nonterminal Special_c with pp, ppi;
+nonterminal Special_c with pp, ppi; -- same as in v4.2.9, needs for and select exts for v6
 
 concrete production rcv_special_c
 sc::Special_c ::= vref::Varref_c '?' ra::RArgs_c
@@ -42,15 +40,12 @@ sc::Special_c ::= vref::Varref_c '!' ma::MArgs_c
 -- sc.ast_Stmt = snd_special(vref.ast_Expr,ma.ast_MArgs);
 }
 
-
-
 concrete production if_special_c
 sc::Special_c ::= i::IF op::Options_c fi::FI
 { sc.pp = "if\n" ++ op.pp ++ "\n" ++ sc.ppi ++ "fi";
   op.ppi = sc.ppi;
 --  sc.ast_Stmt = if_special(op.ast_Options);
 }
-
 
 concrete production do_special_c
 sc::Special_c ::= d::DO op::Options_c o::OD
@@ -80,8 +75,7 @@ sc::Special_c ::= id::ID ':' st::Stmt_c
 
 --
 --Statement
-
-nonterminal Statement_c with pp, ppi;
+nonterminal Statement_c with pp, ppi;   -- same as v4.2.9 and v6
 
 concrete production assign_stmt_c
 st::Statement_c ::= vref::Varref_c a1::ASGN exp::Expr_c
@@ -125,6 +119,12 @@ st::Statement_c ::= ast::ASSERT fe::FullExpr_c
 -- st.ast_Stmt = assert_stmt(fe.ast_Expr);
 }
 
+concrete production ccode_stmt_new_c
+st::Statement_c ::= cc::Ccode_c 
+{ st.pp = cc.pp ;
+-- st.ast_Stmt = stmt_ccode(cc.ast_Ccode) ;
+-- st.ifordo = false;
+}
 
 concrete production rrcv_stmt_c
 st::Statement_c ::= vref::Varref_c r::R_RCV ra::RArgs_c
@@ -184,6 +184,8 @@ st::Statement_c ::= '{' seq::Sequence_c os::OS_c '}'
 -- st.ast_Stmt = stmt_block( body_stmts( seq.ast_Stmt ) ) ;
 }
 
+
+-- OK for v6 and v4.2.9, but see discussion of the screwy way Spin does this.
 concrete production inline_stmt_c
 st::Statement_c ::= ina::INAME '(' args::Args_c ')' 
 { st.pp = ina.lexeme ++ "(" ++ args.pp ++ ")" ;
@@ -192,8 +194,7 @@ st::Statement_c ::= ina::INAME '(' args::Args_c ')'
 
 
 --Options
-
-nonterminal Options_c with pp, ppi ;
+nonterminal Options_c with pp, ppi ;   -- same as in v4.2.9 and v6
 --synthesized attribute ast_Options::Options occurs on Options_c;
 
 concrete production single_option_c
@@ -213,8 +214,8 @@ ops1::Options_c ::= op::Option_c ops2::Options_c
 
 
 --Option
-
-nonterminal Option_c with pp, ppi; --, ast_Stmt ;
+nonterminal Option_c with pp, ppi;    -- same as in v4.2.9 and v6
+--, ast_Stmt ;
 
 concrete production op_seq_c
 op::Option_c ::= '::' seq::Sequence_c os::OS_c

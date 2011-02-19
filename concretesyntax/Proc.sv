@@ -1,7 +1,7 @@
 grammar edu:umn:cs:melt:ableP:concretesyntax;
 
-nonterminal Proc_c with pp, ppi ;
 
+nonterminal Proc_c with pp, ppi ; -- same in v4.2.9 and v6
 --proc    : inst          /* optional instantiator */
 --          proctype NAME 
 --          '(' decl ')'  
@@ -9,6 +9,7 @@ nonterminal Proc_c with pp, ppi ;
 --          Opt_enabler
 --          body        
 --
+-- same in v4.2.9 and v6
 --proctype: PROCTYPE      
 --        | D_PROCTYPE    
 
@@ -38,9 +39,26 @@ action
 }
   
 
---Inst
+--ProcType
+nonterminal ProcType_c with pp, ppi;  -- same in v4.2.9 and v6
 
-nonterminal Inst_c with pp, ppi;
+--synthesized attribute ast_ProcType::ProcType occurs on ProcType_c;
+
+concrete production just_procType_c
+procty::ProcType_c ::= pt::PROCTYPE
+{ procty.pp = "proctype";
+-- procty.ast_ProcType = just_procType();
+}
+
+concrete production d_procType_c
+procty::ProcType_c ::= dpt::D_PROCTYPE
+{ procty.pp = "D_proctype";
+-- procty.ast_ProcType = d_procType();
+}
+
+
+--Inst  
+nonterminal Inst_c with pp, ppi;  -- same in v4.2.9 and v6
 --synthesized attribute ast_Inst::Inst occurs on Inst_c;
 
 concrete production empty_inst_c
@@ -67,27 +85,8 @@ i::Inst_c ::= a::ACTIVE lbr::LSQUARE id::ID rbr::RSQUARE
 -- i.ast_Inst = activename_inst(id);
 }
 
---ProcType
-
-nonterminal ProcType_c with pp, ppi;
---synthesized attribute ast_ProcType::ProcType occurs on ProcType_c;
-
-concrete production just_procType_c
-procty::ProcType_c ::= pt::PROCTYPE
-{ procty.pp = "proctype";
--- procty.ast_ProcType = just_procType();
-}
-
-concrete production d_procType_c
-procty::ProcType_c ::= dpt::D_PROCTYPE
-{ procty.pp = "D_proctype";
--- procty.ast_ProcType = d_procType();
-}
-
-
 --OptPriority
-
-nonterminal OptPriority_c with pp, ppi;
+nonterminal OptPriority_c with pp, ppi; -- same as v4.2.9 and v6
 
 concrete production none_priority_c
 op::OptPriority_c ::=
@@ -103,8 +102,7 @@ op::OptPriority_c ::= p::PRIORITY ct::CONST
 
 
 --OptEnabler
-
-nonterminal OptEnabler_c with pp, ppi;
+nonterminal OptEnabler_c with pp, ppi; -- same as in v4.2.9 and v6
 --synthesized attribute ast_OptEnabler::OptEnabler occurs on OptEnabler_c;
 
 concrete production none_enabler_c
@@ -119,8 +117,4 @@ oe::OptEnabler_c ::= p::PROVIDED lpr::LPAREN fe::FullExpr_c rpr::RPAREN
 -- oe.ast_OptEnabler = expr_enabler(fe.ast_Expr);
 }
 
-concrete production err_enabler_c
-oe::OptEnabler_c ::= p::PROVIDED err::Error_c
-{ oe.pp = "provided " ++ err.pp ;
-}
 
