@@ -22,13 +22,13 @@ IOVal<Integer> ::= args::[String] mainIO::IO
        "Passed " ++ toString (testResults.numPassed) ++
        " tests out of " ++ 
        toString (testResults.numTests) ++ "\n\n"
-      , testResults.ioOut ), 0 
+      , testResults.ioOut ), testResults.numFailed
    );
 
   -- make tests for all .pml files
   local parseTestsIO::IOVal<[Test]>
    = traverseDirectoriesAndPerform
-       ( ".", [ "SpinExamples" ], mkParseOnlyTest, dirSkip, ioval(mainIO,[]) ) ;
+       ( ".", [ "SpinExamples", "Spin6_Examples" ], mkParseOnlyTest, dirSkip, ioval(mainIO,[]) ) ;
 }
 
 makeTestSuite ableP_host_tests ;

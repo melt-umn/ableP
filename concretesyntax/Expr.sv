@@ -78,6 +78,7 @@ exp::Expression_c ::= lhs::Expr_c o::OR rhs::Expression_c
 
 --Expr
 nonterminal Expr_c with pp; -- same as v4.2.9 and v6 (except for fixable CHARLIT and LTL)
+-- expr in spin.y
 
 concrete production paren_expr_c
 exp1::Expr_c ::= '(' exp2::Expr_c ')'
@@ -208,7 +209,7 @@ exp::Expr_c ::= '~' lhs::Expr_c
 
 concrete production neg_expr_c
 exp::Expr_c ::= '-' lhs::Expr_c
-precedence = 20
+precedence = 45
 { exp.pp = "-" ++ lhs.pp ;
 -- exp.ast_Expr = neg_expr(lhs.ast_Expr);
 }
@@ -218,7 +219,7 @@ precedence = 20
 
 concrete production snd_expr_c
 exp::Expr_c ::= '!' lhs::Expr_c
-precedence = 20
+precedence = 45
 { exp.pp = "!" ++ lhs.pp;
 -- exp.ast_Expr = snd_expr(lhs.ast_Expr);
 }
@@ -377,7 +378,7 @@ sf::Sfld ::=
 
 concrete production dot_sfld_c
 sf::Sfld ::= d::STOP c::Cmpnd_c 
-precedence = 30
+precedence = 45
 { sf.pp = "." ++ c.pp ; 
 }
 

@@ -225,17 +225,17 @@ terminal INIT         'init'         lexer classes {promela,promela_kwd};
 terminal ASGN         '='            lexer classes {promela},
                                      precedence = 1, association = right;
 
-terminal R_RCV   '??' lexer classes {promela},precedence = 5,association = left;
-terminal RCV     '?'  lexer classes {promela},precedence = 5,association = left;
-terminal O_SND   '!!' lexer classes {promela},precedence = 5,association = left;
-terminal SND     '!'  lexer classes {promela},precedence = 40,association = left;
+terminal R_RCV   '??' lexer classes {promela},precedence = 2,association = left;
+terminal RCV     '?'  lexer classes {promela},precedence = 2,association = left;
+terminal O_SND   '!!' lexer classes {promela},precedence = 2,association = left;
+terminal SND     '!'  lexer classes {promela},precedence = 2,association = left;
 
 -- missing IMPLIES
 -- missing EQUIV
 
-terminal OR      '||' lexer classes {promela},precedence = 3,association = left;
+terminal OR      '||' lexer classes {promela},precedence = 5,association = left;
 
-terminal AND     '&&' lexer classes {promela},precedence = 5,association = left;
+terminal AND     '&&' lexer classes {promela},precedence = 6,association = left;
 
 -- missing ALWAYS
 -- missing EVENTUALLY
@@ -243,35 +243,35 @@ terminal AND     '&&' lexer classes {promela},precedence = 5,association = left;
 -- missing UNTIL WEAK_UNTIL RELEASE
 -- missing NEXT
 
-terminal OR_T    '|'  lexer classes {promela},precedence = 6,association = left;
-terminal XOR     '^'  lexer classes {promela},precedence = 7,association = left;
-terminal AND_T   '&'  lexer classes {promela},precedence = 8,association = left;
+terminal OR_T    '|'  lexer classes {promela},precedence = 11,association = left;
+terminal XOR     '^'  lexer classes {promela},precedence = 12,association = left;
+terminal AND_T   '&'  lexer classes {promela},precedence = 13,association = left;
 
 -- EE maybe should be EQ
-terminal EE      '==' lexer classes {promela},precedence = 9,association = left;
-terminal NE      '!=' lexer classes {promela},precedence = 9,association = left;
+terminal EE      '==' lexer classes {promela},precedence = 15,association = left;
+terminal NE      '!=' lexer classes {promela},precedence = 15,association = left;
 
-terminal LE      '<=' lexer classes {promela},precedence = 10,association = left;
-terminal LT      '<'  lexer classes {promela},precedence = 10,association = left;
-terminal GE      '>=' lexer classes {promela},precedence = 10,association = left;
-terminal GT      '>'  lexer classes {promela},precedence = 10,association = left;
+terminal LE      '<=' lexer classes {promela},precedence = 20,association = left;
+terminal LT      '<'  lexer classes {promela},precedence = 20,association = left;
+terminal GE      '>=' lexer classes {promela},precedence = 20,association = left;
+terminal GT      '>'  lexer classes {promela},precedence = 20,association = left;
 
-terminal LSHIFT  '<<' lexer classes {promela},precedence = 15,association = left;
-terminal RSHIFT  '>>' lexer classes {promela},precedence = 15,association = left;
+terminal LSHIFT  '<<' lexer classes {promela},precedence = 25,association = left;
+terminal RSHIFT  '>>' lexer classes {promela},precedence = 25,association = left;
 
-terminal PLUS    '+'  lexer classes {promela},precedence = 20,association = left;
-terminal MINUS   '-'  lexer classes {promela},precedence = 20,association = left;
+terminal PLUS    '+'  lexer classes {promela},precedence = 30,association = left;
+terminal MINUS   '-'  lexer classes {promela},precedence = 30,association = left;
 
-terminal STAR    '*'  lexer classes {promela},precedence = 30,association = left;
-terminal DIV     '/'  lexer classes {promela},precedence = 30,association = left;
-terminal MOD     '%'  lexer classes {promela},precedence = 30,association = left;
+terminal STAR    '*'  lexer classes {promela},precedence = 35,association = left;
+terminal DIV     '/'  lexer classes {promela},precedence = 35,association = left;
+terminal MOD     '%'  lexer classes {promela},precedence = 35,association = left;
 
 terminal INCR    '++' lexer classes {promela},precedence = 40,association = right;
 terminal DECR    '--' lexer classes {promela},precedence = 40,association = right;
 
+terminal TILD    '~'  lexer classes {promela},precedence = 45,association = right;
 
-terminal TILD    '~'  lexer classes {promela},precedence = 40,association = right;
-
+terminal STOP    '.'  lexer classes {promela},precedence = 50,association = left;
 ---------------------------------------------------
 ---------------------------------------------------
 ---------------------------------------------------
@@ -307,7 +307,7 @@ terminal COMMA  ',' lexer classes {promela};
 
 terminal ATRATE  '@' lexer classes {promela};
 terminal SCOLON  ':' lexer classes {promela},precedence = 2,association = right;
-terminal STOP    '.' lexer classes {promela},precedence = 50,association = left;
+
 
 
 -- Keywords:
