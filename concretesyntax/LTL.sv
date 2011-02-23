@@ -6,12 +6,21 @@ u::Unit_c ::= l::LTL_c
 --  u.ast_Unit = l.ast_Unit;
 }
 
+parser attribute ltlMode :: Boolean 
+     action { ltlMode = false ; } ;
+
 nonterminal LTL_c with pp ;
 terminal LTL_t  'ltl'    lexer classes {promela,promela_kwd};
 
 concrete production ltl_formula_c
-l::LTL_c ::= 'ltl' op::OptName2_c body::LTL_Body_c
+l::LTL_c ::= lkwd::LTL_Kwd op::OptName2_c body::LTL_Body_c
 { l.pp = "ltl " ++ op.pp ++ body.pp ; }
+action { ltlMode = false ; }
+
+nonterminal LTL_Kwd ;
+concrete production ltlKwd_c
+l::LTL_Kwd ::= 'ltl' { }
+action { ltlMode = true ; }
 
 nonterminal LTL_Body_c with pp ;
 concrete production ltl_body_c
@@ -106,8 +115,16 @@ disambiguate NEXT_t, UNAME
 { pluck if listContains(lexeme,unames) then UNAME else NEXT_t ; }
 
 disambiguate NEXT_t, PNAME, ID
-{ pluck if listContains(lexeme,pnames) then UNAME 
-   else if lexemeNEXT_t ; }
+{ pluck if listContains(lexeme,pnames) then PNAME 
+   else NEXT_t ; }
+
+disambiguate NEXT_t, PNAME, INAME, ID
+{ pluck if listContains(lexeme,pnames) then PNAME 
+   else NEXT_t ; }
+
+disambiguate NEXT_t, PNAME, INAME, UNAME, ID
+{ pluck if listContains(lexeme,pnames) then PNAME 
+   else NEXT_t ; }
 
 nonterminal LTL_expr_c with pp ;
 
