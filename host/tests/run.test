@@ -1,1 +1,1 @@
-run: java -jar ableP.tests.jar
+run: java -Xss8M -jar ableP.tests.jar
