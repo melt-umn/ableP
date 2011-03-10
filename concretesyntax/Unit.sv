@@ -1,8 +1,8 @@
 grammar edu:umn:cs:melt:ableP:concretesyntax ;
 
-nonterminal Unit_c with pp, ppi; -- the same in v4.2.9 and v6
+nonterminal Unit_c with pp, ppi, ast<Unit> ; -- the same in v4.2.9 and v6
 ----------------------------------------
-synthesized attribute ast_Unit::Unit occurs on Unit_c ;
+-- synthesized attribute ast_Unit::Unit occurs on Unit_c ;
 --unit	: proc		/* proctype { }       */
 --	| init		/* init { }           */
 --	| claim		/* never claim        */
@@ -16,7 +16,7 @@ synthesized attribute ast_Unit::Unit occurs on Unit_c ;
 concrete production unit_proc_c
 u::Unit_c ::= p::Proc_c
 { u.pp = p.pp ;
---  u.ast_Unit = p.ast_Unit; 
+  u.ast = p.ast ; 
 }
 action
 {

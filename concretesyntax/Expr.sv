@@ -5,27 +5,26 @@ grammar edu:umn:cs:melt:ableP:concretesyntax;
 --Expression represents Expr
 
 --FullExpr
-nonterminal FullExpr_c with pp;   -- same as in v4.2.9 and v6
+nonterminal FullExpr_c with pp, ast<Expr> ;   -- same as in v4.2.9 and v6
 -- full_expr in spin.y
 
 --synthesized attribute ast_Expr::Expr occurs on Expr_c, Expression_c, FullExpr_c;
 --synthesized attribute ast_Probe::Probe occurs on Probe_c;
 
 concrete production fe_expr
-fe::FullExpr_c ::= e1::Expr_c
-{ fe.pp = e1.pp;
--- fe.ast_Expr = e1.ast_Expr;
+fe::FullExpr_c ::= e::Expr_c
+{ fe.pp = e.pp;
+  fe.ast = e.ast ;
 }
 
 concrete production fe_exp
-fe::FullExpr_c ::= e1::Expression_c
-{ fe.pp = e1.pp;
--- fe.ast_Expr = e1.ast_Expr;
+fe::FullExpr_c ::= e::Expression_c
+{ fe.pp = e.pp;
+  fe.ast = e.ast;
 }
 
-
 --Expression
-nonterminal Expression_c with pp ;     -- same as in v4.2.9 and v6
+nonterminal Expression_c with pp, ast<Expr> ;     -- same as in v4.2.9 and v6
 -- Expr in spin.y
 concrete production expr_probe_c
 exp::Expression_c ::= pr::Probe_c
@@ -36,7 +35,7 @@ exp::Expression_c ::= pr::Probe_c
 concrete production expression_paren_c
 exp1::Expression_c ::= '(' exp2::Expression_c ')'
 { exp1.pp = "(" ++ exp2.pp ++ ")";
---  exp1.ast_Expr = paren_expr(exp2.ast_Expr);
+  exp1.ast = exp2.ast;
 }
 
 concrete production and_expression_c
@@ -77,13 +76,13 @@ exp::Expression_c ::= lhs::Expr_c o::OR rhs::Expression_c
 
 
 --Expr
-nonterminal Expr_c with pp; -- same as v4.2.9 and v6 (except for fixable CHARLIT and LTL)
+nonterminal Expr_c with pp, ast<Expr> ; -- same as v4.2.9 and v6 (except for fixable CHARLIT and LTL)
 -- expr in spin.y
 
 concrete production paren_expr_c
 exp1::Expr_c ::= '(' exp2::Expr_c ')'
 { exp1.pp = "(" ++ exp2.pp ++ ")";
--- exp1.ast_Expr = paren_expr(exp2.ast_Expr);
+  exp1.ast = exp2.ast;
 }
 
 --Mathematical expressions
@@ -266,7 +265,7 @@ exp::Expr_c ::= vref::Varref_c rr::R_RCV '[' ra::RArgs_c ']'
 concrete production varref_expr_c
 exp::Expr_c ::= vref::Varref_c
 { exp.pp = vref.pp;
--- exp.ast_Expr = varref_expr(vref.ast_Expr);
+  exp.ast = vref.ast ;
 }
 
 concrete production c_expr_c
@@ -278,7 +277,7 @@ e::Expr_c ::= ce::Cexpr_c
 concrete production const_expr_c
 exp::Expr_c ::= c::CONST
 { exp.pp = c.lexeme ;
--- exp.ast_Expr = const_expr(c);
+  exp.ast = constExpr(c);
 }
 
 concrete production to_expr_c
@@ -334,7 +333,6 @@ exp::Expr_c ::= c::CHARLIT
 
 -- Varref
 --------------------------------------------------
-nonterminal Varref_c with pp;  -- same as in v4.2.9 and v6
 --attribute ast_Expr occurs on Varref_c;
 
 {-
@@ -359,48 +357,67 @@ v::Varref_c ::= vr::Varref_c d::STOP f::ID
 -}
 
 -- These are as in v4.2.9 and v6
--- So, varref, cmpnd, and sfld in spin.y are not represented correctly here.
+-- So, varref, cmpnd, and sfld in spin.y are represented correctly here.
+nonterminal Varref_c with pp, ast<Expr> ;  -- same as in v4.2.9 and v6
+inherited attribute context::Maybe<Expr> ;
+
 concrete production varref_cmpnd_c
 v::Varref_c ::= c::Cmpnd_c
-{ v.pp = c.pp ; } 
+{ v.pp = c.pp ;   v.ast = c.ast ; 
+  c.context = nothing() ;  
+  -- treat c as an expression, there is no inherited expression for it to use.
+} 
 
-nonterminal Cmpnd_c with pp ;
+nonterminal Cmpnd_c with pp, ast<Expr>, context ;  -- same as in v4.2.9 and v6
 concrete production cmpnd_pfld_c
-c::Cmpnd_c ::= p::Pfld  s::Sfld 
-{ c.pp = p.pp ++ s.pp ; }
+c::Cmpnd_c ::= p::Pfld s::Sfld 
+{ c.pp = p.pp ++ s.pp ;  
+  c.ast = s.ast ;
+          --case s of
+          --  empty_sfld_c() -> p.ast
+          --| _ -> s.ast
+          --end ;
+  p.context = c.context ;
+  s.context = just(p.ast) ;
+}
 
 --Sfld
-nonterminal Sfld with pp;
-
+nonterminal Sfld with pp, ast<Expr>, context ;  -- same as in v4.2.9 and v6
 concrete production empty_sfld_c
 sf::Sfld ::= 
-{ sf.pp =  "" ; }
+{ sf.pp =  "" ; 
+  sf.ast = case sf.context of 
+             nothing() -> error ("Should not ask for ast on empty_sfld_c!") 
+           | just(e) -> new(e)   -- seem to require the use of new here!
+           end ;
+}
 
 concrete production dot_sfld_c
 sf::Sfld ::= d::STOP c::Cmpnd_c 
 precedence = 45
 { sf.pp = "." ++ c.pp ; 
+  sf.ast = c.ast ;
+  c.context = sf.context ; 
 }
 
----  }
-
-
--- from before
-
 --Pfld
-nonterminal Pfld with pp;
---attribute ast_Expr occurs on Pfld;
-
+-- Here, ID may be a field name (of type array) or an expression that names an array.
+nonterminal Pfld with pp, ast<Expr>, context ;   -- same as in v4.2.9 and v6
 concrete production name_pfld_c
 pf::Pfld ::= id::ID
 { pf.pp = id.lexeme;
--- pf.ast_Expr = expr_name(id);
+  pf.ast = case pf.context of
+             nothing() -> varRef(id)
+           | just(e) -> dotAccess(e, id) 
+           end ;
 }
-
 concrete production expr_pfld_c
 pf::Pfld ::= id::ID '[' ex::Expr_c ']'
 { pf.pp = id.lexeme ++ "[" ++ ex.pp ++ "]";
--- pf.ast_Expr = arrayref(expr_name(id),'[',ex.ast_Expr,']');
+  pf.ast = case pf.context of
+             nothing() -> arrayAccess(varRef(id), ex.ast)
+           | just(e) -> arrayAccess(dotAccess(e,id), ex.ast)
+           end ;
 }
 
 

@@ -5,28 +5,26 @@ grammar edu:umn:cs:melt:ableP:concretesyntax;
 -- Stmt = stmnt
 -- Statement = Stmnt
 
-nonterminal Stmt_c with pp, ppi;    -- same as in v4.2.9 and v6
-
---synthesized attribute ast_Stmt :: Stmt ;
---attribute ast_Stmt occurs on Stmt_c,Special_c;
+nonterminal Stmt_c with pp, ppi, ast<Stmt> ;    -- same as in v4.2.9 and v6
 
 concrete production special_stmt_c
 stmt::Stmt_c ::= sc::Special_c
 { stmt.pp = sc.pp;
   sc.ppi = stmt.ppi;
---  stmt.ast_Stmt = sc.ast_Stmt;
+  stmt.ast = sc.ast;
 }
 
 concrete production statement_stmt_c
 stmt::Stmt_c ::= st::Statement_c
 { stmt.pp = st.pp;
   st.ppi = stmt.ppi;
---  stmt.ast_Stmt = st.ast_Stmt;
+  stmt.ast = st.ast;
 }
 
 
 --Special
-nonterminal Special_c with pp, ppi; -- same as in v4.2.9, needs for and select exts for v6
+nonterminal Special_c  -- same as in v4.2.9, needs for and select exts for v6
+  with pp, ppi, ast<Stmt>;
 
 concrete production rcv_special_c
 sc::Special_c ::= vref::Varref_c '?' ra::RArgs_c
@@ -75,12 +73,12 @@ sc::Special_c ::= id::ID ':' st::Stmt_c
 
 --
 --Statement
-nonterminal Statement_c with pp, ppi;   -- same as v4.2.9 and v6
+nonterminal Statement_c with pp, ppi, ast<Stmt> ;   -- same as v4.2.9 and v6
 
 concrete production assign_stmt_c
-st::Statement_c ::= vref::Varref_c a1::ASGN exp::Expr_c
-{ st.pp = vref.pp ++ "=" ++ exp.pp;
---  st.ast_Stmt = assign_stmt(vref.ast_Expr,a1,exp.ast_Expr);
+st::Statement_c ::= vref::Varref_c '=' exp::Expr_c
+{ st.pp = vref.pp ++ "=" ++ exp.pp ;
+  st.ast = assign(vref.ast, exp.ast) ;
 }
 
 concrete production incr_stmt_c
@@ -98,7 +96,7 @@ st::Statement_c ::= vref::Varref_c de::DECR
 concrete production print_stmt_c
 st::Statement_c ::= pr::PRINTF '(' str::STRING par::PrArgs_c ')'
 { st.pp = "printf" ++ "(" ++ str.lexeme ++ par.pp  ++ ")";
--- st.ast_Stmt = print_stmt(str,par.ast_Args);
+  st.ast = printStmt (str.lexeme ,par.ast);
 }
 
 concrete production printm_stmt_c

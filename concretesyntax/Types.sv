@@ -14,7 +14,7 @@ bt::BaseType_c ::= t::Type_c   -- new
 }
 
 
-nonterminal Type_c with pp;   -- is a terminal in spin.y, but has same effect
+nonterminal Type_c with pp, ast<TypeExpr> ; -- is a terminal in spin.y, but has same effect
 
 concrete production bitType_c
 t::Type_c ::= 'bit'
@@ -33,7 +33,7 @@ t::Type_c ::= 'bool'
 concrete production intType_c
 t::Type_c ::= 'int'
 { t.pp = "int";
---  t.ast_Type = intType();
+  t.ast = intTypeExpr();
 }
 
 concrete production mtypeType_c
