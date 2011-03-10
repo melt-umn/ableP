@@ -53,7 +53,7 @@ a::Inline_Args ::= id::ID rest::Inline_Args
  a.basepp = id.lexeme ;
  a.errors = [ ] ;
  a.defs = mergeDefs( valueBinding(id.lexeme, inline_arg_type()), rest.defs ) ;
- a.id_list = id ::: rest.id_list ;
+ a.id_list = [ id ] ++ rest.id_list ;
 }
 
 
@@ -72,10 +72,10 @@ st::Stmt ::= n_ref::INAME actuals::Args
  local attribute ft::Stmt ;
  ft = case res.typerep of
         inline_type(n_dcl, formals, in_stmt) 
-        => commented_stmt("/* inlined \"" ++ n_dcl.lexeme ++ "\" here. */ \n", substitute(n_dcl,n_ref,in_stmt,formals,actuals) )
+        -> commented_stmt("/* inlined \"" ++ n_dcl.lexeme ++ "\" here. */ \n", substitute(n_dcl,n_ref,in_stmt,formals,actuals) )
 
        | _   
-         => commented_stmt("/* use of undefined inline " ++ n_ref.lexeme ++ " was here. */\n", 
+         -> commented_stmt("/* use of undefined inline " ++ n_ref.lexeme ++ " was here. */\n", 
                             error_stmt( "Error use of undefined inline name " ++ n_ref.lexeme ))
       end ;
 }
@@ -129,7 +129,7 @@ e::Expr ::= id::ID t::TypeRep
 
  local attribute f :: Expr ;
  f = case t'' of
-       substitute_varref_with_expr_type(new_expr)  =>  new_expr
-     | _                                           =>  error("internal error on inlining") 
+       substitute_varref_with_expr_type(new_expr)  ->  new_expr::Expr
+     | _                                           ->  error("internal error on inlining") 
      end ;
 }

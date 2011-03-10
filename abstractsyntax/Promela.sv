@@ -6,7 +6,7 @@ synthesized attribute basepp::String;
 inherited attribute ppi::String;
 inherited attribute ppsep::String;
 
-nonterminal Program;
+nonterminal Program with basepp,pp;
 -- with {basepp,pp};
 
 synthesized attribute inlined_Program :: Program occurs on Program;

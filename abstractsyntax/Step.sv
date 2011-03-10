@@ -2,9 +2,9 @@ grammar edu:umn:cs:melt:ableP:abstractsyntax;
 
 import edu:umn:cs:melt:ableP:terminals;
 
-nonterminal Asgn with {basepp,pp};
-nonterminal VrefList with {basepp,pp};
-nonterminal ChInit with {basepp,pp};
+nonterminal Asgn with basepp,pp;
+nonterminal VrefList with basepp,pp;
+nonterminal ChInit with basepp,pp;
 
 abstract production asgn
 a::Asgn ::= 

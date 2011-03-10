@@ -22,6 +22,11 @@ e::Env ::=
  e.bindings = [ ];
 }
 
+abstract production valueBinding
+e::Env ::= n::String t::TypeRep
+{
+ e.bindings = [bind(n,t)];
+}
 abstract production mergeDefs
 e::Env ::= e1::Env e2::Env
 {

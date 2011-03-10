@@ -22,7 +22,7 @@ e::Expr ::= id::ID  t::TypeRep
  e.pp = id.lexeme ++ "/*" ++ t.pp ++ "*/"  ;
  e.basepp = id.lexeme;
  e.typerep = t ;
- e.errors = [ ::String ];
+ e.errors = [ ];
 }
 
 

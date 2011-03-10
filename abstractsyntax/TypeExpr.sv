@@ -34,16 +34,16 @@ t::Type ::= un::UNAME
  t.basepp = un.lexeme;
 
  t.typerep = case res.typerep of
-                error_type() =>  error ("ERROR In Type Lookup " ++ un.lexeme ++ " env is " ++ envDisplay(t.env.bindings) )
-             |  _ => res.typerep
+                error_type() ->  error ("ERROR In Type Lookup " ++ un.lexeme ++ " env is " ++ envDisplay(t.env.bindings) )
+             |  _ -> res.typerep
             end ;
 
  local attribute res :: EnvResult ;
  res = lookup_name(un.lexeme, t.env) ;
  
  t.errors = case res.typerep of
-              user_type(_) => [ ::String ]
-            | _ => mkError (un.line, un.column, "type " ++ un.lexeme ++ " not declared.")
+              user_type(_) -> [ ]
+            | _ -> mkError (un.line, un.column, "type " ++ un.lexeme ++ " not declared.")
             end ;
 }
 

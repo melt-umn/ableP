@@ -68,7 +68,7 @@ exp::Expr ::= lhs::Expr rhs::Expr
 {
   transforms <- if match(lhs.typerep,int_type()) && match(rhs.typerep,int_type())
                 then [add_int(lhs,rhs)]
-                else [::Expr];
+                else [];
 
 
 }
@@ -115,8 +115,11 @@ exp::Expr ::= lhs::Expr rhs::Expr
   exp.pp = lhs.pp ++ " * " ++ rhs.pp;
 
 
-  exp.errors = if(lhs.typerep.isCompatible && rhs.typerep.isCompatible)
-exp.typerep = if lhs.typerep.isCompatible && rhs.typerep.isCompatible
+ exp.errors = if(lhs.typerep.isCompatible && rhs.typerep.isCompatible)
+              then lhs.errors ++ rhs.errors
+              else ["Error : lhs and rhs are not compatible"] ++ lhs.errors ++ rhs.errors;
+
+  exp.typerep = if lhs.typerep.isCompatible && rhs.typerep.isCompatible
                 then lhs.typerep
                 else error_type();
 
@@ -543,14 +546,14 @@ exp::Expr ::= rec::Expr dot::STOP id::ID
  exp.is_var_ref = true ;
 
  exp.typerep = field_res.typerep ;
-exp.errors = rec.errors  ++
+ exp.errors = rec.errors  ++
               case rec.typerep of
-                user_type(_) => field_not_found_errors
-              | _ => mkError (id.line, id.column, "expression to left of '.' is not a record.")
+                user_type(_) -> field_not_found_errors
+              | _ -> mkError (id.line, id.column, "expression to left of '.' is not a record.")
               end ;
 
  local attribute field_not_found_errors :: [ String ] ;
- field_not_found_errors = if field_res.found then [ ::String ]
+ field_not_found_errors = if field_res.found then [ ]
                           else mkError(id.line, id.column, "field \"" ++ id.lexeme ++ "\" not defined.") ;
 
  local attribute field_res :: EnvResult ;
@@ -558,8 +561,8 @@ exp.errors = rec.errors  ++
 
  local attribute field_defs :: Env ;
  field_defs = case rec.typerep of
-                user_type(f) => f
-              | _ => emptyDefs() 
+                user_type(f) -> f.type
+              | _ -> emptyDefs() 
               end ;
 }
 
@@ -571,15 +574,15 @@ exp::Expr ::= arr::Expr ls::LSQUARE  index::Expr  rs::RSQUARE
  exp.is_var_ref = true ;
 
  exp.typerep = case arr.typerep of
-                 array_type(ct) => ct
-               | _ => error_type() 
+                 array_type(ct) -> ct.type
+               | _ -> error_type() 
                end ;
 
  
  exp.errors = arr.errors ++ index.errors ++ 
               case arr.typerep of
-                array_type(_) => [ ::String ] 
-              | _ => mkError (ls.line, ls.column, "expression to left of '[' is not an array.")  
+                array_type(_) -> [ ] 
+              | _ -> mkError (ls.line, ls.column, "expression to left of '[' is not an array.")  
               end ;
 }
 

@@ -58,12 +58,11 @@ a1::Arg ::= exp::Expr a2::Arg
 aspect production one_rargs
 ras::RArgs ::= ra::RArg
 {
- ras.errors = ra.errors ++ ras2.errors;
+ ras.errors = ra.errors;
  ra.env = ras.env;
- ras2.env = ras.env;
 }
 
-aspect production cons_args
+aspect production cons_rargs
 ras::RArgs ::= ra::RArg ras2::RArgs
 {
  ras.errors = ra.errors ++ ras2.errors;
@@ -79,8 +78,8 @@ ras1::RArgs ::= ra::RArg ras2::RArgs
  ras2.env = ras1.env;
 }
 
-aspect production paren_args
-  ras1::RArgs ::= ras2::RArgs
+aspect production paren_rargs
+ras1::RArgs ::= ras2::RArgs
 {
  ras1.errors = ras2.errors;
  ras2.env = ras1.env;
@@ -146,13 +145,13 @@ String ::= str::String
 function countOccurences
 Integer ::= str1::String str2::String
 {
-  return if indexof(str1,str2)== -1
+  return if indexOf(str1,str2)== -1
          then 0
          else 1 + countOccurences(str1,str3);
 
   local attribute str3::String;
   str3 = getString(str1,str2);
---substring(indexof(str1,str2),length(str2),str2);
+--substring(indexOf(str1,str2),length(str2),str2);
 
 }
 
@@ -160,9 +159,9 @@ function getString
 String ::= str1::String str2::String
 {
   return
-  if (indexof(str1,str2)== -1)
+  if (indexOf(str1,str2)== -1)
   then ""
-  else substring(indexof(str1,str2)+1,length(str2),str2);
+  else substring(indexOf(str1,str2)+1,length(str2),str2);
 
 }
 

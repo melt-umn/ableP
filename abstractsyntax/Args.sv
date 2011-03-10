@@ -12,7 +12,7 @@ a::Args ::=
 {
  a.basepp = "";
  a.pp = "";
- a.arg_list = [ ::Expr ] ;
+ a.arg_list = [ ] ;
 }
 
 abstract production one_args
@@ -36,7 +36,7 @@ ma::MArgs ::= exp::Expr a::Arg
 {
  ma.basepp = exp.basepp ++ "(" ++ a.basepp ++ ")";
  ma.pp = exp.pp ++ "(" ++ a.pp ++ ")";
- ma.arg_list = exp ::: a.arg_list ;
+ ma.arg_list = [ exp ] ++ a.arg_list ;
 }
 
 abstract production arg_expr
@@ -52,7 +52,7 @@ a1::Arg ::= exp::Expr a2::Arg
 {
  a1.basepp = exp.basepp ++ " , " ++ a2.basepp;
  a1.pp = exp.pp ++ " , " ++ a2.pp;
- a1.arg_list = exp'' ::: a2.arg_list ;
+ a1.arg_list = [ exp''] ++ a2.arg_list ;
 }
 
 abstract production one_rargs
