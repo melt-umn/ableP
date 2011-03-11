@@ -1,6 +1,6 @@
 grammar edu:umn:cs:melt:ableP:abstractsyntax;
 
-import edu:umn:cs:melt:ableP:terminals;
+{-
 
 abstract production expr_name
 e::Expr ::= id::ID
@@ -66,3 +66,5 @@ String ::= e::[Binding]
           then ""
           else head(e).name ++ " " ++ envDisplay(tail(e));
 }
+
+-}

@@ -1,0 +1,1 @@
+run: java -jar ableP.host.har ../tests/SpinExamples/CH2/hello.pml

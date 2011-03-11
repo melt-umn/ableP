@@ -1,5 +1,7 @@
 grammar edu:umn:cs:melt:ableP:abstractsyntax;
 
+{-
+
 import edu:umn:cs:melt:ableP:terminals;
 
 synthesized attribute errors::[String];
@@ -165,5 +167,5 @@ String ::= str1::String str2::String
 
 }
 
-   
+-}   
    

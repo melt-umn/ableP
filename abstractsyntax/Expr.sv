@@ -1,6 +1,41 @@
-grammar edu:umn:cs:melt:ableP:abstractsyntax;
+grammar edu:umn:cs:melt:ableP:abstractsyntax ;
 
-import edu:umn:cs:melt:ableP:terminals;
+nonterminal Expr with pp ;
+nonterminal Exprs with pp ;
+
+abstract production varRef
+e::Expr ::= id::ID
+{ e.pp = id.lexeme ; }
+
+abstract production constExpr
+e::Expr ::= c::CONST
+{ e.pp = c.lexeme ; }
+
+abstract production dotAccess
+e::Expr ::= r::Expr f::ID
+{ e.pp = "(" ++ r.pp ++ "." ++ f.lexeme ++ ")" ; }
+
+abstract production arrayAccess
+e::Expr ::= a::Expr i::Expr
+{ e.pp = "(" ++ a.pp ++ "[" ++ i.pp ++ "]" ++ ")" ; }
+
+abstract production noneExprs
+es::Exprs ::=
+{ es.pp = "" ; }
+abstract production oneExprs
+es::Exprs ::= e::Expr
+{ es.pp = e.pp ; }
+abstract production consExprs
+es::Exprs ::= e::Expr rest::Exprs
+{ es.pp = e.pp ++ ", " ++
+          case rest of 
+             noneExprs() -> ""
+           | _ -> rest.pp 
+          end ; 
+}
+
+{-
+------------------
 
 nonterminal Expr with basepp,pp;
 
@@ -618,3 +653,5 @@ ch::ChInit ::= c::CONST tl::TypList
  ch.errors = tl.errors;
 
 }
+
+-}

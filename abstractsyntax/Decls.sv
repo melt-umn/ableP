@@ -1,0 +1,145 @@
+grammar edu:umn:cs:melt:ableP:abstractsyntax;
+
+nonterminal Decls   with pp, ppi, ppsep, errors ; -- basepp, ppi, env ;
+--synthesized attribute inlined_Decls    :: Decls  occurs on Decls ;
+
+abstract production seqDecls
+ds::Decls ::= ds1::Decls ds2::Decls
+{ ds.pp = ds1.pp ++ -- ds.ppsep ++ 
+          "\n" ++ 
+          ds2.pp ;
+  ds1.ppi = ds.ppi ; 
+  ds2.ppi = ds.ppi ;
+  ds1.ppsep = ds.ppsep ;
+  ds2.ppsep = ds.ppsep ;
+-- ds.basepp = ds1.basepp ++ ";\n" ++ ds2.ppi ++ ds2.basepp ;
+-- ds.errors = ds1.errors ++ ds2.errors;
+-- ds.defs = mergeDefs(ds1.defs, ds2.defs);
+-- ds1.env = ds.env ;
+-- ds2.env = mergeDefs(ds.env, ds1.defs);
+-- ds.inlined_Decls = seqDecls(ds1.inlined_Decls, ds2.inlined_Decls);
+}
+
+abstract production emptyDecl
+ds::Decls ::= 
+{ ds.pp = "" ;
+-- ds.errors := [] ;
+-- ds.defs = emptyDefs();
+-- ds.inlined_Decls = empty_Decl();
+}
+
+abstract production varDecl
+ds::Decls ::= vis::Vis t::TypeExpr v::Declarator
+{
+ ds.pp = ds.ppi ++ vis.pp ++ t.pp ++ " " ++ v.pp ++ ";" ;
+-- ds.errors := v.errors ++ t.errors ;
+-- v.typerep_in = t.typerep;
+-- ds.defs = valueBinding(v.name, v.typerep) ; 
+-- ds.inlined_Decls = varDecl(vis, t, v);
+-- t.env = ds.env ;
+}
+
+abstract production varAssignDecl
+ds::Decls ::= vis::Vis t::TypeExpr v::Declarator e::Expr
+{
+ ds.pp = ds.ppi ++ vis.pp ++ t.pp ++ " " ++ v.pp ++ " = " ++ e.pp ++ ";" ;
+-- ds.errors := t.errors ++ v.errors ++ e.errors ;
+-- v.typerep_in = t.typerep;
+-- ds.defs = valueBinding(v.name, v.typerep) ;
+}
+
+inherited attribute typerep_in :: TypeRep ;
+
+nonterminal Declarator  with pp, errors ;
+abstract production vd_id
+vd::Declarator ::= id::ID
+{ vd.pp = id.lexeme;
+  vd.errors := [ ];
+-- vd.name = id.lexeme ;
+-- vd.typerep = vd.typerep_in ;
+}
+
+abstract production vd_idconst
+vd::Declarator ::= id::ID cnt::CONST
+{ vd.pp = id.lexeme ++ ":" ++ cnt.lexeme;
+  vd.errors := [ ];
+-- vd.name = id.lexeme ;
+-- vd.typerep = vd.typerep_in ; -- ToDo - are there typing issues here?
+}
+
+abstract production vd_array
+vd::Declarator ::= id::ID cnt::CONST
+{ vd.pp = id.lexeme ++ "[" ++ cnt.lexeme ++ "]";
+  vd.errors := [ ];
+-- vd.name = id.lexeme ;
+-- vd.typerep = array_type(vd.typerep_in);
+}
+
+-- Visibility --
+nonterminal Vis with pp ;
+abstract production vis_empty
+v::Vis ::=
+{ v.pp = ""; }
+abstract production vis_hidden
+v::Vis ::=
+{ v.pp = "hidden "; }
+abstract production vis_show
+v::Vis ::=
+{ v.pp = "show "; }
+abstract production vis_islocal
+v::Vis ::=
+{ v.pp = "local "; }
+
+
+{-
+abstract production mtypeDecl
+ds::Decls ::= v::Vis t::TypeExpr a::Asgn namelist::IDList
+{
+ ds.pp =  v.pp ++ t.pp ++ " " ++ a.pp ++ " { " ++ namelist.pp ++ " } ";
+ ds.basepp =  v.basepp ++ t.pp ++ " " ++ a.basepp ++ " { " ++ namelist.basepp ++ " } ";
+ ds.defs = namelist.mtype_defs ;
+ ds.errors = namelist.errors;
+}
+
+
+nonterminal IDList with basepp,pp;
+synthesized attribute mtype_defs :: Env occurs on IDList ;
+
+nonterminal VarList with basepp,pp;
+abstract production singleName
+nlst::IDList ::= n::ID
+{
+ nlst.basepp = n.lexeme;
+ nlst.pp = n.lexeme;
+ nlst.errors = [];
+ nlst.mtype_defs = valueBinding(n.lexeme, mtype_type());
+}
+
+abstract production multiNames
+nlst1::IDList ::= nlst2::IDList n::ID
+{
+ nlst1.basepp = nlst2.basepp ++ n.lexeme;
+ nlst1.pp = nlst2.pp ++ n.lexeme;
+ nlst1.errors = nlst2.errors;
+ nlst1.mtype_defs = mergeDefs(nlst2.mtype_defs, valueBinding(n.lexeme, mtype_type())) ;
+}
+
+abstract production commaNames
+nlst1::IDList ::= nlst2::IDList
+{
+ nlst1.basepp = nlst2.basepp ++ ",";
+ nlst1.pp = nlst2.pp ++ ",";
+ nlst1.errors = nlst2.errors;
+ nlst1.mtype_defs = nlst2.mtype_defs ;
+}
+
+
+-----
+abstract production abs_varlist2dcl
+vl::VarList ::= vd::Declarator
+{
+ vl.basepp = vd.basepp;
+ vl.pp = vd.pp;
+}
+
+-}

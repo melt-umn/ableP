@@ -1,7 +1,6 @@
 grammar edu:umn:cs:melt:ableP:abstractsyntax;
 
-import edu:umn:cs:melt:ableP:terminals;
-
+{-
 nonterminal Arg with basepp,pp;
 nonterminal RArg with basepp,pp;
 
@@ -111,3 +110,5 @@ ra::RArg ::= cst::CONST
   ra.basepp = "-" ++ cst.lexeme;
   ra.pp = "-" ++ cst.lexeme;
 }
+
+-}

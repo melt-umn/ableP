@@ -1,0 +1,7 @@
+Yogesh, I made numerous changes to your files to make them fit better
+with what I had and to fit with some new features of Silver.
+
+** The "imports" statement in AbstractSyntax.sv has impact on all
+   files in the directory.  That is, what it imports is visible to all
+   files.  Thus the individual "import" statments in other files were
+   removed. 

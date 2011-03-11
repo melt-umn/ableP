@@ -1,20 +1,18 @@
 grammar edu:umn:cs:melt:ableP:abstractsyntax;
 
-import edu:umn:cs:melt:ableP:terminals;
-
-autocopy attribute env::Env;
-synthesized attribute defs::Env;
-
 nonterminal Env with bindings;
 nonterminal Binding with name, typerep;
 
+autocopy attribute env::Env;
+synthesized attribute defs::Env;
+synthesized attribute name :: String ;
+synthesized attribute bindings::[ Binding ];
+
 abstract production bind
 b::Binding ::= n::String t::TypeRep
-{
- b.name = n;
+{ b.name = n;
  b.typerep = t;
 }
-synthesized attribute bindings::[ Binding ];
 
 abstract production emptyDefs
 e::Env ::=
@@ -71,9 +69,11 @@ function show_env_helper
 String ::= bs :: [Binding]
 { return if   null(bs) 
          then ""
-         else head(bs).name ++ " : " ++ head(bs).typerep.pp ++ " \n" ++ show_env_helper(tail(bs)) ;
+         else head(bs).name ++ " : " ++ head(bs).typerep.pp ++ " \n" ++ 
+              show_env_helper(tail(bs)) ;
 }
 
+{-
 function mkError
 [ String] ::= l::Integer c::Integer msg::String
 {
@@ -85,3 +85,4 @@ function mkError_no_lc
 {
  return [ "Error: " ++ msg ] ;
 }
+-}

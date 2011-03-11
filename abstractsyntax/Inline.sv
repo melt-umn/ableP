@@ -1,7 +1,6 @@
 grammar edu:umn:cs:melt:ableP:abstractsyntax;
 
-import edu:umn:cs:melt:ableP:terminals;
-
+{-
 -- inline declarations --
 -------------------------
 abstract production inline_dcl
@@ -133,3 +132,5 @@ e::Expr ::= id::ID t::TypeRep
      | _                                           ->  error("internal error on inlining") 
      end ;
 }
+
+-}

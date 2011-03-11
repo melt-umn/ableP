@@ -6,7 +6,8 @@ import lib:langproc ;
 
 function main
 IOVal<Integer> ::= args::[String] mainIO::IO
-{ return simpleDriver (head(args), promelaParser, processParseTree, mainIO) ;
+{ return -- simpleDriver (head(args), promelaParser, processParseTree, mainIO) ;
+         driver (args, promelaParser, promelaParser, mainIO) ;
 }
 
 function processParseTree

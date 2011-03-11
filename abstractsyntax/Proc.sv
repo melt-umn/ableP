@@ -1,135 +1,78 @@
 grammar edu:umn:cs:melt:ableP:abstractsyntax;
 
-import edu:umn:cs:melt:ableP:terminals;
-
-nonterminal ProcType with basepp,pp;
-nonterminal Inst with basepp,pp;
-nonterminal OptEnabler with basepp,pp;
-
-synthesized attribute inlined_ProcType::ProcType occurs on ProcType ;
-synthesized attribute inlined_Inst::Inst occurs on Inst ;
-synthesized attribute inlined_OptEnabler::OptEnabler occurs on OptEnabler ;
-
+nonterminal Proc with pp, ppi, errors ;
 
 abstract production proc_decl
-proc::Unit ::= i::Inst procty::ProcType nm::ID dcl::Decls optpri::OptPriority optena::OptEnabler b::Body
-{
- proc.pp = "\n" ++ i.pp ++ procty.pp ++ " " ++ nm.lexeme ++ " (" ++ dcl.pp ++ ") " ++ optpri.pp
-               ++ optena.pp ++ b.pp;
- b.ppi = proc.ppi;
- dcl.ppi = "" ;
- dcl.ppsep = ", " ;
- proc.basepp = "\n" ++ i.basepp ++ " " ++ procty.basepp ++ " " ++ nm.lexeme ++ " (" ++ dcl.basepp ++ ") " ++ optpri.basepp
-               ++ optena.basepp ++ b.basepp; 
+proc::Unit ::= i::Inst procty::ProcType nm::ID dcl::Decls
+               pri::Priority ena::Enabler 
+               b::Body
+{ proc.pp = "\n" ++ i.pp ++ " " ++ procty.pp ++ " " ++ nm.lexeme ++
+            " (" ++ dcl.pp ++ ") " ++ pri.pp ++ ena.pp ++ b.pp;
+  b.ppi = proc.ppi;
 
- proc.errors = dcl.errors ++ b.errors;
+-- proc.defs = mergeDefs(valueBinding(nm.lexeme,proc_type()),mergeDefs(dcl.defs,b.defs));
 
- proc.defs = mergeDefs(valueBinding(nm.lexeme,proc_type()),mergeDefs(dcl.defs,b.defs));
+-- b.env = mergeDefs(dcl.defs, mergeDefs(proc.defs,proc.env)) ;
+-- optena.env = proc.env;
+-- proc.inlined_Unit = proc_decl(i.inlined_Inst, procty.inlined_ProcType, nm, dcl.inlined_Decls, 
+--                               optpri.inlined_OptPriority, optena.inlined_OptEnabler, b.inlined_Body);
 
- b.env = mergeDefs(dcl.defs, mergeDefs(proc.defs,proc.env)) ;
- optena.env = proc.env;
- proc.inlined_Unit = proc_decl(i.inlined_Inst, procty.inlined_ProcType, nm, dcl.inlined_Decls, 
-                               optpri.inlined_OptPriority, optena.inlined_OptEnabler, b.inlined_Body);
+}
+
+--ProcType
+nonterminal ProcType with pp, ppi;
+abstract production just_procType
+procty::ProcType ::=
+{ procty.pp = "proctype";
+}
+abstract production d_procType
+procty::ProcType ::=
+{ procty.pp = "D_proctype";
 }
 
 
--- Inst --
+--Inst  
+nonterminal Inst with pp, ppi; 
 abstract production empty_inst
-i::Inst ::=
-{
- i.pp = "";
- i.basepp = "";
-
- i.inlined_Inst = empty_inst();
+i::Inst ::= 
+{ i.pp = "";
 }
-
 abstract production active_inst
 i::Inst ::= 
-{
- i.pp = "active " ;
- i.basepp = "active " ;
-
- i.inlined_Inst = active_inst();
+{ i.pp = "active";
 }
-
 abstract production activeconst_inst
-i::Inst ::= ct::CONST 
-{
- i.pp = "active [" ++ ct.lexeme ++ "] " ;
- i.basepp = "active [" ++ ct.lexeme ++ "] ";
-
- i.inlined_Inst = activeconst_inst(ct);
+i::Inst ::= ct::CONST
+{ i.pp = "active[" ++ ct.lexeme ++ "]";
 }
-
 abstract production activename_inst
 i::Inst ::= id::ID
-{
- i.pp = "active [" ++ id.lexeme ++ "] ";
- i.basepp = "active [" ++ id.lexeme ++ "] ";
-
- i.inlined_Inst = activename_inst(id);
+{ i.pp = "active[" ++ id.lexeme ++ "]";
 }
 
--- ProcType --
-abstract production just_procType
-procty::ProcType ::= 
-{
- procty.pp = "proctype";
- procty.basepp = "proctype";
- procty.inlined_ProcType = just_procType();
- procty.typerep = pid_type();
-}
-
-abstract production d_procType
-procty::ProcType ::= 
-{
- procty.pp = "D_proctype";
- procty.basepp = "D_proctype";
- procty.inlined_ProcType = d_procType();
- procty.typerep = pid_type();
-}
-
--- Priority --
+--Priority
+nonterminal Priority with pp, ppi;
 abstract production none_priority
-op::OptPriority ::=
-{
- op.pp = "";
- op.basepp = "";
- op.inlined_OptPriority = none_priority();
+p::Priority ::=
+{ p.pp= "";
 }
-
 abstract production num_priority
-op::OptPriority ::= ct::CONST
-{
- op.pp = " priority " ++ ct.lexeme ++ " " ;
- op.basepp = " priority " ++ ct.lexeme ++ " " ;
- op.inlined_OptPriority = num_priority(ct);
+p::Priority ::= ct::CONST
+{ p.pp = " priority " ++ ct.lexeme;
 }
 
--- Enabler --
+
+--Enabler
+nonterminal Enabler with pp, ppi;
 abstract production none_enabler
-oe::OptEnabler ::=
-{
- oe.pp = "";
- oe.basepp = "";
- oe.inlined_OptEnabler = none_enabler();
+e::Enabler ::= 
+{ e.pp = "";
 }
-attribute env occurs on OptEnabler;
 
+{- ToDo
 abstract production expr_enabler
-oe::OptEnabler ::= fe::Expr
-{
- oe.pp = "provided " ++ "(" ++ fe.pp ++ ") ";
- oe.basepp = "provided " ++ "(" ++ fe.basepp ++ ") ";
- oe.inlined_OptEnabler = expr_enabler(fe);
-
- fe.env = oe.env;
+e::Enabler ::= fe::FullExpr
+{ e.pp = "provided " ++ "(" ++ fe.pp ++ ")";
 }
+-}
 
-abstract production err_enabler
-oe::OptEnabler ::= err::Error
-{
- oe.pp = "provided " ++ err.pp ++ " " ;
- oe.basepp = "provided " ++ err.basepp ++ " " ;
- oe.inlined_OptEnabler = err_enabler(err);
-}

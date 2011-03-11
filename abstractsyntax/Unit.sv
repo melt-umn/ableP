@@ -1,84 +1,43 @@
 grammar edu:umn:cs:melt:ableP:abstractsyntax;
 
-import edu:umn:cs:melt:ableP:terminals;
-nonterminal Units with basepp,pp;
--- with {basepp,pp};
-nonterminal Unit with basepp,ppi,pp;
---  with {basepp,ppi,pp};
+nonterminal Unit with pp, ppi, basepp ;
+
 nonterminal Args with basepp,pp;
---  with {basepp,pp};
 nonterminal NS with basepp,pp;
---    with {basepp,pp};
-nonterminal Error with basepp,pp;
--- with {basepp,pp};
+---nonterminal Error with basepp,pp;
 nonterminal OptPriority with basepp,pp;
--- with {basepp,pp};
+
+--synthesized attribute inlined_Units   :: Units   occurs on Units ;
+--synthesized attribute inlined_Unit    :: Unit    occurs on Unit ;
+--synthesized attribute inlined_Body    :: Body    occurs on Body ;
+--synthesized attribute inlined_Args    :: Args    occurs on Args ;
+--synthesized attribute inlined_Stmt    :: Stmt    occurs on Stmt ;
+--synthesized attribute inlined_NS      :: NS      occurs on NS   ;
+--synthesized attribute inlined_Error   :: Error   occurs on Error ;
+--synthesized attribute inlined_OptPriority   :: OptPriority   occurs on OptPriority ;
 
 
-synthesized attribute inlined_Units   :: Units   occurs on Units ;
-synthesized attribute inlined_Unit    :: Unit    occurs on Unit ;
-synthesized attribute inlined_Body    :: Body    occurs on Body ;
-synthesized attribute inlined_Args    :: Args    occurs on Args ;
-synthesized attribute inlined_Stmt    :: Stmt    occurs on Stmt ;
-synthesized attribute inlined_NS      :: NS      occurs on NS   ;
-synthesized attribute inlined_Error   :: Error   occurs on Error ;
-synthesized attribute inlined_OptPriority   :: OptPriority   occurs on OptPriority ;
-
-
--- Units --
------------
-abstract production units_one
-us::Units ::= u::Unit
-{
- us.pp = u.pp; 
- u.ppi = "";
- us.basepp = u.basepp;
-
- us.errors = u.errors;
- us.defs = u.defs;
- u.env = us.defs;
-us.inlined_Units = units_one(u.inlined_Unit);
-}
-
-abstract production units_snoc
-us::Units ::= us2::Units u::Unit
-{
- us.pp = us2.pp ++ u.pp;
- u.ppi = "";
- us.basepp = us2.basepp ++ u.basepp;
-
- us.errors = us2.errors ++ u.errors;
- us.defs = mergeDefs(us2.defs,u.defs);  
- us2.env = us.env ;
- u.env = mergeDefs(us2.defs,us.env);
-
- us.inlined_Units = units_snoc(us2.inlined_Units, u.inlined_Unit);
-}
+{-  Will go back and add these as necessesary.
 
 
 -- Unit --
 ----------
 abstract production unit_semi
 u::Unit ::= 
-{
- u.pp = ";\n";
- u.basepp = ";\n";
-
- u.errors = [];
- u.defs = emptyDefs(); 
-
- u.inlined_Unit = unit_semi();
+{ u.pp = ";\n";
+--  u.basepp = ";\n";
+--  u.errors = [];
+--  u.defs = emptyDefs(); 
+--  u.inlined_Unit = unit_semi();
 }
 
 abstract production unit_empty
 u::Unit ::= 
-{
- u.pp = "";
- u.basepp = "";
- u.errors = [];
- u.defs = emptyDefs(); 
-
- u.inlined_Unit = unit_empty();
+{ u.pp = "";
+-- u.basepp = "";
+-- u.errors = [];
+-- u.defs = emptyDefs(); 
+-- u.inlined_Unit = unit_empty();
 }
 
 abstract production commented_unit
@@ -167,7 +126,7 @@ u::Unit ::= id::ID dl::Decls
 
 
 
-
+ 
 abstract production error_type_const
 er::Error ::= ty::Type ct::CONST
 {
@@ -175,3 +134,4 @@ er::Error ::= ty::Type ct::CONST
  er.pp = ty.pp ++ ":" ++ ct.lexeme ;
  er.inlined_Error = error_type_const(ty,ct);
 }
+-}

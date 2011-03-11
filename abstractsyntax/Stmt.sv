@@ -1,6 +1,152 @@
+grammar edu:umn:cs:melt:ableP:abstractsyntax ;
+
+nonterminal Stmt with pp, ppi ;
+
+abstract production seqStmt
+s::Stmt ::= s1::Stmt s2::Stmt
+{ s.pp = s1.pp ++ "\n" ++ s2.pp ; }
+
+abstract production one_decl
+s::Stmt ::= d::Decls
+{ s.pp = d.pp ; -- ++ " ";
+  d.ppi = s.ppi ;
+  d.ppsep = "" ; -- ;" \n" ;
+--  s.errors := d.errors;
+--  s.defs = d.defs;
+--  d.env = s.env ;
+}
+
+
+abstract production printStmt
+s::Stmt ::= st::String es::Exprs
+{ s.pp = s.ppi ++ "printf (" ++ st ++ 
+          case es of
+            noneExprs() -> " " 
+          | _ -> ", " ++ es.pp end  ++
+          ");\n" ;
+}
+
+abstract production assign
+s::Stmt ::= lhs::Expr rhs::Expr 
+{ s.pp = s.ppi ++ lhs.pp ++ " = " ++ rhs.pp ++ " ;\n" ; }
+
+-- Control Flow                                 --
+--------------------------------------------------
+abstract production ifStmt
+s::Stmt ::= op::Options 
+{ s.pp = "if\n" ++ s.ppi ++ op.pp ++ "\n" ++ s.ppi ++ "fi";
+  op.ppi = s.ppi;
+  sc.errors := op.errors;
+--  sc.defs = emptyDefs();
+--  op.env = sc.env;
+}
+
+abstract production doStmt
+s::Stmt ::= op::Options
+{ s.pp = "do\n" ++ s.ppi ++ op.pp ++ "\n" ++ s.ppi ++ "od";
+  op.ppi = s.ppi;
+  s.errors := op.errors;
+--  s.defs = emptyDefs();
+--  op.env = s.env;
+}
+
+abstract production breakStmt
+s::Stmt ::=
+{ s.pp = "break";
+  s.errors := [ ];
+--  s.defs = emptyDefs();
+}
+
+abstract production gotoStmt
+s::Stmt ::= id::ID
+{ s.pp = s.ppi ++ "goto " ++ id.lexeme;
+  s.errors = [ ];
+--  s.defs = emptyDefs();
+}
+
+abstract production labeledStmt
+s::Stmt ::= id::ID st::Stmt
+{ s.pp = id.lexeme ++ ": " ++ st.pp;
+  st.ppi = s.ppi;
+  s.errors := st.errors;
+--  s.defs = st.defs;
+--  st.env = s.env;
+}
+
+abstract production elseStmt
+s::Stmt ::= 
+{ s.pp = "else";
+  s.errors := [ ];
+--  s.defs = emptyDefs();
+}
+
+-- Options --
+abstract production single_option
+ops::Options ::= st::Stmt
+{
+  ops.pp = ":: " ++ st.pp;
+  st.ppi = ops.ppi ++ "   " ;
+  ops.basepp = ":: " ++ st.basepp;
+  st.env = ops.env;
+  ops.errors = st.errors;
+}
+abstract production cons_option
+ops::Options ::= st::Stmt ops_tail::Options
+{
+  ops.pp = ":: " ++ st.pp ++ "\n" ++ ops.ppi ++ ops_tail.pp;
+  st.ppi = ops.ppi ++ "   ";
+  ops_tail.ppi = ops.ppi;
+  ops.basepp = ":: " ++ st.basepp ++ "\n" ++ ops.ppi ++ ops_tail.basepp;
+  ops.errors = st.errors ++ ops_tail.errors;
+  st.env = ops.env;
+  ops_tail.env = ops.env;
+}
+
+
+{-
+----------
 grammar edu:umn:cs:melt:ableP:abstractsyntax;
 
 import edu:umn:cs:melt:ableP:terminals;
+
+nonterminal Asgn with basepp,pp;
+nonterminal VrefList with basepp,pp;
+nonterminal ChInit with basepp,pp;
+
+abstract production asgn
+a::Asgn ::= 
+{
+ a.basepp = "=";
+ a.pp = "=";
+}
+
+abstract production asgn_empty
+a::Asgn ::= 
+{
+ a.basepp = "";
+ a.pp = "";
+}
+
+abstract production single_varref
+vrl::VrefList ::= vref::Expr
+{
+  vrl.basepp = vref.basepp;
+  vrl.pp = vref.basepp;
+  vrl.errors = vref.errors;
+  vref.env = vrl.env;
+}
+
+abstract production comma_varref
+vrl1::VrefList ::= vref::Expr vrl2::VrefList
+{
+ vrl1.basepp = vref.basepp ++ "," ++ vrl2.basepp;
+ vrl1.pp = vref.pp ++ "," ++ vrl2.pp;
+ vrl1.errors = vref.errors ++ vrl2.errors;
+ vref.env = vrl1.env;
+ vrl2.env = vrl1.env;
+}
+
+grammar edu:umn:cs:melt:ableP:abstractsyntax;
 
 nonterminal RArgs with basepp,pp;
 nonterminal MArgs with basepp,pp;
@@ -22,18 +168,6 @@ st::Stmt ::= s1::Stmt s2::Stmt
 }
 
 
--- declarations --
-abstract production one_decl
-st::Stmt ::= d::Decls
-{
- st.pp = d.pp ++ " ";
- d.ppi = st.ppi ;
- d.ppsep = " ; \n" ;
- st.basepp = d.basepp ++ " " ;
- st.errors = d.errors;
- st.defs = d.defs;
- d.env = st.env ;
-}
 
 
 abstract production vref_lst
@@ -131,92 +265,6 @@ st::Stmt ::= vref::Expr ma::MArgs
   st.defs = emptyDefs();
   vref.env = st.env;
   ma.env = st.env;
-}
-
--- Control Flow                                 --
---------------------------------------------------
-abstract production if_special
-sc::Stmt ::= op::Options 
-{ 
-  op.ppi = sc.ppi;
-  sc.basepp = "if\n" ++ sc.ppi ++ op.basepp ++ "\n" ++ sc.ppi ++ "fi";
-  sc.pp = "if\n" ++ sc.ppi ++ op.pp ++ "\n" ++ sc.ppi ++ "fi";
-  sc.errors = op.errors;
-  sc.defs = emptyDefs();
-  op.env = sc.env;
-}
-
-abstract production do_special
-sc::Stmt ::= op::Options
-{
-  op.ppi = sc.ppi;
-  sc.basepp = "do\n" ++ sc.ppi ++ op.basepp ++ "\n" ++ sc.ppi ++ "od";
-  sc.pp = "do\n" ++ sc.ppi ++ op.pp ++ "\n" ++ sc.ppi ++ "od";
-  sc.errors = op.errors;
-  sc.defs = emptyDefs();
-  op.env = sc.env;
-}
-
-abstract production break_special
-sc::Stmt ::=
-{
-  sc.basepp = "break";
-
-  sc.pp = "break";
-  sc.errors = [];
-  sc.defs = emptyDefs();
-
-}
-abstract production goto_special
-sc::Stmt ::= id::ID
-{ 
-  sc.basepp = "goto " ++ id.lexeme;
-
-  sc.pp = sc.ppi ++ "goto " ++ id.lexeme;
-  sc.errors = [];
-  sc.defs = emptyDefs();
-}
-
-abstract production stmt_special
-sc::Stmt ::= id::ID st::Stmt
-{
-  st.ppi = sc.ppi;
-  sc.basepp = id.lexeme ++ ":" ++ st.ppi ++ st.basepp;
-  sc.pp = id.lexeme ++ ":" ++ st.ppi ++ st.pp;
-  sc.errors = st.errors;
-  sc.defs = st.defs;
-  st.env = sc.env;
-}
-
-abstract production else_stmt
-st::Stmt ::= 
-{
-  st.basepp = "else";
-  st.pp = "else";
-  st.errors = [];
-  st.defs = emptyDefs();
-}
-
--- Options --
-abstract production single_option
-ops::Options ::= st::Stmt
-{
-  ops.pp = ":: " ++ st.pp;
-  st.ppi = ops.ppi ++ "   " ;
-  ops.basepp = ":: " ++ st.basepp;
-  st.env = ops.env;
-  ops.errors = st.errors;
-}
-abstract production cons_option
-ops::Options ::= st::Stmt ops_tail::Options
-{
-  ops.pp = ":: " ++ st.pp ++ "\n" ++ ops.ppi ++ ops_tail.pp;
-  st.ppi = ops.ppi ++ "   ";
-  ops_tail.ppi = ops.ppi;
-  ops.basepp = ":: " ++ st.basepp ++ "\n" ++ ops.ppi ++ ops_tail.basepp;
-  ops.errors = st.errors ++ ops_tail.errors;
-  st.env = ops.env;
-  ops_tail.env = ops.env;
 }
 
 
@@ -390,3 +438,6 @@ st::Stmt ::= er::String
  st.defs = emptyDefs();
  st.errors = [ er ];
 }
+
+
+-}

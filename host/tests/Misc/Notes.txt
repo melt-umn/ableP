@@ -1,0 +1,8 @@
+spin -i hello.pml
+ - use Spin to simulate (execute) a program
+
+spin -a hello.pml
+ - generates a verifier
+
+spin -I hello.pml 
+ - prints the program after inlining and preprocessing

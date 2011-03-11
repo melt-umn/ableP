@@ -1,6 +1,6 @@
 grammar edu:umn:cs:melt:ableP:abstractsyntax;
 
-import edu:umn:cs:melt:ableP:terminals;
+{-
 
 import edu:umn:cs:melt:ableC:terminals only pp with pp as c_pp;
 import edu:umn:cs:melt:ableC:concretesyntax;
@@ -142,3 +142,5 @@ cs::Cstuff ::= text::String
  cs.errors = [];
  
 }
+
+-}
