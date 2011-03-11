@@ -14,7 +14,9 @@ active proctype main()
       goto b0;
 
    od;
-b0: printf("") ;
+b0: skip;
+
+   printf("End...\n") ;
 }
 
 /* Broken output from spin -I ForLoopRange.pml

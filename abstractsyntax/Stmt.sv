@@ -1,6 +1,6 @@
 grammar edu:umn:cs:melt:ableP:abstractsyntax ;
 
-nonterminal Stmt with pp, ppi ;
+nonterminal Stmt with pp, ppi, errors ;
 
 abstract production seqStmt
 s::Stmt ::= s1::Stmt s2::Stmt
@@ -34,16 +34,16 @@ s::Stmt ::= lhs::Expr rhs::Expr
 --------------------------------------------------
 abstract production ifStmt
 s::Stmt ::= op::Options 
-{ s.pp = "if\n" ++ s.ppi ++ op.pp ++ "\n" ++ s.ppi ++ "fi";
+{ s.pp = "if\n" ++ s.ppi ++ op.pp ++ "\n" ++ s.ppi ++ "fi ;\n";
   op.ppi = s.ppi;
-  sc.errors := op.errors;
+  s.errors := op.errors;
 --  sc.defs = emptyDefs();
 --  op.env = sc.env;
 }
 
 abstract production doStmt
 s::Stmt ::= op::Options
-{ s.pp = "do\n" ++ s.ppi ++ op.pp ++ "\n" ++ s.ppi ++ "od";
+{ s.pp = "do\n" ++ s.ppi ++ op.pp ++ "\n" ++ s.ppi ++ "od ;\n";
   op.ppi = s.ppi;
   s.errors := op.errors;
 --  s.defs = emptyDefs();
@@ -60,7 +60,7 @@ s::Stmt ::=
 abstract production gotoStmt
 s::Stmt ::= id::ID
 { s.pp = s.ppi ++ "goto " ++ id.lexeme;
-  s.errors = [ ];
+  s.errors := [ ];
 --  s.defs = emptyDefs();
 }
 
@@ -75,31 +75,47 @@ s::Stmt ::= id::ID st::Stmt
 
 abstract production elseStmt
 s::Stmt ::= 
-{ s.pp = "else";
+{ s.pp = "else ;\n";
+  s.errors := [ ];
+--  s.defs = emptyDefs();
+}
+
+abstract production skipStmt
+s::Stmt ::= 
+{ s.pp = "skip ;\n";
   s.errors := [ ];
 --  s.defs = emptyDefs();
 }
 
 -- Options --
-abstract production single_option
+nonterminal Options with pp, ppi, errors ;
+abstract production oneOption
 ops::Options ::= st::Stmt
-{
-  ops.pp = ":: " ++ st.pp;
+{ ops.pp = ":: " ++ st.pp;
   st.ppi = ops.ppi ++ "   " ;
-  ops.basepp = ":: " ++ st.basepp;
-  st.env = ops.env;
-  ops.errors = st.errors;
+  ops.errors := st.errors;
+--  st.env = ops.env;
 }
-abstract production cons_option
-ops::Options ::= st::Stmt ops_tail::Options
-{
-  ops.pp = ":: " ++ st.pp ++ "\n" ++ ops.ppi ++ ops_tail.pp;
+
+abstract production consOption
+ops::Options ::= st::Stmt rest::Options
+{ ops.pp = ":: " ++ st.pp ++ ops.ppi ++ rest.pp;
   st.ppi = ops.ppi ++ "   ";
-  ops_tail.ppi = ops.ppi;
-  ops.basepp = ":: " ++ st.basepp ++ "\n" ++ ops.ppi ++ ops_tail.basepp;
-  ops.errors = st.errors ++ ops_tail.errors;
-  st.env = ops.env;
-  ops_tail.env = ops.env;
+  rest.ppi = ops.ppi;
+  ops.errors := st.errors ++ rest.errors;
+--  st.env = ops.env;
+--  rest.env = ops.env;
+}
+
+
+-- Misc. Statements                             --
+--------------------------------------------------
+abstract production exprStmt
+st::Stmt ::= fe::Expr
+{ st.pp =  fe.pp ++ " ;\n" ;
+  st.errors := fe.errors;
+--  st.defs = emptyDefs();
+--  fe.env = st.env;
 }
 
 
@@ -378,17 +394,6 @@ st::Stmt ::= fe::Expr
  fe.env = st.env;
 }
 
-
-abstract production fullexpr_stmt
-st::Stmt ::= fe::Expr
-{
-  st.pp =  fe.pp ++ "" ;
-  st.basepp = fe.basepp ++ "" ;
-
-  st.errors = fe.errors;
-  st.defs = emptyDefs();
-  fe.env = st.env;
-}
 
 
 abstract production unless_stmt

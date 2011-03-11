@@ -42,33 +42,33 @@ concrete production if_special_c
 sc::Special_c ::= i::IF op::Options_c fi::FI
 { sc.pp = "if\n" ++ op.pp ++ "\n" ++ sc.ppi ++ "fi";
   op.ppi = sc.ppi;
---  sc.ast_Stmt = if_special(op.ast_Options);
+  sc.ast = ifStmt(op.ast);
 }
 
 concrete production do_special_c
 sc::Special_c ::= d::DO op::Options_c o::OD
 { sc.pp = "do\n" ++ op.pp ++ "\n" ++ sc.ppi ++ "od";
   op.ppi = sc.ppi;
---  sc.ast_Stmt = do_special(op.ast_Options);
+  sc.ast = doStmt(op.ast);
 }
 
 concrete production break_special_c
 sc::Special_c ::= b::BREAK
 { sc.pp = "break";
---  sc.ast_Stmt = break_special();
+  sc.ast = breakStmt();
 }
 
 concrete production goto_special_c
 sc::Special_c ::= g::GOTO id::ID
 { sc.pp = "goto " ++ id.lexeme;
---  sc.ast_Stmt = goto_special(id);
+  sc.ast = gotoStmt(id);
 }
 
 concrete production stmt_special_c
 sc::Special_c ::= id::ID ':' st::Stmt_c
 { sc.pp = id.lexeme ++ ":" ++ st.ppi ++ st.pp;
  st.ppi = sc.ppi;
--- sc.ast_Stmt = stmt_special(id,st.ast_Stmt);
+ sc.ast = labeledStmt(id,st.ast);
 }
 
 --
@@ -152,13 +152,13 @@ st::Statement_c ::= vref::Varref_c '!!' ma::MArgs_c
 concrete production fullexpr_stmt_c
 st::Statement_c ::= fe::FullExpr_c
 { st.pp = fe.pp ;
--- st.ast_Stmt = fullexpr_stmt(fe.ast_Expr);
+  st.ast = exprStmt(fe.ast);
 }
 
 concrete production else_stmt_c
 st::Statement_c ::= el::ELSE
 { st.pp = "else";
--- st.ast_Stmt = else_stmt();
+  st.ast = elseStmt();
 }
 
 concrete production atomic_stmt_c
@@ -190,35 +190,38 @@ st::Statement_c ::= ina::INAME '(' args::Args_c ')'
 -- st.ast_Stmt = inline_stmt(ina,args.ast_Args);
 }
 
+concrete production skip_stmt_c
+st::Statement_c ::= sk::SKIP
+{ st.pp = "skip";
+  st.ast = skipStmt();
+}
 
 --Options
-nonterminal Options_c with pp, ppi ;   -- same as in v4.2.9 and v6
---synthesized attribute ast_Options::Options occurs on Options_c;
+nonterminal Options_c with pp, ppi, ast<Options> ;   -- same as in v4.2.9 and v6
 
 concrete production single_option_c
 ops::Options_c ::= op::Option_c
 { ops.pp =  ops.ppi ++ op.pp;
   op.ppi = ops.ppi ;
--- ops.ast_Options = single_option(op.ast_Stmt);
+  ops.ast = oneOption(op.ast);
 }
 
 concrete production cons_option_c
-ops1::Options_c ::= op::Option_c ops2::Options_c
-{ ops1.pp =  ops1.ppi ++  op.pp ++ "\n" ++ ops2.pp;
-  op.ppi = ops1.ppi;
-  ops2.ppi = ops1.ppi;
--- ops1.ast_Options = cons_option(op.ast_Stmt,ops2.ast_Options);
+ops::Options_c ::= op::Option_c rest::Options_c
+{ ops.pp =  ops.ppi ++  op.pp ++ "\n" ++ rest.pp;
+  op.ppi = ops.ppi;
+  rest.ppi = ops.ppi;
+  ops.ast = consOption(op.ast,rest.ast);
 }
 
 
 --Option
-nonterminal Option_c with pp, ppi;    -- same as in v4.2.9 and v6
---, ast_Stmt ;
+nonterminal Option_c with pp, ppi, ast<Stmt> ;    -- same as in v4.2.9 and v6
 
 concrete production op_seq_c
 op::Option_c ::= '::' seq::Sequence_c os::OS_c
 { op.pp =  "::" ++ seq.ppi ++ seq.pp ++ os.pp;
   seq.ppi = op.ppi ++ "";
--- op.ast_Stmt = seq.ast_Stmt;
+  op.ast = seq.ast ;
 }
 

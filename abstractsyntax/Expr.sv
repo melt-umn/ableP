@@ -1,7 +1,7 @@
 grammar edu:umn:cs:melt:ableP:abstractsyntax ;
 
-nonterminal Expr with pp ;
-nonterminal Exprs with pp ;
+nonterminal Expr with pp, errors, typerep ;
+nonterminal Exprs with pp, errors ;
 
 abstract production varRef
 e::Expr ::= id::ID
@@ -33,6 +33,23 @@ es::Exprs ::= e::Expr rest::Exprs
            | _ -> rest.pp 
           end ; 
 }
+
+
+
+-- Binary Operators        --
+-----------------------------
+abstract production genericBinOp
+exp::Expr ::= lhs::Expr op::Op rhs::Expr
+{ exp.pp = "(" ++ lhs.pp ++ " "++ op.pp ++ " " ++ rhs.pp ++ ")" ;
+  exp.errors := lhs.errors ++ rhs.errors;
+  exp.typerep = op.typerep ;
+}
+
+nonterminal Op with pp, typerep ;
+abstract production mkOp
+op::Op ::= n::String tr::TypeRep
+{ op.pp = n;   op.typerep = tr ; }
+
 
 {-
 ------------------
@@ -118,14 +135,6 @@ e1::Expr ::= e2::Expr errs::[String]
 
 }
 
-abstract production add_int
-exp::Expr ::= lhs::Expr rhs::Expr
-{
-  exp.pp = lhs.pp ++ " + " ++ rhs.pp;
-  exp.typerep = int_type();
-  exp.errors = lhs.errors ++ rhs.errors;
-
-}
 
 abstract production minus_expr
 exp::Expr ::= lhs::Expr rhs::Expr
@@ -141,6 +150,22 @@ exp::Expr ::= lhs::Expr rhs::Expr
                 else error_type();
   exp.is_var_ref = false;
  
+}
+
+
+-- Two new prods - maybe not needed...
+abstract production add_int
+exp::Expr ::= lhs::Expr rhs::Expr
+{ exp.pp = "(" ++ lhs.pp ++ " + " ++ rhs.pp ++ ")" ;
+  exp.errors := lhs.errors ++ rhs.errors;
+--  exp.typerep = int_type();
+}
+
+abstract production mult_int
+exp::Expr ::= lhs::Expr rhs::Expr
+{ exp.pp = "(" ++ lhs.pp ++ " * " ++ rhs.pp ++ ")" ;
+  exp.errors := lhs.errors ++ rhs.errors;
+--  exp.typerep = int_type();
 }
 
 abstract production mult_expr

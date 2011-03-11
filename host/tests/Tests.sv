@@ -97,8 +97,10 @@ t::Test ::= fn::String parseF::Function(ParseResult<Program_c> ::= String String
     then just ("Parse errors on input file: " ++ pr1.parseErrors ++ "\n")
     else 
     if   ! pr2.parseSuccess
-    then just ("Parse errors on p_ast_1: " ++ pr2.parseErrors ++ "\n.....\n" ++
-               p_ast1_pp ++ "\n.....\n" )
+    then just ("Parse errors on generated pp of ast (p_ast_1): " ++
+               pr2.parseErrors ++ "\n.....\n" ++
+               addLineNumbers(p_ast1_pp) ++ 
+               "\n.....\n" )
     else 
     if   -- dff.iovalue >= 1  --         
          p_ast1_pp != p_ast2_pp
@@ -129,3 +131,36 @@ t::Test ::= fn::String parseF::Function(ParseResult<Program_c> ::= String String
            else text.io ;
 }
 
+
+function addLineNumbers
+String ::= code::String
+{ return addLineNums(1, 2, lines) ;
+  local lines::[String] = explode("\n",code) ;
+}
+
+function addLineNums
+String ::= next::Integer width::Integer lines::[String]
+{ return if null(lines)
+         then ""
+         else pad ++ ln ++ ": " ++ head(lines) ++ "\n" ++
+              addLineNums(next+1, width, tail(lines)) ;
+  local ln::String = toString(next); 
+  local pad::String = implode("", repeat(" ", width - length(ln)) ) ;
+}
+
+
+function repeat
+[a] ::= v::a times::Integer
+{ return if   times <= 0
+         then [ ]
+         else v :: repeat(v, times-1) ;
+}
+         
+
+function zipWith
+[c] ::= l1::[a]  l2::[b] f::Function(c::= a b)
+{ return
+   if   null(l1) || null(l2)
+   then [ ]
+   else f( head(l1), head(l2) ) :: zipWith (tail(l1), tail(l2), f) ;
+}

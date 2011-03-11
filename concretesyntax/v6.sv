@@ -17,24 +17,28 @@ Special : for_pre ':' expr DOTDOT expr ')'	{ for_setup($1, $3, $5); in_for = 0;}
 	| SELECT '(' varref ':' expr DOTDOT expr ')' {$$ = sel_index($3, $5, $7);}
 -}
 
-terminal FOR_t 'for' lexer classes {promela,promela_kwd};
-terminal IN_t 'in' ; -- lexer classes {promela,promela_kwd};
-terminal DOTDOT_t '..' ;
-
-nonterminal ForPre_c with pp ;
+nonterminal ForPre_c with pp, ast<Expr>, forTerminal ;
+synthesized attribute forTerminal::FOR_t ;
 concrete production forPre_c
 fp::ForPre_c ::= f::FOR_t '(' v::Varref_c 
-{ fp.pp = "for (" ++ v.pp ; }
+{ fp.pp = "for (" ++ v.pp ; 
+  fp.ast = v.ast ; 
+  fp.forTerminal = f ;
+}
 
-nonterminal ForPost_c with pp ;
+nonterminal ForPost_c with pp, ast<Stmt> ;
 concrete production forPost_c
 fp::ForPost_c ::= '{' s::Sequence_c os::OS_c '}'
-{ fp.pp = "{ " ++ s.pp ++ os.pp ++ "}" ; }
+{ fp.pp = "{ " ++ s.pp ++ os.pp ++ "}" ; 
+  fp.ast = s.ast ;
+}
 
 concrete production for1_c
 s::Special_c ::= fpre::ForPre_c ':' lower::Expr_c '..' upper::Expr_c ')' 
                  fpost::ForPost_c 
-{ s.pp = fpre.pp ++ " : " ++ lower.pp ++ " .. " ++ upper.pp ++ ")" ++ fpost.pp ; }
+{ s.pp = fpre.pp ++ " : " ++ lower.pp ++ " .. " ++ upper.pp ++ ")" ++ fpost.pp ; 
+  s.ast = forRange ( fpre.forTerminal, fpre.ast, lower.ast, upper.ast, fpost.ast ) ;
+}
 
 concrete production for2_c
 s::Special_c ::= fpre::ForPre_c 'in' v::Varref_c ')' fpost::ForPost_c 

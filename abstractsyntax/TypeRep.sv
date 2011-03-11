@@ -83,7 +83,7 @@ t::TypeRep ::=
   --t.var_ref_p = promela_bound_var_ref ;
 }
 
-abstract production boolean_type
+abstract production booleanTypeRep
 t::TypeRep ::=
 { t.tag = "boolean";
   t.pp = "boolean";

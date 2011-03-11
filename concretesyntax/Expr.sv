@@ -8,9 +8,6 @@ grammar edu:umn:cs:melt:ableP:concretesyntax;
 nonterminal FullExpr_c with pp, ast<Expr> ;   -- same as in v4.2.9 and v6
 -- full_expr in spin.y
 
---synthesized attribute ast_Expr::Expr occurs on Expr_c, Expression_c, FullExpr_c;
---synthesized attribute ast_Probe::Probe occurs on Probe_c;
-
 concrete production fe_expr
 fe::FullExpr_c ::= e::Expr_c
 { fe.pp = e.pp;
@@ -39,9 +36,9 @@ exp1::Expression_c ::= '(' exp2::Expression_c ')'
 }
 
 concrete production and_expression_c
-exp::Expression_c ::= lhs::Expression_c a::AND rhs::Expression_c
+exp::Expression_c ::= lhs::Expression_c op::AND rhs::Expression_c
 { exp.pp = lhs.pp ++ "&&" ++ rhs.pp;
--- exp.ast_Expr = andexpr(lhs.ast_Expr,rhs.ast_Expr);
+  exp.ast = genericBinOp(lhs.ast, mkOp(op.lexeme, booleanTypeRep()), rhs.ast) ;
 }
 
 concrete production and_expr_c
@@ -90,7 +87,7 @@ exp1::Expr_c ::= '(' exp2::Expr_c ')'
 concrete production plus_expr_c
 exp::Expr_c ::= lhs::Expr_c '+' rhs::Expr_c
 { exp.pp = lhs.pp ++ " + " ++ rhs.pp;
--- exp.ast_Expr = plus_expr(lhs.ast_Expr,rhs.ast_Expr);
+  exp.ast = genericBinOp(lhs.ast, mkOp("+", intTypeRep()), rhs.ast) ;
 }
 
 concrete production minus_expr_c
@@ -102,7 +99,7 @@ exp::Expr_c ::= lhs::Expr_c '-' rhs::Expr_c
 concrete production mult_expr_c
 exp::Expr_c ::= lhs::Expr_c '*' rhs::Expr_c
 { exp.pp = lhs.pp ++ " * " ++ rhs.pp;
--- exp.ast_Expr = mult_expr(lhs.ast_Expr,rhs.ast_Expr);
+  exp.ast = genericBinOp(lhs.ast, mkOp("*", intTypeRep()), rhs.ast) ;
 }
 
 concrete production div_expr_c
@@ -148,7 +145,7 @@ exp::Expr_c ::= lhs::Expr_c '>' rhs::Expr_c
 concrete production lt_expr_c
 exp::Expr_c ::= lhs::Expr_c '<' rhs::Expr_c
 { exp.pp = lhs.pp ++ " < " ++ rhs.pp;
--- exp.ast_Expr = lt_expr(lhs.ast_Expr,rhs.ast_Expr);
+  exp.ast = genericBinOp(lhs.ast, mkOp("<", booleanTypeRep()), rhs.ast) ;
 }
 
 concrete production ge_expr_c
@@ -160,7 +157,7 @@ exp::Expr_c ::= lhs::Expr_c '>=' rhs::Expr_c
 concrete production le_expr_c
 exp::Expr_c ::= lhs::Expr_c '<=' rhs::Expr_c
 { exp.pp = lhs.pp ++ " <= " ++ rhs.pp;
--- exp.ast_Expr = le_expr(lhs.ast_Expr,rhs.ast_Expr);
+  exp.ast = genericBinOp(lhs.ast, mkOp("<=", booleanTypeRep()), rhs.ast) ;
 }
 
 

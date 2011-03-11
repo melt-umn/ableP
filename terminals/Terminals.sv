@@ -188,7 +188,7 @@ terminal EMPTY        'empty'        lexer classes {promela,promela_kwd};
 terminal NFULL        'nfull'        lexer classes {promela,promela_kwd};
 terminal NEMPTY       'nempty'       lexer classes {promela,promela_kwd};
 
-terminal CONST        /(true)|(false)|(skip)|[0-9]*/ 
+terminal CONST        /(true)|(false)|[0-9]*/ 
                                      lexer classes {promela,promela_kwd};
 -- terminal TYPE /(bit)|(bool)|(byte)|(chan)|(int)|(mtype)|(pid)|(short)|(unsigned)/
 --                                       lexer classes {promela,promela_kwd};
