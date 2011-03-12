@@ -1,30 +1,42 @@
 grammar edu:umn:cs:melt:ableP:abstractsyntax ;
 
-nonterminal Expr with pp, errors, typerep ;
-nonterminal Exprs with pp, errors ;
+nonterminal Expr with pp, errors, host<Expr>, typerep ;
+nonterminal Exprs with pp, errors, host<Exprs> ;
 
 abstract production varRef
 e::Expr ::= id::ID
-{ e.pp = id.lexeme ; }
+{ e.pp = id.lexeme ; 
+  e.host = varRef(id) ;
+}
 
 abstract production constExpr
 e::Expr ::= c::CONST
-{ e.pp = c.lexeme ; }
+{ e.pp = c.lexeme ;
+  e.host = constExpr(c);
+}
 
 abstract production dotAccess
 e::Expr ::= r::Expr f::ID
-{ e.pp = "(" ++ r.pp ++ "." ++ f.lexeme ++ ")" ; }
+{ e.pp = "(" ++ r.pp ++ "." ++ f.lexeme ++ ")" ; 
+  e.host = dotAccess(r.host, f);
+}
 
 abstract production arrayAccess
 e::Expr ::= a::Expr i::Expr
-{ e.pp = "(" ++ a.pp ++ "[" ++ i.pp ++ "]" ++ ")" ; }
+{ e.pp = "(" ++ a.pp ++ "[" ++ i.pp ++ "]" ++ ")" ; 
+  e.host = arrayAccess(a.host, i.host);
+}
 
 abstract production noneExprs
 es::Exprs ::=
-{ es.pp = "" ; }
+{ es.pp = "" ;
+  es.host = noneExprs() ;
+}
 abstract production oneExprs
 es::Exprs ::= e::Expr
-{ es.pp = e.pp ; }
+{ es.pp = e.pp ;
+  es.host = oneExprs(e.host);
+}
 abstract production consExprs
 es::Exprs ::= e::Expr rest::Exprs
 { es.pp = e.pp ++ ", " ++
@@ -32,6 +44,7 @@ es::Exprs ::= e::Expr rest::Exprs
              noneExprs() -> ""
            | _ -> rest.pp 
           end ; 
+  es.host = consExprs(e.host, rest.host);
 }
 
 
@@ -39,16 +52,19 @@ es::Exprs ::= e::Expr rest::Exprs
 -- Binary Operators        --
 -----------------------------
 abstract production genericBinOp
-exp::Expr ::= lhs::Expr op::Op rhs::Expr
-{ exp.pp = "(" ++ lhs.pp ++ " "++ op.pp ++ " " ++ rhs.pp ++ ")" ;
-  exp.errors := lhs.errors ++ rhs.errors;
-  exp.typerep = op.typerep ;
+e::Expr ::= lhs::Expr op::Op rhs::Expr
+{ e.pp = "(" ++ lhs.pp ++ " "++ op.pp ++ " " ++ rhs.pp ++ ")" ;
+  e.errors := lhs.errors ++ rhs.errors;
+  e.typerep = op.typerep ;
+  e.host = genericBinOp(lhs.host, op.host, rhs.host);
 }
 
-nonterminal Op with pp, typerep ;
+nonterminal Op with pp, host<Op>, typerep ;
 abstract production mkOp
 op::Op ::= n::String tr::TypeRep
-{ op.pp = n;   op.typerep = tr ; }
+{ op.pp = n;   op.typerep = tr ; 
+  op.host = mkOp(n, tr.host) ;
+}
 
 
 {-

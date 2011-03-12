@@ -1,6 +1,6 @@
 grammar edu:umn:cs:melt:ableP:abstractsyntax;
 
-nonterminal Decls   with pp, ppi, ppsep, errors ; -- basepp, ppi, env ;
+nonterminal Decls   with pp, ppi, ppsep, errors, host<Decls> ; 
 --synthesized attribute inlined_Decls    :: Decls  occurs on Decls ;
 
 abstract production seqDecls
@@ -8,10 +8,9 @@ ds::Decls ::= ds1::Decls ds2::Decls
 { ds.pp = ds1.pp ++ -- ds.ppsep ++ 
           "\n" ++ 
           ds2.pp ;
-  ds1.ppi = ds.ppi ; 
-  ds2.ppi = ds.ppi ;
-  ds1.ppsep = ds.ppsep ;
-  ds2.ppsep = ds.ppsep ;
+  ds1.ppi = ds.ppi ;  ds1.ppsep = ds.ppsep ; 
+  ds2.ppi = ds.ppi ;  ds2.ppsep = ds.ppsep ;
+  ds.host = seqDecls(ds1.host, ds2.host);
 -- ds.basepp = ds1.basepp ++ ";\n" ++ ds2.ppi ++ ds2.basepp ;
 -- ds.errors = ds1.errors ++ ds2.errors;
 -- ds.defs = mergeDefs(ds1.defs, ds2.defs);
@@ -23,6 +22,7 @@ ds::Decls ::= ds1::Decls ds2::Decls
 abstract production emptyDecl
 ds::Decls ::= 
 { ds.pp = "" ;
+  ds.host = emptyDecl();
 -- ds.errors := [] ;
 -- ds.defs = emptyDefs();
 -- ds.inlined_Decls = empty_Decl();
@@ -32,6 +32,7 @@ abstract production varDecl
 ds::Decls ::= vis::Vis t::TypeExpr v::Declarator
 {
  ds.pp = ds.ppi ++ vis.pp ++ t.pp ++ " " ++ v.pp ++ ";" ;
+ ds.host = varDecl(vis.host,  t.host, v.host);
 -- ds.errors := v.errors ++ t.errors ;
 -- v.typerep_in = t.typerep;
 -- ds.defs = valueBinding(v.name, v.typerep) ; 
@@ -43,6 +44,7 @@ abstract production varAssignDecl
 ds::Decls ::= vis::Vis t::TypeExpr v::Declarator e::Expr
 {
  ds.pp = ds.ppi ++ vis.pp ++ t.pp ++ " " ++ v.pp ++ " = " ++ e.pp ++ ";" ;
+ ds.host = varAssignDecl(vis.host, t.host, v.host, e.host) ;
 -- ds.errors := t.errors ++ v.errors ++ e.errors ;
 -- v.typerep_in = t.typerep;
 -- ds.defs = valueBinding(v.name, v.typerep) ;
@@ -50,11 +52,12 @@ ds::Decls ::= vis::Vis t::TypeExpr v::Declarator e::Expr
 
 inherited attribute typerep_in :: TypeRep ;
 
-nonterminal Declarator  with pp, errors ;
+nonterminal Declarator  with pp, errors, host<Declarator> ;
 abstract production vd_id
 vd::Declarator ::= id::ID
 { vd.pp = id.lexeme;
   vd.errors := [ ];
+  vd.host = vd_id(id);
 -- vd.name = id.lexeme ;
 -- vd.typerep = vd.typerep_in ;
 }
@@ -63,6 +66,7 @@ abstract production vd_idconst
 vd::Declarator ::= id::ID cnt::CONST
 { vd.pp = id.lexeme ++ ":" ++ cnt.lexeme;
   vd.errors := [ ];
+  vd.host = vd_idconst(id,cnt);
 -- vd.name = id.lexeme ;
 -- vd.typerep = vd.typerep_in ; -- ToDo - are there typing issues here?
 }
@@ -71,24 +75,33 @@ abstract production vd_array
 vd::Declarator ::= id::ID cnt::CONST
 { vd.pp = id.lexeme ++ "[" ++ cnt.lexeme ++ "]";
   vd.errors := [ ];
+  vd.host = vd_array(id,cnt);
 -- vd.name = id.lexeme ;
 -- vd.typerep = array_type(vd.typerep_in);
 }
 
 -- Visibility --
-nonterminal Vis with pp ;
+nonterminal Vis with pp, host<Vis> ;
 abstract production vis_empty
 v::Vis ::=
-{ v.pp = ""; }
+{ v.pp = "";   
+  v.host = vis_empty(); 
+}
 abstract production vis_hidden
 v::Vis ::=
-{ v.pp = "hidden "; }
+{ v.pp = "hidden "; 
+  v.host = vis_hidden() ;
+}
 abstract production vis_show
 v::Vis ::=
-{ v.pp = "show "; }
+{ v.pp = "show "; 
+  v.host = vis_show();
+}
 abstract production vis_islocal
 v::Vis ::=
-{ v.pp = "local "; }
+{ v.pp = "local "; 
+  v.host = vis_islocal();
+}
 
 
 {-

@@ -1,6 +1,6 @@
 grammar edu:umn:cs:melt:ableP:abstractsyntax;
 
-nonterminal Unit with pp, ppi, basepp ;
+nonterminal Unit with pp, ppi, host<Unit> ;
 
 nonterminal Args with basepp,pp;
 nonterminal NS with basepp,pp;

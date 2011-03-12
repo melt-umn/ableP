@@ -1,12 +1,13 @@
 grammar edu:umn:cs:melt:ableP:abstractsyntax;
 
-nonterminal TypeExpr with pp, typerep, errors ;
+nonterminal TypeExpr with pp, errors, host<TypeExpr>, typerep ;
 
 abstract production intTypeExpr
 t::TypeExpr ::=
 { t.pp = "int";
   t.typerep = intTypeRep();
   t.errors := [ ];
+  t.host = intTypeExpr();
 }
 
 

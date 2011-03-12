@@ -1,16 +1,19 @@
 grammar edu:umn:cs:melt:ableP:abstractsyntax ;
 
-nonterminal Stmt with pp, ppi, errors ;
+nonterminal Stmt with pp, ppi, errors, host<Stmt> ;
 
 abstract production seqStmt
 s::Stmt ::= s1::Stmt s2::Stmt
-{ s.pp = s1.pp ++ "\n" ++ s2.pp ; }
+{ s.pp = s1.pp ++ "\n" ++ s2.pp ; 
+  s.host = seqStmt(s1.host, s2.host);
+}
 
 abstract production one_decl
 s::Stmt ::= d::Decls
 { s.pp = d.pp ; -- ++ " ";
   d.ppi = s.ppi ;
   d.ppsep = "" ; -- ;" \n" ;
+  s.host = one_decl(d.host);
 --  s.errors := d.errors;
 --  s.defs = d.defs;
 --  d.env = s.env ;
@@ -24,11 +27,14 @@ s::Stmt ::= st::String es::Exprs
             noneExprs() -> " " 
           | _ -> ", " ++ es.pp end  ++
           ");\n" ;
+ s.host = printStmt(st, es.host);
 }
 
 abstract production assign
 s::Stmt ::= lhs::Expr rhs::Expr 
-{ s.pp = s.ppi ++ lhs.pp ++ " = " ++ rhs.pp ++ " ;\n" ; }
+{ s.pp = s.ppi ++ lhs.pp ++ " = " ++ rhs.pp ++ " ;\n" ; 
+  s.host = assign(lhs.host, rhs.host) ;
+}
 
 -- Control Flow                                 --
 --------------------------------------------------
@@ -37,6 +43,7 @@ s::Stmt ::= op::Options
 { s.pp = "if\n" ++ s.ppi ++ op.pp ++ "\n" ++ s.ppi ++ "fi ;\n";
   op.ppi = s.ppi;
   s.errors := op.errors;
+  s.host = ifStmt(op.host);
 --  sc.defs = emptyDefs();
 --  op.env = sc.env;
 }
@@ -46,6 +53,7 @@ s::Stmt ::= op::Options
 { s.pp = "do\n" ++ s.ppi ++ op.pp ++ "\n" ++ s.ppi ++ "od ;\n";
   op.ppi = s.ppi;
   s.errors := op.errors;
+  s.host = doStmt(op.host);
 --  s.defs = emptyDefs();
 --  op.env = s.env;
 }
@@ -54,6 +62,7 @@ abstract production breakStmt
 s::Stmt ::=
 { s.pp = "break";
   s.errors := [ ];
+  s.host = breakStmt();
 --  s.defs = emptyDefs();
 }
 
@@ -61,6 +70,7 @@ abstract production gotoStmt
 s::Stmt ::= id::ID
 { s.pp = s.ppi ++ "goto " ++ id.lexeme;
   s.errors := [ ];
+  s.host = gotoStmt(id);
 --  s.defs = emptyDefs();
 }
 
@@ -69,6 +79,7 @@ s::Stmt ::= id::ID st::Stmt
 { s.pp = id.lexeme ++ ": " ++ st.pp;
   st.ppi = s.ppi;
   s.errors := st.errors;
+  s.host = labeledStmt(id, st.host);
 --  s.defs = st.defs;
 --  st.env = s.env;
 }
@@ -77,6 +88,7 @@ abstract production elseStmt
 s::Stmt ::= 
 { s.pp = "else ;\n";
   s.errors := [ ];
+  s.host = elseStmt();
 --  s.defs = emptyDefs();
 }
 
@@ -84,25 +96,33 @@ abstract production skipStmt
 s::Stmt ::= 
 { s.pp = "skip ;\n";
   s.errors := [ ];
+
+  -- The Spin lexer replaces "skip" by the constant "1".  We do something similar
+  -- hear using forwarding, but the transformation takes place on the syntax tree
+  -- after parsing instead.
+  forwards to exprStmt( constExpr (terminal(CONST,"1")) ) ;
+
 --  s.defs = emptyDefs();
 }
 
 -- Options --
-nonterminal Options with pp, ppi, errors ;
+nonterminal Options with pp, ppi, errors, host<Options> ;
 abstract production oneOption
-ops::Options ::= st::Stmt
-{ ops.pp = ":: " ++ st.pp;
-  st.ppi = ops.ppi ++ "   " ;
-  ops.errors := st.errors;
+ops::Options ::= s::Stmt
+{ ops.pp = ":: " ++ s.pp;
+  s.ppi = ops.ppi ++ "   " ;
+  ops.errors := s.errors;
+  ops.host = oneOption(s.host);
 --  st.env = ops.env;
 }
 
 abstract production consOption
-ops::Options ::= st::Stmt rest::Options
-{ ops.pp = ":: " ++ st.pp ++ ops.ppi ++ rest.pp;
-  st.ppi = ops.ppi ++ "   ";
+ops::Options ::= s::Stmt rest::Options
+{ ops.pp = ":: " ++ s.pp ++ ops.ppi ++ rest.pp;
+  s.ppi = ops.ppi ++ "   ";
   rest.ppi = ops.ppi;
-  ops.errors := st.errors ++ rest.errors;
+  ops.errors := s.errors ++ rest.errors;
+  ops.host = consOption(s.host, rest.host);
 --  st.env = ops.env;
 --  rest.env = ops.env;
 }
@@ -111,11 +131,12 @@ ops::Options ::= st::Stmt rest::Options
 -- Misc. Statements                             --
 --------------------------------------------------
 abstract production exprStmt
-st::Stmt ::= fe::Expr
-{ st.pp =  fe.pp ++ " ;\n" ;
-  st.errors := fe.errors;
---  st.defs = emptyDefs();
---  fe.env = st.env;
+s::Stmt ::= e::Expr
+{ s.pp =  e.pp ++ " ;\n" ;
+  s.errors := e.errors;
+  s.host = exprStmt(e.host);
+--  s.defs = emptyDefs();
+--  e.env = t.env;
 }
 
 

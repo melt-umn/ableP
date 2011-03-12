@@ -29,7 +29,6 @@ s::Stmt ::= f::FOR_t vr::Expr lower::Expr upper::Expr body::Stmt
                       ) ) ) ,
              labeledStmt ( label, skipStmt () )
            ) ;
-
   local op::Op = mkOp("<=", booleanTypeRep()) ;
   local label::ID = terminal(ID,"l"++toString(f.line), f.line, f.column) ;
 }

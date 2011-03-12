@@ -2,7 +2,7 @@ grammar edu:umn:cs:melt:ableP:abstractsyntax;
 
 synthesized attribute typerep::TypeRep;
 
-nonterminal TypeRep with tag;
+nonterminal TypeRep with tag, host<TypeRep> ;
 
 synthesized attribute tag::String;
 synthesized attribute isCompatible::Boolean;
@@ -13,8 +13,10 @@ attribute pp occurs on TypeRep;
 
 abstract production intTypeRep
 t::TypeRep ::=
-{ t.tag = "int";
-  t.pp = "int";
+{ t.pp = "int";
+  t.host = intTypeRep();
+
+  t.tag = "int";
   t.isCompatible = true;
   --t.var_ref_p = promela_bound_var_ref ;
 }
