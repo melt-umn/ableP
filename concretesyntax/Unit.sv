@@ -47,7 +47,7 @@ u::Unit_c ::= e::Events_c
 concrete production unit_one_decl_c
 u::Unit_c ::= dec::OneDecl_c
 { u.pp = dec.pp ;
---  u.ast_Unit = dec.ast_Unit;  
+  u.ast = unitDecls(dec.ast) ;
 }
 
 concrete production unit_utype_c

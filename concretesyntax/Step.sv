@@ -2,7 +2,6 @@ grammar edu:umn:cs:melt:ableP:concretesyntax ;
 
 
 --synthesized attribute ast_Vis::Vis occurs on Vis_c;
---synthesized attribute ast_Asgn::Asgn occurs on Asgn_c;
 --synthesized attribute ast_VrefList::VrefList occurs on VrefList_c;
 --synthesized attribute ast_TypList::TypList occurs on TypList_c;
 --synthesized attribute ast_VarDcl::VarDcl occurs on VarDcl_c;

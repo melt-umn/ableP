@@ -104,48 +104,33 @@ v::Vis ::=
 }
 
 
-{-
 abstract production mtypeDecl
-ds::Decls ::= v::Vis t::TypeExpr a::Asgn namelist::IDList
+ds::Decls ::= v::Vis t::TypeExpr names::IDList
 {
- ds.pp =  v.pp ++ t.pp ++ " " ++ a.pp ++ " { " ++ namelist.pp ++ " } ";
- ds.basepp =  v.basepp ++ t.pp ++ " " ++ a.basepp ++ " { " ++ namelist.basepp ++ " } ";
- ds.defs = namelist.mtype_defs ;
- ds.errors = namelist.errors;
+ ds.pp =  v.pp ++ t.pp ++ " = { " ++ names.pp ++ " } ";
+ ds.errors := names.errors;
+-- ds.defs = namelist.mtype_defs ;
 }
 
-
-nonterminal IDList with basepp,pp;
-synthesized attribute mtype_defs :: Env occurs on IDList ;
+nonterminal IDList with pp, errors ;
+--synthesized attribute mtype_defs :: Env occurs on IDList ;
 
 nonterminal VarList with basepp,pp;
 abstract production singleName
 nlst::IDList ::= n::ID
-{
- nlst.basepp = n.lexeme;
- nlst.pp = n.lexeme;
- nlst.errors = [];
- nlst.mtype_defs = valueBinding(n.lexeme, mtype_type());
+{ nlst.pp = n.lexeme;
+  nlst.errors := [ ];
+  -- nlst.mtype_defs = valueBinding(n.lexeme, mtype_type());
 }
 
-abstract production multiNames
-nlst1::IDList ::= nlst2::IDList n::ID
-{
- nlst1.basepp = nlst2.basepp ++ n.lexeme;
- nlst1.pp = nlst2.pp ++ n.lexeme;
- nlst1.errors = nlst2.errors;
- nlst1.mtype_defs = mergeDefs(nlst2.mtype_defs, valueBinding(n.lexeme, mtype_type())) ;
+abstract production snocNames
+nlst::IDList ::= some::IDList n::ID
+{ nlst.pp = some.pp ++ ", " ++  n.lexeme;
+  nlst.errors := some.errors;
+ -- nlst1.mtype_defs = mergeDefs(nlst2.mtype_defs, valueBinding(n.lexeme, mtype_type())) ;
 }
 
-abstract production commaNames
-nlst1::IDList ::= nlst2::IDList
-{
- nlst1.basepp = nlst2.basepp ++ ",";
- nlst1.pp = nlst2.pp ++ ",";
- nlst1.errors = nlst2.errors;
- nlst1.mtype_defs = nlst2.mtype_defs ;
-}
-
+{-
 
 -----
 abstract production abs_varlist2dcl

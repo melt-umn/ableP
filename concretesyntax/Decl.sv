@@ -135,19 +135,6 @@ v::Vis_c ::= i::ISLOCAL
 --------------------------------------------------------------------------------
 
 
--- Asgn
-nonterminal Asgn_c with pp ;    -- same as in v4.2.9 and v6
-concrete production asgn_c
-a::Asgn_c ::= at::ASGN  
-{ a.pp = "=" ;
---  a.ast_Asgn = asgn();
-}
-
-concrete production asgn_empty_c
-a::Asgn_c ::= 
-{ a.pp = "";
---  a.ast_Asgn = asgn_empty();
-}
 
 
 
@@ -215,26 +202,32 @@ od::OneDecl_c ::= v::Vis_c u::UNAME vars::VarList_c
 
 
 concrete production typenameDcl_c
-od::OneDecl_c ::= v::Vis_c t::Type_c a::Asgn_c lc::LCURLY namelist::IDList_c rc::RCURLY
-{ od.pp = od.ppi ++ v.pp ++ " " ++ t.pp ++ a.pp  ++ " { " ++ namelist.pp ++ " } ";
-{-
- od.ast_Decls = case t of 
-                   bitType_c(b) => mtypeDecl(vis_empty(),promela_typeexpr(b.lexeme),a.ast_Asgn,namelist.ast_IDList)
-                 | byteType_c(y) => mtypeDecl(vis_empty(),promela_typeexpr("byte"),a.ast_Asgn,namelist.ast_IDList)
-                 | intType_c(i) =>mtypeDecl(vis_empty(),promela_typeexpr("int"),a.ast_Asgn,namelist.ast_IDList)
-                 | shortType_c(s) => mtypeDecl(vis_empty(),promela_typeexpr("short"),a.ast_Asgn,namelist.ast_IDList)
-                 | mtypeType_c(m) => mtypeDecl(vis_empty(),promela_typeexpr("mtype"),a.ast_Asgn,namelist.ast_IDList)
-                 | chanType_c(c) => mtypeDecl(vis_empty(),promela_typeexpr("chan"),a.ast_Asgn,namelist.ast_IDList)
-                 | pidType_c(p) => mtypeDecl(vis_empty(),promela_typeexpr("pid"),a.ast_Asgn,namelist.ast_IDList)
-                 | boolType_c(l) => mtypeDecl(vis_empty(),promela_typeexpr("bool"),a.ast_Asgn,namelist.ast_IDList)
-                 | unsigned_c(u) => mtypeDecl(vis_empty(),promela_typeexpr("unsigned"),a.ast_Asgn,namelist.ast_IDList)
-                 | _ => error(" The base type not defined " ++ t.pp )
-                end; 
-
- od.ast_Unit = unitDecls(od.ast_Decls);
- namelist.visibility = v.ast_Vis;
--}
+od::OneDecl_c ::= v::Vis_c t::Type_c a::Asgn_c lc::LCURLY names::IDList_c rc::RCURLY
+{ od.pp = od.ppi ++ v.pp ++ " " ++ t.pp ++ a.pp  ++ " { " ++ names.pp ++ " } ";
+  od.ast = case t of
+             mtypeType_c(mt) -> mtypeDecl (v.ast, t.ast, names.ast) 
+           | _ -> error ("malformed declaration.  The type must be \"mtype\".\n") 
+           end ;
 }
+
+-- Asgn
+nonterminal Asgn_c with pp ;    -- same as in v4.2.9 and v6
+concrete production asgn_c
+a::Asgn_c ::= at::ASGN  
+{ a.pp = "=" ;  }
+
+concrete production asgn_empty_c
+a::Asgn_c ::= 
+{ a.pp = "";  }
+
+
+
+
+
+--newly added rule for message types -- not in original grammar
+
+
+
 
 
 --concrete production tynameDecl_c
@@ -302,27 +295,25 @@ od::OneDecl_c ::= t::Type_c vars::VarList_c
 
 
 --NameList
-nonterminal IDList_c with pp;   -- same as v4.2.9 and v6
+nonterminal IDList_c with pp, ast<IDList> ;   -- same as v4.2.9 and v6
 -- nlst in spin.y
---synthesized attribute ast_IDList::IDList occurs on IDList_c;
 
 concrete production singleName_c
 nlst::IDList_c ::= n::ID
 { nlst.pp = n.lexeme;
--- nlst.ast_IDList = singleName(n);
+  nlst.ast = singleName(n);
 }
 
-
-concrete production multiNames_c
-nlst1::IDList_c ::= nlst2::IDList_c n::ID
-{ nlst1.pp = nlst2.pp ++ n.lexeme;
--- nlst1.ast_IDList = multiNames(nlst2.ast_IDList,n);
+concrete production snocNames_c
+nlst::IDList_c ::= some::IDList_c n::ID
+{ nlst.pp = some.pp ++ n.lexeme;
+  nlst.ast = snocNames( some.ast ,n );
 }
 
-concrete production commaNames_c
-nlst1::IDList_c ::= nlst2::IDList_c ','
+concrete production commaNames_c  
+nlst1::IDList_c ::= nlst2::IDList_c ','   -- commas are optional
 { nlst1.pp = nlst2.pp ++ ",";
--- nlst1.ast_IDList = commaNames(nlst2.ast_IDList);
+  nlst1.ast = nlst2.ast ;
 }
 
 
@@ -407,31 +398,6 @@ nlst1::IDList_c ::= nlst2::IDList_c ','
 
 
 
---newly added rule for message types -- not in original grammar
-
-
-
---concrete production tynameDecl_c
---od::OneDecl_c ::= t::TYPE a::Asgn_c lc::LCURLY nlist::IDList_c rc::RCURLY
---{
--- od.pp = od.ppi ++ t.lexeme ++ " " ++ a.pp ++ " { " ++ nlist.pp ++ " } ";
---
---  od.ast_Decls = mtypeDecl(vis_empty(), promela_typeexpr(t), a.ast_Asgn, nlist.ast_IDList);
---  od.ast_Unit = unitDecls(od.ast_Decls);
---  nlist.visibility = vis_empty();
---}
-
-
-
---concrete production typenameDcl_c
---od::OneDecl_c ::= v::Vis_c t::TYPE a::Asgn_c lc::LCURLY namelist::IDList_c rc::RCURLY
---{
--- od.pp = od.ppi ++ v.pp ++ " " ++ t.lexeme ++ a.pp  ++ " { " ++ namelist.pp ++ " } ";
---
--- od.ast_Decls = mtypeDecl(v.ast_Vis, promela_typeexpr(t), a.ast_Asgn, namelist.ast_IDList);
--- od.ast_Unit = unitDecls(od.ast_Decls);
--- namelist.visibility = v.ast_Vis;
---}
 
 
 

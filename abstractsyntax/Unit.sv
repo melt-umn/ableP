@@ -1,21 +1,21 @@
 grammar edu:umn:cs:melt:ableP:abstractsyntax;
 
-nonterminal Unit with pp, ppi, host<Unit> ;
+nonterminal Unit with pp, ppi, errors, host<Unit> ;
 
 nonterminal Args with basepp,pp;
 nonterminal NS with basepp,pp;
 ---nonterminal Error with basepp,pp;
 nonterminal OptPriority with basepp,pp;
 
---synthesized attribute inlined_Units   :: Units   occurs on Units ;
---synthesized attribute inlined_Unit    :: Unit    occurs on Unit ;
---synthesized attribute inlined_Body    :: Body    occurs on Body ;
---synthesized attribute inlined_Args    :: Args    occurs on Args ;
---synthesized attribute inlined_Stmt    :: Stmt    occurs on Stmt ;
---synthesized attribute inlined_NS      :: NS      occurs on NS   ;
---synthesized attribute inlined_Error   :: Error   occurs on Error ;
---synthesized attribute inlined_OptPriority   :: OptPriority   occurs on OptPriority ;
-
+abstract production unitDecls
+un::Unit ::= ds::Decls
+{ un.pp = ds.pp;
+  ds.ppi = un.ppi;
+  ds.ppsep = "; \n" ;
+  un.errors := ds.errors;
+-- un.defs = ds.defs;
+-- ds.env = un.env ;
+}
 
 {-  Will go back and add these as necessesary.
 
@@ -53,20 +53,6 @@ u::Unit ::= comm::String u2::Unit
 }
 
 
-abstract production unitDecls
-un::Unit ::= ds::Decls
-{
- un.pp = ds.pp;
- ds.ppi = un.ppi;
- ds.ppsep = "; \n" ;
- un.basepp = ds.basepp;
-
- un.errors = ds.errors;
- un.defs = ds.defs;
- ds.env = un.env ;
-
- un.inlined_Unit = unitDecls(ds.inlined_Decls);
-}
 
 abstract production claim
 c::Unit ::= body::Body
