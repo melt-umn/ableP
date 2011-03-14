@@ -9,6 +9,7 @@ proc::Unit ::= i::Inst procty::ProcType nm::ID dcl::Decls
 { proc.pp = "\n" ++ i.pp ++ " " ++ procty.pp ++ " " ++ nm.lexeme ++
             " (" ++ dcl.pp ++ ") " ++ pri.pp ++ ena.pp ++ b.pp;
   b.ppi = proc.ppi;
+  proc.errors := dcl.errors ++ b.errors ;
   proc.host = proc_decl(i.host, procty.host, nm, dcl.host,
                         pri.host, ena.host, b.host);
 

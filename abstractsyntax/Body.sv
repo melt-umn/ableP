@@ -1,6 +1,6 @@
 grammar edu:umn:cs:melt:ableP:abstractsyntax;
 
-nonterminal Body with pp, ppi, host<Body> ;
+nonterminal Body with pp, ppi, errors, host<Body> ;
 
 -- Body
 abstract production bodyStmt
@@ -8,6 +8,7 @@ b::Body ::= s::Stmt
 {
  b.pp = "\n{\n" ++ s.ppi ++ s.pp ++ b.ppi ++ "\n}\n";
  s.ppi = b.ppi ++ " ";
+ b.errors := s.errors ;
  b.host = bodyStmt(s.host) ;
 -- b.basepp = "\n{\n" ++ s.ppi ++ s.pp ++ b.ppi ++ "\n}\n";
 -- b.errors = s.errors;
@@ -20,6 +21,7 @@ s::Stmt ::= b::Body
 {
  s.pp = b.pp;
  b.ppi = s.ppi;
+ s.errors := b.errors ;
  s.host = stmt_block(b.host);
 -- s.basepp = b.basepp;
 -- s.errors = b.errors;

@@ -1,5 +1,3 @@
-/* The hand-coded translation of AltSwitch.pml to plain pml */
-
 mtype = {Unknown, Above, Below } ;   /* altitude status */
 mtype = {Good, Bad} ;                /* quality of instrument readings */
 
@@ -11,11 +9,11 @@ active proctype determineStatus ()
  printf("determine status ... \n") ;
 
  check:
- altStatus = Above ;   /* to be replaced by a table */
+  altStatus = Above ;   /* to be replaced by a table */
 
- if :: altStatus == Above -> goto above; 
-    :: altStatus == Below || altStatus == Unknown -> goto trouble;
- fi ;
+  if :: altStatus == Above -> goto above; 
+     :: altStatus == Below || altStatus == Unknown -> goto trouble;
+  fi ;
 
  above:
    printm (altStatus) ;

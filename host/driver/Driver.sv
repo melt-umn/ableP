@@ -2,7 +2,8 @@ grammar edu:umn:cs:melt:ableP:host:driver;
 
 import edu:umn:cs:melt:ableP:terminals;
 import edu:umn:cs:melt:ableP:concretesyntax only Program_c, ast ;
-import edu:umn:cs:melt:ableP:abstractsyntax only Program, pp ;
+import edu:umn:cs:melt:ableP:abstractsyntax only Program, pp, host, errors ;
+import lib:langproc:errors ;
 
 function driver
 IOVal<Integer> ::= args::[String]
@@ -12,25 +13,20 @@ IOVal<Integer> ::= args::[String]
 {
   local filename::String = head(args) ;
   production fileExists :: IOVal<Boolean>  = isFile(filename, driverIO);
+  production text::IOVal<String> = readFile(filename, fileExists.io);
 
-  production attribute text :: IOVal<String>;
-  text = readFile(filename, fileExists.io);
+  local result::ParseResult<Program_c> = ext_parser(text.iovalue, filename);
 
-  local attribute result :: ParseResult<Program_c>;
-  result = ext_parser(text.iovalue, filename);
+  local r_cst::Program_c = result.parseTree ;
 
-  local attribute r_cst :: Program_c ;
-  r_cst = result.parseTree ;
+  local r_ast::Program = r_cst.ast ;
+  local ast_warnings::[Error] = getWarnings(r_ast.errors) ;
+  local ast_errors::[Error] = getErrors(r_ast.errors) ;
 
--- local attribute write_c_io :: IO ;
--- write_c_io = writeFile("output.c", r_cst.c_code, text.io ) ;
+  local r_hst::Program = r_ast.host ;
 
-  local attribute r_ast :: Program ;
-  r_ast = r_cst.ast ;
-
-  local attribute print_success :: IOVal<Integer>;
+  local attribute print_success :: IO ;
   print_success = 
-   ioval (
     print( "\n" ++
            "Command line arguments: " ++ head(args) ++
            "\n\n" ++
@@ -38,18 +34,25 @@ IOVal<Integer> ::= args::[String]
            "\n\n" ++ 
            "AST pretty print: \n" ++ r_ast.pp ++
            "\n\n" ++
- --          "Errors: " ++
- --          (if null(r_ast.errors)  then " No semantic errors!\n" 
- --           else "\n" ++
- --                implode("", r_ast.errors) 
- --          )
+           "Warnings: " ++
+           (if null(ast_warnings)  then " No warnings.\n" 
+            else "\n" ++ showErrors(ast_warnings) ++ "\n"
+           ) ++
+           "Errors:   " ++
+           (if null(ast_errors)  then " No semantic errors.\n" 
+            else "\n" ++ showErrors(ast_errors) ++ "\n"
+           ) ++
            "\n\n"
-           , text.io )
-        , 0 ) ;
-
---  local attribute write_success :: IO ;
---  write_success =
---    writeFile ( "output.c", r_ast.c_code, print_success ) ;
+           , text.io ) ;
+ 
+  local host_filename::String 
+    = substring(0, length(filename)-5, filename) ++ "_HOST.pml" ;
+  local writeHostIO::IO
+    = if   endsWith(".xpml", filename)
+      then writeFile( host_filename , r_hst.pp,
+                      print ("writing host as " ++ host_filename ++ "\n",
+                             print_success ) )
+      else print_success ;
 
   local attribute print_failure :: IOVal<Integer>;
   print_failure =
@@ -61,6 +64,6 @@ IOVal<Integer> ::= args::[String]
          then error ("\n\nFile \"" ++ filename ++ "\" not found.\n")
          else
          if   result.parseSuccess 
-         then print_success 
+         then ioval(writeHostIO, 0)
          else print_failure;
 }

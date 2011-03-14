@@ -21,6 +21,19 @@ t::TypeRep ::=
   --t.var_ref_p = promela_bound_var_ref ;
 }
 
+abstract production mtypeTypeRep
+t::TypeRep ::=
+{ t.pp = "mtype";
+  t.host = mtypeTypeRep();
+
+  t.tag = "mtype";
+  t.isCompatible = false;
+  --t.var_ref_p = promela_bound_var_ref ;
+}
+
+
+--- below are not updated.
+
 abstract production unsigned_type
 t::TypeRep ::=
 { t.tag = "unsigned";
@@ -65,14 +78,6 @@ abstract production user_type
 t::TypeRep ::= fields::Env
 { t.tag = "user";
   t.pp = "user";
-  t.isCompatible = false;
-  --t.var_ref_p = promela_bound_var_ref ;
-}
-
-abstract production mtype_type
-t::TypeRep ::=
-{ t.tag = "mtype";
-  t.pp = "mtype";
   t.isCompatible = false;
   --t.var_ref_p = promela_bound_var_ref ;
 }

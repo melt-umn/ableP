@@ -1,7 +1,7 @@
 active proctype main()
 {
    int i;
-
+   i = 4 ;
    do
    :: goto b0;
    :: ((i<10));

@@ -10,6 +10,7 @@ ds::Decls ::= ds1::Decls ds2::Decls
           ds2.pp ;
   ds1.ppi = ds.ppi ;  ds1.ppsep = ds.ppsep ; 
   ds2.ppi = ds.ppi ;  ds2.ppsep = ds.ppsep ;
+  ds.errors := ds1.errors ++ ds2.errors ;
   ds.host = seqDecls(ds1.host, ds2.host);
 -- ds.basepp = ds1.basepp ++ ";\n" ++ ds2.ppi ++ ds2.basepp ;
 -- ds.errors = ds1.errors ++ ds2.errors;
@@ -22,6 +23,7 @@ ds::Decls ::= ds1::Decls ds2::Decls
 abstract production emptyDecl
 ds::Decls ::= 
 { ds.pp = "" ;
+  ds.errors := [ ] ;
   ds.host = emptyDecl();
 -- ds.errors := [] ;
 -- ds.defs = emptyDefs();
@@ -32,6 +34,7 @@ abstract production varDecl
 ds::Decls ::= vis::Vis t::TypeExpr v::Declarator
 {
  ds.pp = ds.ppi ++ vis.pp ++ t.pp ++ " " ++ v.pp ++ ";" ;
+ ds.errors := t.errors ++ v.errors ;
  ds.host = varDecl(vis.host,  t.host, v.host);
 -- ds.errors := v.errors ++ t.errors ;
 -- v.typerep_in = t.typerep;
@@ -44,6 +47,7 @@ abstract production varAssignDecl
 ds::Decls ::= vis::Vis t::TypeExpr v::Declarator e::Expr
 {
  ds.pp = ds.ppi ++ vis.pp ++ t.pp ++ " " ++ v.pp ++ " = " ++ e.pp ++ ";" ;
+ ds.errors := t.errors ++ v.errors ++ e.errors ;
  ds.host = varAssignDecl(vis.host, t.host, v.host, e.host) ;
 -- ds.errors := t.errors ++ v.errors ++ e.errors ;
 -- v.typerep_in = t.typerep;
@@ -109,10 +113,11 @@ ds::Decls ::= v::Vis t::TypeExpr names::IDList
 {
  ds.pp =  v.pp ++ t.pp ++ " = { " ++ names.pp ++ " } ";
  ds.errors := names.errors;
+ ds.host = mtypeDecl(v.host, t.host, names.host) ;
 -- ds.defs = namelist.mtype_defs ;
 }
 
-nonterminal IDList with pp, errors ;
+nonterminal IDList with pp, errors, host<IDList> ;
 --synthesized attribute mtype_defs :: Env occurs on IDList ;
 
 nonterminal VarList with basepp,pp;
@@ -120,6 +125,7 @@ abstract production singleName
 nlst::IDList ::= n::ID
 { nlst.pp = n.lexeme;
   nlst.errors := [ ];
+  nlst.host = singleName(n);
   -- nlst.mtype_defs = valueBinding(n.lexeme, mtype_type());
 }
 
@@ -127,6 +133,7 @@ abstract production snocNames
 nlst::IDList ::= some::IDList n::ID
 { nlst.pp = some.pp ++ ", " ++  n.lexeme;
   nlst.errors := some.errors;
+  nlst.host = snocNames(some.host, n);
  -- nlst1.mtype_defs = mergeDefs(nlst2.mtype_defs, valueBinding(n.lexeme, mtype_type())) ;
 }
 

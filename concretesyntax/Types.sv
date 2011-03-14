@@ -39,7 +39,7 @@ t::Type_c ::= 'int'
 concrete production mtypeType_c
 t::Type_c ::= 'mtype'
 { t.pp = "mtype";
---  t.ast_Type = mtypeType();
+  t.ast = mtypeTypeExpr();
 }
 
 concrete production chanType_c

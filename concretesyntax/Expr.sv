@@ -164,7 +164,7 @@ exp::Expr_c ::= lhs::Expr_c '<=' rhs::Expr_c
 concrete production eq_expr_c
 exp::Expr_c ::= lhs::Expr_c '==' rhs::Expr_c
 { exp.pp = lhs.pp ++ " == " ++ rhs.pp;
--- exp.ast_Expr = eq_expr(lhs.ast_Expr,rhs.ast_Expr);
+  exp.ast = genericBinOp(lhs.ast, mkOp("==", booleanTypeRep()), rhs.ast) ;
 }
 
 concrete production ne_expr_c
@@ -182,7 +182,7 @@ exp::Expr_c ::= lhs::Expr_c '&&' rhs::Expr_c
 concrete production orexpr_c
 exp::Expr_c ::= lhs::Expr_c '||' rhs::Expr_c
 { exp.pp = lhs.pp ++ " || " ++ rhs.pp;
--- exp.ast_Expr = orexpr(lhs.ast_Expr,rhs.ast_Expr);
+  exp.ast = genericBinOp(lhs.ast, mkOp("||", booleanTypeRep()), rhs.ast) ;
 }
 
 concrete production lshift_expr_c

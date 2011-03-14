@@ -1,5 +1,6 @@
 grammar edu:umn:cs:melt:ableP:terminals ;
 
-terminal FOR_t 'for' lexer classes {promela,promela_kwd};
-terminal IN_t 'in' ; -- lexer classes {promela,promela_kwd};
-terminal DOTDOT_t '..' ;
+terminal FOR 'for' lexer classes {promela,promela_kwd};
+terminal IN  'in' ; -- lexer classes {promela,promela_kwd};
+terminal DOTDOT '..' ;
+terminal SELECT 'select'   lexer classes {promela,promela_kwd};

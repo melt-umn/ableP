@@ -30,5 +30,8 @@ us::Units_c ::= u::Unit_c
 concrete production units_snoc_c
 us::Units_c ::= us2::Units_c u::Unit_c 
 { us.pp = us2.pp ++ u.pp ;
-  us.ast = units_snoc(us2.ast,u.ast);   
+  us.ast = case u of
+             unit_semi_c(_) -> us2.ast   -- drop semi-colon units from AST
+           | _ -> units_snoc(us2.ast,u.ast)
+           end ;
 }

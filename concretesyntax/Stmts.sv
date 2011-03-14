@@ -102,13 +102,13 @@ st::Statement_c ::= pr::PRINTF '(' str::STRING par::PrArgs_c ')'
 concrete production printm_stmt_c
 st::Statement_c ::= pr::PRINTM '(' vref::Varref_c ')'
 { st.pp = "printm" ++ "(" ++ vref.pp ++ ")" ;
--- st.ast_Stmt = printm_stmt(vref.ast_Expr);
+  st.ast = printmStmt(vref.ast);
 }
 
 concrete production printm_const_c
 st::Statement_c ::= pr::PRINTM '(' cn::CONST ')'
 { st.pp = "printm" ++ "(" ++ cn.lexeme ++ ")";
--- st.ast_Stmt = printm_const(cn);
+  st.ast = printmConstStmt(cn);
 }
 
 concrete production assert_stmt_c

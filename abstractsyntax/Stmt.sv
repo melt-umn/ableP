@@ -5,6 +5,7 @@ nonterminal Stmt with pp, ppi, errors, host<Stmt> ;
 abstract production seqStmt
 s::Stmt ::= s1::Stmt s2::Stmt
 { s.pp = s1.pp ++ "\n" ++ s2.pp ; 
+  s.errors := s1.errors ++ s2.errors ;
   s.host = seqStmt(s1.host, s2.host);
 }
 
@@ -13,6 +14,7 @@ s::Stmt ::= d::Decls
 { s.pp = d.pp ; -- ++ " ";
   d.ppi = s.ppi ;
   d.ppsep = "" ; -- ;" \n" ;
+  s.errors := d.errors ;
   s.host = one_decl(d.host);
 --  s.errors := d.errors;
 --  s.defs = d.defs;
@@ -27,12 +29,27 @@ s::Stmt ::= st::String es::Exprs
             noneExprs() -> " " 
           | _ -> ", " ++ es.pp end  ++
           ");\n" ;
- s.host = printStmt(st, es.host);
+ s.errors := es.errors ;
+ s.host = printStmt(st, es.host) ;
+}
+
+abstract production printmStmt
+s::Stmt ::= vref::Expr
+{ s.pp = "printm" ++ "(" ++ vref.pp ++ ") ;\n";
+  s.errors := vref.errors;
+  s.host = printmStmt(vref.host) ;
+}
+abstract production printmConstStmt
+s::Stmt ::= cn::CONST
+{ s.pp = "printm" ++ "(" ++ cn.lexeme ++ ") ;\n";
+  s.errors := [ ];
+  s.host = printmConstStmt(cn) ;
 }
 
 abstract production assign
 s::Stmt ::= lhs::Expr rhs::Expr 
 { s.pp = s.ppi ++ lhs.pp ++ " = " ++ rhs.pp ++ " ;\n" ; 
+  s.errors := lhs.errors ++ rhs.errors ;
   s.host = assign(lhs.host, rhs.host) ;
 }
 
@@ -68,7 +85,7 @@ s::Stmt ::=
 
 abstract production gotoStmt
 s::Stmt ::= id::ID
-{ s.pp = s.ppi ++ "goto " ++ id.lexeme;
+{ s.pp = s.ppi ++ "goto " ++ id.lexeme ++ " ;\n" ;
   s.errors := [ ];
   s.host = gotoStmt(id);
 --  s.defs = emptyDefs();
@@ -358,25 +375,6 @@ st::Stmt ::= str::STRING par::Args
   par.env = st.env;
 }
 
-abstract production printm_stmt
-st::Stmt ::= vref::Expr
-{
-  st.basepp = "printm" ++ "(" ++ vref.basepp ++ ")";
-
-  st.pp = "printm" ++ "(" ++ vref.pp ++ ")";
-  st.errors = vref.errors;
-  vref.env = st.env;
-  st.defs = emptyDefs();
-}
-abstract production printm_const
-st::Stmt ::= cn::CONST
-{
-  st.basepp = "printm" ++ "(" ++ cn.lexeme ++ ")";
-
-  st.pp = "printm" ++ "(" ++ cn.lexeme ++ ")";
-  st.errors = [];
-  st.defs = emptyDefs();
-}
 
 -- Block-type statements                        --
 --------------------------------------------------

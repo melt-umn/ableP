@@ -6,35 +6,41 @@ nonterminal Exprs with pp, errors, host<Exprs> ;
 abstract production varRef
 e::Expr ::= id::ID
 { e.pp = id.lexeme ; 
+  e.errors := [ ] ;
   e.host = varRef(id) ;
 }
 
 abstract production constExpr
 e::Expr ::= c::CONST
 { e.pp = c.lexeme ;
+  e.errors := [ ] ;
   e.host = constExpr(c);
 }
 
 abstract production dotAccess
 e::Expr ::= r::Expr f::ID
 { e.pp = "(" ++ r.pp ++ "." ++ f.lexeme ++ ")" ; 
+  e.errors := [ ] ;
   e.host = dotAccess(r.host, f);
 }
 
 abstract production arrayAccess
 e::Expr ::= a::Expr i::Expr
 { e.pp = "(" ++ a.pp ++ "[" ++ i.pp ++ "]" ++ ")" ; 
+  e.errors := [ ] ;
   e.host = arrayAccess(a.host, i.host);
 }
 
 abstract production noneExprs
 es::Exprs ::=
 { es.pp = "" ;
+  es.errors := [ ] ;
   es.host = noneExprs() ;
 }
 abstract production oneExprs
 es::Exprs ::= e::Expr
 { es.pp = e.pp ;
+  es.errors := e.errors ;
   es.host = oneExprs(e.host);
 }
 abstract production consExprs
@@ -44,6 +50,7 @@ es::Exprs ::= e::Expr rest::Exprs
              noneExprs() -> ""
            | _ -> rest.pp 
           end ; 
+  es.errors := e.errors ++ rest.errors ;
   es.host = consExprs(e.host, rest.host);
 }
 

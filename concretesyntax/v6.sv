@@ -18,9 +18,9 @@ Special : for_pre ':' expr DOTDOT expr ')'	{ for_setup($1, $3, $5); in_for = 0;}
 -}
 
 nonterminal ForPre_c with pp, ast<Expr>, forTerminal ;
-synthesized attribute forTerminal::FOR_t ;
+synthesized attribute forTerminal::FOR ;
 concrete production forPre_c
-fp::ForPre_c ::= f::FOR_t '(' v::Varref_c 
+fp::ForPre_c ::= f::FOR '(' v::Varref_c 
 { fp.pp = "for (" ++ v.pp ; 
   fp.ast = v.ast ; 
   fp.forTerminal = f ;
@@ -45,10 +45,11 @@ s::Special_c ::= fpre::ForPre_c 'in' v::Varref_c ')' fpost::ForPost_c
 { s.pp = fpre.pp ++ " in " ++ v.pp ++ ")" ++ fpost.pp ; }
 
 -- this is a statement - can we still do "choice" as an expression.
-terminal SELECT 'select'   lexer classes {promela,promela_kwd};
 concrete production select_c
 s::Special_c ::= sl::'select' '(' v::Varref_c ':' lower::Expr_c '..' upper::Expr_c ')'
-{ s.pp = "select (" ++ v.pp ++ ": " ++ lower.pp ++ ".." ++ upper.pp ++ ")" ; }
+{ s.pp = "select (" ++ v.pp ++ ": " ++ lower.pp ++ ".." ++ upper.pp ++ ")" ; 
+  s.ast = select (sl, v.ast, lower.ast, upper.ast) ;
+}
 
 
 {-

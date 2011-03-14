@@ -13,6 +13,7 @@ un::Unit ::= ds::Decls
   ds.ppi = un.ppi;
   ds.ppsep = "; \n" ;
   un.errors := ds.errors;
+  un.host = unitDecls(ds.host);
 -- un.defs = ds.defs;
 -- ds.env = un.env ;
 }

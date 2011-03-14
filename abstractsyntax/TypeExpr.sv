@@ -10,6 +10,14 @@ t::TypeExpr ::=
   t.host = intTypeExpr();
 }
 
+abstract production mtypeTypeExpr
+t::TypeExpr ::=
+{ t.pp = "mtype";
+  t.typerep = mtypeTypeRep();
+  t.errors := [];
+  t.host = mtypeTypeExpr();
+}
+
 
 {-
 nonterminal Type with pp, basepp, defs, env, errors, typerep ;
@@ -141,14 +149,6 @@ t::Type ::=
  t.errors = [];
 }
 
-abstract production mtypeType
-t::Type ::=
-{
- t.pp = "mtype";
- t.basepp = "mtype";
- t.typerep = mtype_type();
- t.errors = [];
-}
 
 abstract production unsignedType
 t::Type ::=

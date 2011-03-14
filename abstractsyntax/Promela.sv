@@ -26,6 +26,7 @@ abstract production units_one
 us::Units ::= u::Unit
 { us.pp = u.pp; 
   u.ppi = "";
+  us.errors := u.errors ;
   us.host = units_one(u.host);
 --  us.basepp = u.basepp;
 --  us.errors = u.errors;
@@ -35,16 +36,17 @@ us::Units ::= u::Unit
 }
 
 abstract production units_snoc
-us::Units ::= us2::Units u::Unit
-{ us.pp = us2.pp ++ u.pp;
+us::Units ::= some::Units u::Unit
+{ us.pp = some.pp ++ u.pp;
   u.ppi = "";
-  us.host = units_snoc(us2.host, u.host);
---  us.basepp = us2.basepp ++ u.basepp;
---  us.errors = us2.errors ++ u.errors;
---  us.defs = mergeDefs(us2.defs,u.defs);  
---  us2.env = us.env ;
---  u.env = mergeDefs(us2.defs,us.env);
---  us.inlined_Units = units_snoc(us2.inlined_Units, u.inlined_Unit);
+  us.errors := some.errors ++ u.errors ;
+  us.host = units_snoc(some.host, u.host);
+--  us.basepp = some.basepp ++ u.basepp;
+--  us.errors = some.errors ++ u.errors;
+--  us.defs = mergeDefs(some.defs,u.defs);  
+--  some.env = us.env ;
+--  u.env = mergeDefs(some.defs,us.env);
+--  us.inlined_Units = units_snoc(some.inlined_Units, u.inlined_Unit);
 }
 
 
