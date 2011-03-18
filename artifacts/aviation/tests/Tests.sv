@@ -1,11 +1,11 @@
-grammar edu:umn:cs:melt:ableP:comp:aviation:tests ;
+grammar edu:umn:cs:melt:ableP:artifacts:aviation:tests ;
 
 import lib:testing ;
 import lib:langproc:errors hiding msg ;
 import lib:extcore ;
 import edu:umn:cs:melt:ableP:host ;
 import edu:umn:cs:melt:ableP:host:tests ;
-import edu:umn:cs:melt:ableP:comp:promela:tests ;
+import edu:umn:cs:melt:ableP:artifacts:promela:tests ;
 
 function main
 IOVal<Integer> ::= args::[String] mainIO::IO

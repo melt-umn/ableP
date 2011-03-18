@@ -7,13 +7,13 @@
 # or add arguments, like  ./silver-compile --clean
 
 export GRAMMAR_PATH="../../../../../../../../../grammars"
-#export  SILVER_HOME="../../../../../../../../../../Melt_SVN_http/silver/trunk/jars"
+export  SILVER_HOME="../../../../../../../../../../Melt_SVN_http/silver/trunk/jars"
 
 export ANT_OPTS="-Xss32m -Xmx2000m"
 
 time java -Xss8M -Xmx1000M -jar $SILVER_HOME/RunSilver.jar \
      $1 -o ableP.tests.jar \
-     edu:umn:cs:melt:ableP:comp:aviation:tests \
+     edu:umn:cs:melt:ableP:artifacts:aviation:tests \
      && ant
 
 

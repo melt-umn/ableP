@@ -13,5 +13,5 @@ export ANT_OPTS="-Xss32m -Xmx2000m"
 
 java -Xss8M -Xmx2000M -jar $SILVER_HOME/RunSilver.jar \
      $1 -o ableP.aviation.jar \
-     edu:umn:cs:melt:ableP:comp:aviation \
+     edu:umn:cs:melt:ableP:artifacts:aviation \
      && ant
