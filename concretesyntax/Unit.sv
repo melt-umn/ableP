@@ -18,78 +18,61 @@ u::Unit_c ::= p::Proc_c
 { u.pp = p.pp ;
   u.ast = p.ast ; 
 }
-action
-{
-  usedProcess = 0;
-}
+action { usedProcess = 0; }
 
 concrete production unit_init_c
 u::Unit_c ::= i::Init_c
-{ u.pp = i.pp;
---  u.ast_Unit = i.ast_Unit;  
-}
+{ u.pp = i.pp;  u.ast = i.ast;   }
 
 concrete production unit_claim_c
 u::Unit_c ::= c::Claim_c
-{ u.pp = c.pp ;
---  u.ast_Unit = c.ast_Unit;  
-}
+{ u.pp = c.pp ;   u.ast = c.ast;   }
 
 --	| ltl		/* ltl formula        */
 -- ltl new for v6, in LTL.sv
 
 concrete production unit_events_c
 u::Unit_c ::= e::Events_c
-{ u.pp = e.pp;
---  u.ast_Unit = e.ast_Unit;  
-}
+{ u.pp = e.pp;  u.ast = e.ast;  }
 
 concrete production unit_one_decl_c
 u::Unit_c ::= dec::OneDecl_c
-{ u.pp = dec.pp ;
-  u.ast = unitDecls(dec.ast) ;
-}
+{ u.pp = dec.pp ;  u.ast = unitDecls(dec.ast) ;  }
 
 concrete production unit_utype_c
 u::Unit_c ::= ut::Utype_c
-{ u.pp = ut.pp ;
---  u.ast_Unit = ut.ast_Unit;  
-}
+{ u.pp = ut.pp ;  u.ast = ut.ast;  }
 
 concrete production unit_c_fcts_c
 u::Unit_c ::= cf::C_Fcts_c
-{ u.pp = cf.pp ;
--- u.ast_Unit = cf.ast_Unit ;
+{ u.pp = cf.pp ;  u.ast = cf.ast ;
 }
 
 concrete production unit_ns_c
 u::Unit_c ::= ns::NS_c
-{ u.pp = ns.pp ;
---  u.ast_Unit = ns.ast_Unit;  
-}
-action
-{   usedInline = 1;   }
+{ u.pp = ns.pp ; u.ast = ns.ast;   }
+action { usedInline = 1; }
 
 concrete production unit_semi_c
 u::Unit_c ::= se::SEMI
-{ u.pp = ";\n";
---  u.ast_Unit = unit_semi();   
+{ u.pp = ";\n"; 
+--  u.ast = errror ("Should be filtered out by unit_snoc_c.");
 }
 
 
 
 --Init 
-nonterminal Init_c with pp;   -- same in v4.2.9 and v6
+nonterminal Init_c with pp, ast<Unit> ;   -- same in v4.2.9 and v6
 
 concrete production init_c
 i::Init_c ::= it::INIT op::OptPriority_c body::Body_c
 { i.pp = "\n init" ++ op.pp ++ body.ppi ++ body.pp;
   body.ppi = "  ";
--- i.ast_Unit = init(op.ast_OptPriority,body.ast_Body);
+  i.ast = init(op.ast, body.ast);
 }
 
 --Claim  
-nonterminal Claim_c with pp; -- same in v4.2.9, new prod added to get to v6
+nonterminal Claim_c with pp, ast<Unit> ; -- same in v4.2.9, new prod added to get to v6
 
 --synthesized attribute ast_Body::Body occurs on Body_c;
 --synthesized attribute ast_OptPriority::OptPriority occurs on OptPriority_c;
@@ -105,7 +88,7 @@ c::Claim_c ::= ck::CLAIM body::Body_c
 }
 
 --Events 
-nonterminal Events_c with pp;  --  same in v4.2.9 and v6
+nonterminal Events_c with pp, ast<Unit> ;  --  same in v4.2.9 and v6
 
 concrete production events_c
 e::Events_c ::= tr::TRACE body::Body_c
@@ -117,7 +100,7 @@ e::Events_c ::= tr::TRACE body::Body_c
 
 
 --Utype
-nonterminal Utype_c with pp;  -- same in v4.2.9 and v6
+nonterminal Utype_c with pp, ast<Unit>;  -- same in v4.2.9 and v6
 
 concrete production utype_dcllist_c
 u::Utype_c ::= td::TYPEDEF id::ID '{' dl::DeclList_c '}'
@@ -173,7 +156,7 @@ nm::NM ::= un::UNAME
 -}
 
 -- NS
-nonterminal NS_c with pp;  -- different! by equal! can be fixed with new parser attr.
+nonterminal NS_c with pp, ast<Unit>;  -- different! by equal! can be fixed with new parser attr.
 
 concrete production inline_dcl_iname_c
 ns::NS_c ::= il::INLINE ina::INAME '(' args::Args_c ')' stmt::Statement_c

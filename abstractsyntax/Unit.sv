@@ -5,7 +5,7 @@ nonterminal Unit with pp, ppi, errors, host<Unit> ;
 nonterminal Args with basepp,pp;
 nonterminal NS with basepp,pp;
 ---nonterminal Error with basepp,pp;
-nonterminal OptPriority with basepp,pp;
+--nonterminal OptPriority with basepp,pp;
 
 abstract production unitDecls
 un::Unit ::= ds::Decls
@@ -16,6 +16,17 @@ un::Unit ::= ds::Decls
   un.host = unitDecls(ds.host);
 -- un.defs = ds.defs;
 -- ds.env = un.env ;
+}
+
+abstract production init
+i::Unit ::= op::Priority body::Body
+{ i.pp = "\n" ++ "init " ++ op.pp ++ body.ppi ++ body.pp ;
+  body.ppi = "  ";
+  i.errors := body.errors;
+  i.host = init(op.host, body.host) ;
+-- i.defs = body.defs;
+-- body.env = i.env;
+-- i.inlined_Unit = init(op.inlined_OptPriority, body.inlined_Body);
 }
 
 {-  Will go back and add these as necessesary.
@@ -81,20 +92,6 @@ e::Unit ::= body::Body
  body.env = e.env;
 
  e.inlined_Unit = events(body.inlined_Body);
-}
-abstract production init
-i::Unit ::= op::OptPriority body::Body
-{
- i.pp = "\n" ++ "init " ++ op.pp ++ body.ppi ++ body.pp ;
- body.ppi = "  ";
- i.basepp = "\n" ++ "init " ++ op.basepp ++ body.ppi ++ body.basepp;
-
- i.errors = body.errors;
-
- i.defs = body.defs;
- body.env = i.env;
-
- i.inlined_Unit = init(op.inlined_OptPriority, body.inlined_Body);
 }
 
 abstract production utype_dcllist

@@ -16,11 +16,9 @@ s::Stmt ::= d::Decls
   d.ppsep = "" ; -- ;" \n" ;
   s.errors := d.errors ;
   s.host = one_decl(d.host);
---  s.errors := d.errors;
 --  s.defs = d.defs;
 --  d.env = s.env ;
 }
-
 
 abstract production printStmt
 s::Stmt ::= st::String es::Exprs
@@ -157,6 +155,33 @@ s::Stmt ::= e::Expr
 }
 
 
+-- Message sends and receives                   --
+--------------------------------------------------
+abstract production sndStmt
+sc::Stmt ::= vref::Expr op::String ma::MArgs
+{ -- op is either "!" or "!!", one of the two kinds of snd operators.
+  sc.pp =  vref.pp ++ op ++ ma.pp ++ " ;\n" ;
+  sc.errors := vref.errors ++ ma.errors ; 
+  sc.host = sndStmt (vref.host, op, ma.host) ;
+--  sc.defs = emptyDefs();
+--  vref.env = sc.env;
+--  ma.env = sc.env;
+}
+
+abstract production rcvStmt
+sc::Stmt ::= vref::Expr op::String ra::RArgs
+{ -- op is either "?", "??", "?<>", or "??<>"
+  -- one of the four kinds of rcv operators.
+  sc.pp =  vref.pp ++ op ++ ra.pp ++ " ;\n" ;
+  sc.errors := vref.errors ++ ra.errors ; 
+  sc.host = rcvStmt (vref.host, op, ra.host) ;
+--  sc.defs = emptyDefs();
+--  vref.env = sc.env;
+--  ma.env = sc.env;
+}
+
+
+
 {-
 ----------
 grammar edu:umn:cs:melt:ableP:abstractsyntax;
@@ -203,7 +228,7 @@ vrl1::VrefList ::= vref::Expr vrl2::VrefList
 grammar edu:umn:cs:melt:ableP:abstractsyntax;
 
 nonterminal RArgs with basepp,pp;
-nonterminal MArgs with basepp,pp;
+
 nonterminal Options with basepp,ppi,pp;
 nonterminal OS with basepp,pp;
 
@@ -267,16 +292,6 @@ sc::Stmt ::= vref::Expr ra::RArgs
  ra.env = sc.env; 
 }
 
-abstract production snd_special
-sc::Stmt ::= vref::Expr ma::MArgs
-{
-  sc.basepp = vref.basepp ++ "!" ++ ma.basepp ;  
-  sc.pp =  vref.pp ++ "!" ++ ma.pp  ;
-  sc.errors = vref.errors ++ ma.errors ; 
-  sc.defs = emptyDefs();
-  vref.env = sc.env;
-  ma.env = sc.env;
-}
 
 abstract production rrcv_stmt
 st::Stmt ::= vref::Expr ra::RArgs

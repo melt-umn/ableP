@@ -29,14 +29,12 @@ nonterminal Special_c  -- same as in v4.2.9, needs for and select exts for v6
 concrete production rcv_special_c
 sc::Special_c ::= vref::Varref_c '?' ra::RArgs_c
 { sc.pp = vref.pp ++ "?" ++ ra.pp;
---  sc.ast_Stmt = rcv_special(vref.ast_Expr,ra.ast_RArgs);
-}
+  sc.ast = rcvStmt(vref.ast, "?", ra.ast);   }
 
 concrete production snd_special_c
 sc::Special_c ::= vref::Varref_c '!' ma::MArgs_c
 { sc.pp = vref.pp ++ "!" ++ ma.pp;
--- sc.ast_Stmt = snd_special(vref.ast_Expr,ma.ast_MArgs);
-}
+  sc.ast = sndStmt (vref.ast, "!", ma.ast);   }
 
 concrete production if_special_c
 sc::Special_c ::= i::IF op::Options_c fi::FI
@@ -127,26 +125,22 @@ st::Statement_c ::= cc::Ccode_c
 concrete production rrcv_stmt_c
 st::Statement_c ::= vref::Varref_c r::R_RCV ra::RArgs_c
 { st.pp = vref.pp ++ "??" ++ ra.pp;
--- st.ast_Stmt = rrcv_stmt(vref.ast_Expr,ra.ast_RArgs);
-}
+  st.ast = rcvStmt(vref.ast, "??", ra.ast);   }
 
 concrete production rcv_stmt_c
 st::Statement_c ::= vref::Varref_c r::RCV '<' ra::RArgs_c '>'
 { st.pp = vref.pp ++ "? <" ++ ra.pp ++ ">";
--- st.ast_Stmt = rcv_stmt(vref.ast_Expr,ra.ast_RArgs);
-}
+  st.ast = rcvStmt(vref.ast, "?<>", ra.ast);   }
 
 concrete production rrcv_poll_c
 st::Statement_c ::= vref::Varref_c rr::R_RCV '<' ra::RArgs_c '>' 
 { st.pp = vref.pp ++ "?? <" ++ ra.pp ++ ">";
--- st.ast_Stmt = rrcv_poll(vref.ast_Expr,ra.ast_RArgs);
-}
+  st.ast = rcvStmt(vref.ast, "??<>", ra.ast);   }
 
 concrete production snd_stmt_c
 st::Statement_c ::= vref::Varref_c '!!' ma::MArgs_c
 { st.pp = vref.pp ++ "!!" ++ ma.pp;
--- st.ast_Stmt = snd_stmt(vref.ast_Expr,ma.ast_MArgs);
-}
+  st.ast = sndStmt(vref.ast, "!!", ma.ast);   }
 
 
 concrete production fullexpr_stmt_c

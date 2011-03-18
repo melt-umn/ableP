@@ -74,6 +74,63 @@ op::Op ::= n::String tr::TypeRep
 }
 
 
+-- These can be specialized as need be.
+abstract production eqExpr
+exp::Expr ::= lhs::Expr rhs::Expr
+{ forwards to genericBinOp(lhs, mkOp("==",booleanTypeRep()), rhs) ; }
+abstract production orExpr
+exp::Expr ::= lhs::Expr rhs::Expr
+{ forwards to genericBinOp(lhs, mkOp("||",booleanTypeRep()), rhs) ; }
+abstract production andExpr
+exp::Expr ::= lhs::Expr rhs::Expr
+{ forwards to genericBinOp(lhs, mkOp("&&",booleanTypeRep()), rhs) ; }
+
+abstract production notExpr
+exp::Expr ::= ne::Expr
+{ exp.pp = "(! " ++ ne.pp ++ ")" ;
+  exp.errors := ne.errors ;
+  exp.typerep = booleanTypeRep() ;
+  exp.host = notExpr(ne.host) ;
+}
+
+abstract production trueExpr
+e::Expr ::= c::CONST
+{ e.pp = c.lexeme ;
+  e.errors := [ ] ;
+  e.host = trueExpr(c);
+}
+
+abstract production condExpr
+e::Expr ::= c::Expr thenexp::Expr elseexp::Expr
+{ e.pp = "(" ++ c.pp ++ "->" ++ thenexp.pp ++ ":" ++ elseexp.pp ++ ")";
+  e.errors := c.errors ++ thenexp.errors ++ elseexp.errors;
+  e.typerep = thenexp.typerep;
+  e.host = condExpr(c.host, thenexp.host, elseexp.host) ; 
+--  exp.is_var_ref = false;
+}
+
+-- 3 forms for including C expressions in Promela expressions.
+abstract production exprCExpr
+exp::Expr ::= kwd::C_EXPR ce::String
+{ exp.pp =  kwd.lexeme ++ "{" ++ ce ++ "}" ;
+  exp.errors := [ ];
+  exp.host = exprCExpr(kwd, ce);
+}
+
+abstract production exprCCmpd
+exp::Expr ::= kwd::C_EXPR ce::String
+{ exp.pp = kwd.lexeme ++ "{" ++ ce ++ "}" ;
+  exp.errors := [ ] ;
+  exp.host = exprCCmpd(kwd, ce);
+}
+
+abstract production exprCExprCmpd
+exp::Expr ::= kwd::C_EXPR ce::String cp::String
+{ exp.pp = kwd.lexeme ++ "[" ++ ce ++ "] {" ++ cp ++ "}" ;
+  exp.errors := [ ] ;
+  exp.host = exprCExprCmpd(kwd, ce, cp);
+}
+
 {-
 ------------------
 
@@ -325,16 +382,6 @@ exp::Expr ::= lhs::Expr rhs::Expr
   exp.is_var_ref = false;
 }
 
-abstract production eq_expr
-exp::Expr ::= lhs::Expr rhs::Expr
-{
-  exp.basepp = lhs.basepp ++ " == " ++ rhs.basepp;
-  exp.pp = lhs.pp ++ " == " ++ rhs.pp; 
-  exp.errors = lhs.errors ++ rhs.errors;
-  exp.typerep = boolean_type(); 
-
-  exp.is_var_ref = false;
-}
 
 abstract production ne_expr
 exp::Expr ::= lhs::Expr rhs::Expr
@@ -422,16 +469,6 @@ exp::Expr ::= lhs::Expr
   exp.is_var_ref = false;
 }
 
-abstract production expr_expr
-exp::Expr ::= exp1::Expr exp2::Expr exp3::Expr
-{
-  exp.basepp = "(" ++ exp1.basepp ++ "->" ++ exp2.basepp ++ ":" ++ exp3.basepp ++ ")";
-  exp.pp = "(" ++ exp1.pp ++ "->" ++ exp2.pp ++ ":" ++ exp3.pp ++ ")";
-  exp.errors = exp1.errors ++ exp2.errors ++ exp3.errors;
-  exp.typerep = exp2.typerep;
-
-  exp.is_var_ref = false;
-}
 
 abstract production run_expr
 exp::Expr ::= an::Aname args::Args op::OptPriority
@@ -500,14 +537,6 @@ exp::Expr ::= vref::Expr
   exp.is_var_ref = vref.is_var_ref;
 }
 
-abstract production abs_cexpr_expr
-exp::Expr ::= ce::Cexpr
-{
-  exp.basepp = ce.basepp;
-  exp.pp = ce.pp;
-  exp.errors = ce.errors;
-  exp.is_var_ref = false;
-}
 
 abstract production const_expr
 exp::Expr ::= c::CONST

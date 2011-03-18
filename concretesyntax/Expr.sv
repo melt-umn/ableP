@@ -139,7 +139,7 @@ exp::Expr_c ::= lhs::Expr_c '|' rhs::Expr_c
 concrete production gt_expr_c
 exp::Expr_c ::= lhs::Expr_c '>' rhs::Expr_c
 { exp.pp = lhs.pp ++ " > " ++ rhs.pp ;
--- exp.ast_Expr = gt_expr(lhs.ast_Expr,rhs.ast_Expr);
+  exp.ast = genericBinOp(lhs.ast, mkOp(">", booleanTypeRep()), rhs.ast) ;
 }
 
 concrete production lt_expr_c
@@ -221,9 +221,9 @@ precedence = 45
 }
 
 concrete production expr_expr_c
-exp::Expr_c ::= '(' exp1::Expr_c s1::SEMI exp2::Expr_c ':' exp3::Expr_c ')'
-{ exp.pp = "(" ++ exp1.pp ++ s1.lexeme ++ exp2.pp ++ ":" ++ exp3.pp ++ ")";
--- exp.ast_Expr = expr_expr(exp1.ast_Expr,exp2.ast_Expr,exp3.ast_Expr);
+e::Expr_c ::= '(' c::Expr_c s1::SEMI thenexp::Expr_c ':' elseexp::Expr_c ')'
+{ e.pp = "(" ++ c.pp ++ s1.lexeme ++ thenexp.pp ++ ":" ++ elseexp.pp ++ ")";
+  e.ast = condExpr(c.ast, thenexp.ast, elseexp.ast);
 }
 
 concrete production run_expr_c
@@ -263,12 +263,6 @@ concrete production varref_expr_c
 exp::Expr_c ::= vref::Varref_c
 { exp.pp = vref.pp;
   exp.ast = vref.ast ;
-}
-
-concrete production c_expr_c
-e::Expr_c ::= ce::Cexpr_c
-{ e.pp = ce.pp ;
--- e.ast_Expr = expr_ccode(ce.ast_Cexpr) ;
 }
 
 concrete production const_expr_c

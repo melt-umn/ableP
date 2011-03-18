@@ -29,9 +29,9 @@ IOVal<Integer> ::= args::[String]
   print_success = 
     print( "\n" ++
            "Command line arguments: " ++ head(args) ++
-           "\n\n" ++
-           "CST pretty print: \n" ++ r_cst.pp ++
-           "\n\n" ++ 
+          -- "\n\n" ++
+          -- "CST pretty print: \n" ++ r_cst.pp ++
+          -- "\n\n" ++ 
            "AST pretty print: \n" ++ r_ast.pp ++
            "\n\n" ++
            "Warnings: " ++

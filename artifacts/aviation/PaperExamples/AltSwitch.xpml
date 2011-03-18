@@ -1,0 +1,50 @@
+mtype = {Unknown, Above, Below } ;   /* altitude status */
+mtype = {Good, Bad} ;                /* quality of instrument readings */
+
+int above_t, trouble_t ;  /* this should be a timer and the init block should be
+                             generated for all timers */
+init { above_t = 10 ; trouble_t = 10 ; }  /* overload assignment for time type. */
+
+active proctype determineStatus ()
+{
+ int altitude, threshold, hyst ;
+ mtype altQuality, altStatus ;
+
+ select (altitude: 1000 .. 10000 step 100) ;
+
+ check:
+  if :: tbl altStatus == Unknown        : T *  /* Assign value to altStatus */
+            altQuality == Good          : T T
+            altitude > threshold        : T T
+            altitude > threshold + hyst : * T  
+        lbt -> altStatus = Above ;
+     :: tbl altQuality == Good   : T
+            altitude > threshold : F  
+        lbt -> altStatus = Below ; 
+     :: else; altStatus = (altQuality == Good -> Unknown : altStatus) ;
+  fi ;
+
+  if :: altStatus == Above -> goto above; 
+     :: altStatus == Below || altStatus == Unknown -> goto trouble;
+  fi ;
+
+ above:
+   printm (altStatus) ;
+   /* delay(t,1); */
+   goto check ;
+
+ trouble:
+   printm (altStatus) ;
+   monitor!altStatus,altitude ;   /* send msg to monitor   */
+   /* delay(t,1); */
+   goto check ;
+}
+
+active proctype monitorStatus () 
+{ mtype stat; int alt;
+  printf("monitor status ... \n") ;
+  do :: monitor ? alt, stat ; 
+        /* access 2d array? */
+        printf ("Warning.") ;
+  od ;
+}

@@ -1,8 +1,74 @@
 grammar edu:umn:cs:melt:ableP:abstractsyntax;
 
+-- Message arguments for sending
+nonterminal MArgs with pp, errors, host<MArgs> ;
+
+abstract production margsSeq
+ma::MArgs ::= es::Exprs
+{ ma.pp = es.pp;
+  ma.errors := es.errors ;
+  ma.host = margsSeq(es.host) ;
+ -- ma.arg_list = a.arg_list ;
+}
+
+abstract production margsPattern
+ma::MArgs ::= es::Exprs
+{ ma.pp = es.pp;
+  ma.errors := es.errors ;
+  ma.host = margsPattern(es.host) ;
+ -- ma.arg_list = a.arg_list ;
+}
+
+-- Message arguments for receiving
+nonterminal RArgs with pp, errors, host<RArgs> ;
+
+abstract production oneRArg
+ras::RArgs ::= ra::RArg
+{ ras.pp = ra.pp;  
+  ras.errors := ra.errors ; 
+  ras.host = oneRArg(ra.host) ; }
+
+abstract production consRArg
+ras::RArgs ::= ra::RArg rest::RArgs
+{ ras.pp = ra.pp ++ " , " ++ rest.pp;  
+  ras.errors := ra.errors ++ rest.errors ;
+  ras.host = consRArg(ra.host, rest.host);  }
+
+abstract production consParenRArg
+ras::RArgs ::= ra::RArg rest::RArgs
+{ ras.pp = ra.pp ++ "(" ++ rest.pp ++ ")";
+  ras.errors := ra.errors ++ rest.errors ;
+  ras.host = consParenRArg(ra.host, rest.host);  }
+
+nonterminal RArg with pp, errors, host<RArg> ;
+
+abstract production varRArg
+ra::RArg ::= vr::Expr
+{ ra.pp = vr.pp;
+  ra.errors := vr.errors ;
+  ra.host = varRArg(vr.host);   }
+
+abstract production evalRArg
+ra::RArg ::= exp::Expr
+{ ra.pp = "eval" ++ "(" ++ exp.pp ++ ")";
+  ra.errors := exp.errors ;
+  ra.host = evalRArg(exp.host);   }
+
+abstract production constRArg
+ra::RArg ::= cst::CONST
+{ ra.pp = cst.lexeme;
+  ra.errors := [ ];
+  ra.host = constRArg(cst) ;   }
+
+abstract production negConstRArg
+ra::RArg ::= cst::CONST
+{ ra.pp = "-" ++ cst.lexeme;
+  ra.errors := [ ];
+  ra.host = negConstRArg(cst) ; }
+
 {-
 nonterminal Arg with basepp,pp;
-nonterminal RArg with basepp,pp;
+
 
 synthesized attribute arg_list :: [ Expr ] occurs on Arg, Args, MArgs ;
 
@@ -22,13 +88,6 @@ a::Args ::= a1::Arg
  a.arg_list = a1.arg_list ;
 }
 
-abstract production one_margs
-ma::MArgs ::= a::Arg
-{
- ma.basepp = a.basepp;
- ma.pp = a.pp;
- ma.arg_list = a.arg_list ;
-}
 
 abstract production expr_margs
 ma::MArgs ::= exp::Expr a::Arg
@@ -54,61 +113,5 @@ a1::Arg ::= exp::Expr a2::Arg
  a1.arg_list = [ exp''] ++ a2.arg_list ;
 }
 
-abstract production one_rargs
-ras::RArgs ::= ra::RArg
-{
- ras.basepp = ra.basepp;
- ras.pp = ra.pp;
-}
-
-abstract production cons_rargs
-ras1::RArgs ::= ra::RArg ras2::RArgs
-{
- ras1.basepp = ra.basepp ++ " , " ++ ras2.basepp;
- ras1.pp = ra.pp ++ " , " ++ ras2.pp;
-}
-
-abstract production cons_rpargs
-ras1::RArgs ::= ra::RArg ras2::RArgs
-{
-  ras1.basepp = ra.basepp ++ "(" ++ ras2.basepp ++ ")";
-  ras1.pp = ra.pp ++ "(" ++ ras2.pp ++ ")";
-}
-
-abstract production paren_rargs
-ras1::RArgs ::= ras2::RArgs
-{
-  ras1.basepp = "(" ++ ras2.basepp ++ ")";
-  ras1.pp = "(" ++ ras2.pp ++ ")";
-}
-
-abstract production var_rarg
-ra::RArg ::= vr::Expr   -- was Varref
-{
-  ra.basepp = vr.basepp;
-  ra.pp = vr.pp;
-}
-
-abstract production eval_expr
-ra::RArg ::= exp::Expr
-{
-  ra.basepp = "eval" ++ "(" ++ exp.basepp ++ ")";
-  ra.pp = "eval" ++ "(" ++ exp.pp ++ ")";
-}
-
-abstract production const_rarg
-ra::RArg ::= cst::CONST
-{
-  ra.basepp = cst.lexeme;
-  ra.pp = cst.lexeme;
-
-}
-
-abstract production neg_const
-ra::RArg ::= cst::CONST
-{
-  ra.basepp = "-" ++ cst.lexeme;
-  ra.pp = "-" ++ cst.lexeme;
-}
 
 -}

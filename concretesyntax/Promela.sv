@@ -5,13 +5,13 @@ imports edu:umn:cs:melt:ableP:abstractsyntax ;
 
 synthesized attribute ast<a>::a ;
 
-nonterminal Program_c with pp, ast<Program> ;   -- same as in v4.2.9 and v6.
+nonterminal Program_c with ast<Program> ;   -- same as in v4.2.9 and v6.
 ----------------------------------------
 -- program	: units		{ yytext[0] = '\0'; }   
 
 concrete production program_c
 p::Program_c ::= u::Units_c
-{ p.pp = u.pp ;
+{ -- p.pp = u.pp ;
   u.ppi = "";
   p.ast = program(u.ast);  
 }

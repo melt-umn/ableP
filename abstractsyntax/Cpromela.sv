@@ -1,31 +1,70 @@
 grammar edu:umn:cs:melt:ableP:abstractsyntax;
 
+abstract production unitCcmpd
+u::Unit ::= cc::Ccmpd
+{ u.pp = "\n" ++ cc.pp ;
+  u.errors :=  [ ] ;
+  u.host = unitCcmpd(cc) ;
+}
+
+abstract production unitCdcls
+u::Unit ::= cc::Cdcls
+{ u.pp = "\n" ++ cc.pp ;
+  u.errors :=  [ ] ;
+  u.host = unitCdcls(cc) ;
+}
+
+abstract production cStateTrack
+u::Unit ::= kwd::String str1::String str2::String str3::String
+{ u.pp = kwd ++ " " ++ str1 ++ " " ++ str2 ++ " " ++ str3 ;
+  u.errors := [ ] ;
+  u.host = cStateTrack(kwd, str1, str2, str3) ;
+}
+
+nonterminal Ccmpd with pp, errors, host<Ccmpd> ;
+nonterminal Cdcls with pp, errors, host<Cdcls> ;
+
+abstract production cCmpd
+cc::Ccmpd ::= kwd::C_CODE cmpd::String
+{ cc.pp = kwd.lexeme ++ "{ " ++  cmpd ++ " }";
+  cc.errors := [];
+  cc.host = cCmpd(kwd,cmpd);
+}
+
+abstract production cExprCmpd
+cc::Ccmpd ::= kwd::C_CODE expr::String cmpd::String
+{ cc.pp = kwd.lexeme ++ " [ " ++ expr ++ " ] { " ++ cmpd ++ " } " ;
+  cc.errors := [];
+  cc.host = cExprCmpd(kwd,expr,cmpd);
+}
+
+abstract production cDcls
+c::Cdcls ::= kwd::C_DECL dcl::String
+{ c.pp = kwd.lexeme ++ " { " ++ dcl ++ " } " ;
+  c.errors := [] ;
+  c.host = cDcls(kwd,dcl);
+}
+
 {-
+
+nonterminal CcodeTEMP with pp ;
+abstract production cCodeTemp
+cc::CcodeTEMP ::= s::String
+{ cc.pp = s ;
+  cc.errors := [ ];
+  cc.host = cCodeTemp(s) ;
+}
+
 
 import edu:umn:cs:melt:ableC:terminals only pp with pp as c_pp;
 import edu:umn:cs:melt:ableC:concretesyntax;
+
 
 -- Productions the embed C code into Promela, the 
 -- following have promela nonterminals on the LHS 
 -- of the production.
 --------------------------------------------------
-abstract production unit_ccode
-cf::Unit ::= cc::Ccode
-{
-  cf.basepp = "\n" ++ cc.basepp; 
-  cf.pp = "\n" ++ cc.pp;
-  cf.errors = cc.errors;
-  cf.defs = emptyDefs(); 
-}
 
-abstract production unit_cstate
-cf::Unit ::= cs::Cstate
-{
-  cf.basepp = "\n" ++ cs.basepp;
-  cf.pp = "\n" ++ cs.pp;
-  cf.errors = cs.errors;
-  cf.defs = emptyDefs();
-}
 
 abstract production stmt_ccode
 st::Stmt ::= cc::Ccode
@@ -47,20 +86,11 @@ e::Expr ::= cs::Cexpr
 
 -- Embedded C code                              --
 --------------------------------------------------
-nonterminal Cstate with basepp,pp;
-nonterminal Ccode with basepp,pp;
-nonterminal Cexpr with basepp,pp;
+
 nonterminal Cstuff with pp, basepp,errors;
 
 -- Ccode --
 -----------
-abstract production ccode_code
-cc::Ccode ::= kwd::C_CODE code::Cstuff   -- C code
-{
- cc.pp     = kwd.lexeme ++ " { " ++ code.pp ++ " } " ;
- cc.basepp = kwd.lexeme ++ " { " ++ code.pp ++ " } " ;
- cc.errors = [];
-}
 
 abstract production ccode_expr_code
 cc::Ccode ::= kwd::C_CODE e::Cstuff code::Cstuff  -- C expression, C code
