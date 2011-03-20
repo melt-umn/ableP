@@ -34,7 +34,7 @@ t::TypeRep ::=
 
 --- below are not updated.
 
-abstract production unsigned_type
+abstract production unsignedType
 t::TypeRep ::=
 { t.tag = "unsigned";
   t.pp = "unsigned";
@@ -42,7 +42,7 @@ t::TypeRep ::=
   --t.var_ref_p = promela_bound_var_ref ;
 }
 
-abstract production short_type
+abstract production shortType
 t::TypeRep ::=
 { t.tag = "short";
   t.pp = "short";
@@ -74,7 +74,7 @@ t::TypeRep ::=
   --t.var_ref_p = promela_bound_var_ref ;
 }
 
-abstract production user_type
+abstract production userType
 t::TypeRep ::= fields::Env
 { t.tag = "user";
   t.pp = "user";
@@ -82,7 +82,7 @@ t::TypeRep ::= fields::Env
   --t.var_ref_p = promela_bound_var_ref ;
 }
 
-abstract production pid_type
+abstract production pidTypeRep
 t::TypeRep ::=
 { t.tag = "pid";
   t.pp = "pid";
@@ -98,7 +98,7 @@ t::TypeRep ::=
   --t.var_ref_p = promela_bound_var_ref ;
 }
 
-abstract production proc_type
+abstract production procType
 t::TypeRep ::=
 { t.tag = "proc type";
   t.pp = "proc type";

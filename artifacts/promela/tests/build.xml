@@ -2,8 +2,8 @@
   <description>Build the grammar edu:umn:cs:melt:ableP:artifacts:promela:tests </description>
 
   <property environment='env'/>
-  <property name='jg' location='/project/melt3/People/evw/Melt_SVN_http_SilverDev/silver/trunk/generated/'/>
-  <property name='sh' location='/project/melt3/People/evw/Melt_SVN_http_SilverDev/silver/trunk/jars/'/>
+  <property name='jg' location='../../../../../../../../../../Melt_SVN_http/silver/trunk/generated/'/>
+  <property name='sh' location='../../../../../../../../../../Melt_SVN_http/silver/trunk/jars/'/>
   <property name='bin' location='${jg}/bin'/>
   <property name='src' location='${jg}/src'/>
 
@@ -88,8 +88,6 @@
   </target>
 
   <target name='copper'>
-    <copper fullClassName='lib.testing.Parser_lib_testing_parse' inputFile='${src}/lib/testing/Parser_lib_testing_parse.copper' outputFile='${src}/lib/testing/Parser_lib_testing_parse.java' skin='xml' warnUselessNTs='no' dump='true' dumpType='html' dumpOnlyOnError='true' dumpFile='Parser_lib_testing_parse.copperdump.html'/>
-    <copper fullClassName='edu.umn.cs.melt.ableP.host.Parser_edu_umn_cs_melt_ableP_host_promelaParser' inputFile='${src}/edu/umn/cs/melt/ableP/host/Parser_edu_umn_cs_melt_ableP_host_promelaParser.copper' outputFile='${src}/edu/umn/cs/melt/ableP/host/Parser_edu_umn_cs_melt_ableP_host_promelaParser.java' skin='xml' warnUselessNTs='no' dump='true' dumpType='html' dumpOnlyOnError='true' dumpFile='Parser_edu_umn_cs_melt_ableP_host_promelaParser.copperdump.html'/>
   </target>
 
 

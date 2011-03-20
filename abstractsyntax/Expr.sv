@@ -131,6 +131,33 @@ exp::Expr ::= kwd::C_EXPR ce::String cp::String
   exp.host = exprCExprCmpd(kwd, ce, cp);
 }
 
+-- Send or Negate
+abstract production sndNotExpr
+exp::Expr ::= lhs::Expr
+{ exp.pp = "(!" ++ lhs.pp ++")" ;
+  forwards to case lhs.typerep of
+                booleanTypeRep() -> notExpr(lhs)
+              | _ -> sndExpr(lhs) end ;
+  --  exp.errors := lhs.errors;
+}
+abstract production sndExpr
+exp::Expr ::= lhs::Expr
+{ exp.pp = "(!" ++ lhs.pp ++ ")" ;
+  exp.errors := lhs.errors;
+  exp.typerep = booleanTypeRep();
+  exp.host = sndExpr(lhs.host);
+}
+
+abstract production negExpr
+exp::Expr ::= lhs::Expr
+{ exp.pp = "(-" ++ lhs.pp ++")" ;
+  exp.errors := lhs.errors;
+  exp.typerep = lhs.typerep ;
+  exp.host = negExpr(lhs.host);
+}
+
+
+
 {-
 ------------------
 
@@ -458,16 +485,6 @@ exp::Expr ::= lhs::Expr
   exp.is_var_ref = false;
 }
 
-
-abstract production snd_expr
-exp::Expr ::= lhs::Expr
-{
-  exp.basepp = "!" ++ lhs.basepp; 
-  exp.pp = "!" ++ lhs.pp;
-  exp.errors = lhs.errors;
-  exp.typerep = boolean_type();
-  exp.is_var_ref = false;
-}
 
 
 abstract production run_expr

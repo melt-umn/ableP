@@ -4,7 +4,7 @@ nonterminal Stmt with pp, ppi, errors, host<Stmt> ;
 
 abstract production seqStmt
 s::Stmt ::= s1::Stmt s2::Stmt
-{ s.pp = s1.pp ++ "\n" ++ s2.pp ; 
+{ s.pp = s.ppi ++ s1.pp ++ s2.pp ; 
   s.errors := s1.errors ++ s2.errors ;
   s.host = seqStmt(s1.host, s2.host);
 }
@@ -33,13 +33,13 @@ s::Stmt ::= st::String es::Exprs
 
 abstract production printmStmt
 s::Stmt ::= vref::Expr
-{ s.pp = "printm" ++ "(" ++ vref.pp ++ ") ;\n";
+{ s.pp = s.ppi ++ "printm" ++ "(" ++ vref.pp ++ ") ;\n";
   s.errors := vref.errors;
   s.host = printmStmt(vref.host) ;
 }
 abstract production printmConstStmt
 s::Stmt ::= cn::CONST
-{ s.pp = "printm" ++ "(" ++ cn.lexeme ++ ") ;\n";
+{ s.pp = s.ppi ++  "printm" ++ "(" ++ cn.lexeme ++ ") ;\n";
   s.errors := [ ];
   s.host = printmConstStmt(cn) ;
 }
@@ -55,8 +55,8 @@ s::Stmt ::= lhs::Expr rhs::Expr
 --------------------------------------------------
 abstract production ifStmt
 s::Stmt ::= op::Options 
-{ s.pp = "if\n" ++ s.ppi ++ op.pp ++ "\n" ++ s.ppi ++ "fi ;\n";
-  op.ppi = s.ppi;
+{ s.pp = s.ppi ++ "if\n" ++ s.ppi ++ op.pp ++ "\n" ++ s.ppi ++ "fi ;\n";
+  op.ppi = s.ppi ++ "  ";
   s.errors := op.errors;
   s.host = ifStmt(op.host);
 --  sc.defs = emptyDefs();
@@ -65,8 +65,8 @@ s::Stmt ::= op::Options
 
 abstract production doStmt
 s::Stmt ::= op::Options
-{ s.pp = "do\n" ++ s.ppi ++ op.pp ++ "\n" ++ s.ppi ++ "od ;\n";
-  op.ppi = s.ppi;
+{ s.pp = s.ppi ++ "do\n" ++ s.ppi ++ op.pp ++ s.ppi ++ "od ;\n";
+  op.ppi = s.ppi ++ "  " ;
   s.errors := op.errors;
   s.host = doStmt(op.host);
 --  s.defs = emptyDefs();
@@ -75,7 +75,7 @@ s::Stmt ::= op::Options
 
 abstract production breakStmt
 s::Stmt ::=
-{ s.pp = "break";
+{ s.pp = s.ppi ++ "break";
   s.errors := [ ];
   s.host = breakStmt();
 --  s.defs = emptyDefs();
@@ -91,7 +91,7 @@ s::Stmt ::= id::ID
 
 abstract production labeledStmt
 s::Stmt ::= id::ID st::Stmt
-{ s.pp = id.lexeme ++ ": " ++ st.pp;
+{ s.pp = s.ppi ++ id.lexeme ++ ": " ++ st.pp;
   st.ppi = s.ppi;
   s.errors := st.errors;
   s.host = labeledStmt(id, st.host);
@@ -101,7 +101,7 @@ s::Stmt ::= id::ID st::Stmt
 
 abstract production elseStmt
 s::Stmt ::= 
-{ s.pp = "else ;\n";
+{ s.pp = s.ppi ++ "else ;\n";
   s.errors := [ ];
   s.host = elseStmt();
 --  s.defs = emptyDefs();
@@ -109,7 +109,7 @@ s::Stmt ::=
 
 abstract production skipStmt
 s::Stmt ::= 
-{ s.pp = "skip ;\n";
+{ s.pp = s.ppi ++ "skip ;\n";
   s.errors := [ ];
 
   -- The Spin lexer replaces "skip" by the constant "1".  We do something similar

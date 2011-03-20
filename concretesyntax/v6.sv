@@ -45,6 +45,8 @@ s::Special_c ::= fpre::ForPre_c 'in' v::Varref_c ')' fpost::ForPost_c
 { s.pp = fpre.pp ++ " in " ++ v.pp ++ ")" ++ fpost.pp ; }
 
 -- this is a statement - can we still do "choice" as an expression.
+
+--terminal SELECT 'select'           lexer classes {promela,promela_kwd};
 concrete production select_c
 s::Special_c ::= sl::'select' '(' v::Varref_c ':' lower::Expr_c '..' upper::Expr_c ')'
 { s.pp = "select (" ++ v.pp ++ ": " ++ lower.pp ++ ".." ++ upper.pp ++ ")" ; 

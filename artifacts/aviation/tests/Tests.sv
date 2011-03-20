@@ -31,7 +31,7 @@ IOVal<Integer> ::= args::[String] mainIO::IO
 
   -- make tests to parse and compare pp of AST
   local astPPTestsIO::IOVal<[Test]> = traverseDirectoriesAndPerform
-       ( ".", [ "AST_pp_tests", "../../aviation/PaperExamples" ], 
+       ( ".", [ "../../promela/tests/AST_pp_tests"] ,
          mkASTppTest, dirSkip, ioval(mainIO,[]) ) ;
 
   -- make tests to parse host AST

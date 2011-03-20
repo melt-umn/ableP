@@ -10,9 +10,10 @@ active proctype determineStatus ()
  int altitude, threshold, hyst ;
  mtype altQuality, altStatus ;
 
- select (altitude: 1000 .. 10000 step 100) ;
-
  check:
+  select (altitude: 1000 .. 10000 step 100) ;
+  select (altQuality: Unknown, Above, Below ) ;
+
   if :: tbl altStatus == Unknown        : T *  /* Assign value to altStatus */
             altQuality == Good          : T T
             altitude > threshold        : T T

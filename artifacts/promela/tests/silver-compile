@@ -7,7 +7,7 @@
 # or add arguments, like  ./silver-compile --clean
 
 export GRAMMAR_PATH="../../../../../../../../../grammars"
-#export  SILVER_HOME="../../../../../../../../../../Melt_SVN_http/silver/trunk/jars"
+export  SILVER_HOME="../../../../../../../../../../Melt_SVN_http/silver/trunk/jars"
 
 export ANT_OPTS="-Xss32m -Xmx2000m"
 

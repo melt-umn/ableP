@@ -90,7 +90,11 @@ t::Test ::= tree::Program_c parseF::Function(ParseResult<Program_c> ::= String S
     then just ("p_ast1_pp != p_ast2_pp \n\n" ++ 
                "p_ast1_pp:\n" ++ p_ast1_pp ++ "\n.....\n\n" ++
                "p_ast2_pp:\n" ++ p_ast2_pp ++ "\n.....\n\n" ++
-               "diff is: \n" ++ rd.iovalue ++ "\n" )
+               "diff is: \n" ++ rd.iovalue ++ "\n\n" ++
+               "Hacky UnParse of trees:\n" ++
+               "p_ast1:\n" ++ hackUnparse(p_ast1) ++ "\n\n" ++
+               "p_ast2:\n" ++ hackUnparse(p_ast2) ++ "\n\n"
+              )
     else nothing() ;
 
  t.msg = case result of

@@ -5,10 +5,8 @@ grammar edu:umn:cs:melt:ableP:abstractsyntax ;
 
 abstract production forRange
 s::Stmt ::= f::FOR vr::Expr lower::Expr upper::Expr body::Stmt
-{ -- s.pp = "for ( " ++ vr.pp ++ " : " ++ lower.pp ++ " .. " ++ upper.pp ++ ")" ++
-  --       " {\n" ++ body.pp ++ "\n} ;" ;
-  -- Leave s.pp commented out so that can see that the forwards to code
-  -- is correct.
+{ s.pp = "for ( " ++ vr.pp ++ " : " ++ lower.pp ++ " .. " ++ upper.pp ++ ")" ++
+         " {\n" ++ body.pp ++ "\n} ;" ;
 
   s.errors := vr.errors ++ lower.errors ++ upper.errors ++ body.errors ;
 
@@ -37,11 +35,7 @@ s::Stmt ::= f::FOR vr::Expr lower::Expr upper::Expr body::Stmt
 
 abstract production select
 s::Stmt ::= sk::SELECT v::Expr lower::Expr upper::Expr 
-{ -- s.pp = "for ( " ++ vr.pp ++ " : " ++ lower.pp ++ " .. " ++ upper.pp ++ ")" ++
-  --       " {\n" ++ body.pp ++ "\n} ;" ;
-  -- Leave s.pp commented out so that can see that the forwards to code
-  -- is correct.
-
+{ s.pp = "select ( " ++ v.pp ++ " : " ++ lower.pp ++ " .. " ++ upper.pp ++ ") ;\n" ;
   s.errors := v.errors ++ lower.errors ++ upper.errors ;
 
   {- $v = $lower ;

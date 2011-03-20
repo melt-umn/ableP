@@ -42,39 +42,39 @@ exp::Expression_c ::= lhs::Expression_c op::AND rhs::Expression_c
 }
 
 concrete production and_expr_c
-exp::Expression_c ::= lhs::Expression_c a::AND rhs::Expr_c
+exp::Expression_c ::= lhs::Expression_c op::AND rhs::Expr_c
 { exp.pp = lhs.pp ++ "&&" ++ rhs.pp;
--- exp.ast_Expr = andexpr(lhs.ast_Expr,rhs.ast_Expr);
+  exp.ast = genericBinOp(lhs.ast, mkOp(op.lexeme, booleanTypeRep()), rhs.ast) ;
 }
 
 concrete production and_expr_expression_c
-exp::Expression_c ::= lhs::Expr_c a::AND rhs::Expression_c
+exp::Expression_c ::= lhs::Expr_c op::AND rhs::Expression_c
 { exp.pp = lhs.pp ++ "&&" ++ rhs.pp;
--- exp.ast_Expr = andexpr(lhs.ast_Expr,rhs.ast_Expr);
+  exp.ast = genericBinOp(lhs.ast, mkOp(op.lexeme, booleanTypeRep()), rhs.ast) ;
 }
 
 concrete production or_expression_c
-exp::Expression_c ::= lhs::Expression_c o::OR rhs::Expression_c
+exp::Expression_c ::= lhs::Expression_c op::OR rhs::Expression_c
 { exp.pp = lhs.pp ++ "||" ++ rhs.pp;
--- exp.ast_Expr = orexpr(lhs.ast_Expr,rhs.ast_Expr);
+  exp.ast = genericBinOp(lhs.ast, mkOp(op.lexeme, booleanTypeRep()), rhs.ast) ;
 }
 
 concrete production or_expr_c
-exp::Expression_c ::= lhs::Expression_c o::OR rhs::Expr_c
+exp::Expression_c ::= lhs::Expression_c op::OR rhs::Expr_c
 { exp.pp = lhs.pp ++ "||" ++ rhs.pp;
--- exp.ast_Expr = orexpr(lhs.ast_Expr,rhs.ast_Expr);
+  exp.ast = genericBinOp(lhs.ast, mkOp(op.lexeme, booleanTypeRep()), rhs.ast) ;
 }
 
 concrete production expr_or_c
-exp::Expression_c ::= lhs::Expr_c o::OR rhs::Expression_c
+exp::Expression_c ::= lhs::Expr_c op::OR rhs::Expression_c
 { exp.pp = lhs.pp ++ "||" ++ rhs.pp;
--- exp.ast_Expr = orexpr(lhs.ast_Expr,rhs.ast_Expr);
+  exp.ast = genericBinOp(lhs.ast, mkOp(op.lexeme, booleanTypeRep()), rhs.ast) ;
 }
 
 
---Expr
+--Expr, (expr in spin.y)
 nonterminal Expr_c with pp, ast<Expr> ; -- same as v4.2.9 and v6 (except for fixable CHARLIT and LTL)
--- expr in spin.y
+
 
 concrete production paren_expr_c
 exp1::Expr_c ::= '(' exp2::Expr_c ')'
@@ -105,13 +105,13 @@ exp::Expr_c ::= lhs::Expr_c '*' rhs::Expr_c
 concrete production div_expr_c
 exp::Expr_c ::= lhs::Expr_c '/' rhs::Expr_c
 { exp.pp = lhs.pp ++ " / " ++ rhs.pp;
--- exp.ast_Expr = div_expr(lhs.ast_Expr,rhs.ast_Expr);
+  exp.ast = genericBinOp(lhs.ast, mkOp("/", intTypeRep()), rhs.ast) ;
 }
 
 concrete production mod_expr_c
 exp::Expr_c ::= lhs::Expr_c '%' rhs::Expr_c
 { exp.pp = lhs.pp ++ " % " ++ rhs.pp;
--- exp.ast_Expr = mod_expr(lhs.ast_Expr,rhs.ast_Expr);
+  exp.ast = genericBinOp(lhs.ast, mkOp("%", intTypeRep()), rhs.ast) ;
 }
 
 
@@ -170,12 +170,14 @@ exp::Expr_c ::= lhs::Expr_c '==' rhs::Expr_c
 concrete production ne_expr_c
 exp::Expr_c ::= lhs::Expr_c '!=' rhs::Expr_c
 { exp.pp = lhs.pp ++ " != " ++ rhs.pp;
+  exp.ast = genericBinOp(lhs.ast, mkOp("!=", booleanTypeRep()), rhs.ast) ;
 -- exp.ast_Expr = ne_expr(lhs.ast_Expr,rhs.ast_Expr);
 }
 
 concrete production andexpr_c
 exp::Expr_c ::= lhs::Expr_c '&&' rhs::Expr_c
 { exp.pp = lhs.pp ++ " && " ++ rhs.pp;
+  exp.ast = genericBinOp(lhs.ast, mkOp("&&", booleanTypeRep()), rhs.ast) ;
 -- exp.ast_Expr = andexpr(lhs.ast_Expr,rhs.ast_Expr);
 }
 
@@ -186,14 +188,16 @@ exp::Expr_c ::= lhs::Expr_c '||' rhs::Expr_c
 }
 
 concrete production lshift_expr_c
-exp::Expr_c ::= lhs::Expr_c '<<' rhs::Expr_c
+exp::Expr_c ::= lhs::Expr_c op::'<<' rhs::Expr_c
 { exp.pp = lhs.pp ++ " << " ++ rhs.pp;
+  exp.ast = genericBinOp(lhs.ast, mkOp(op.lexeme, booleanTypeRep()), rhs.ast) ;
 -- exp.ast_Expr = lshift_expr(lhs.ast_Expr,rhs.ast_Expr);
 }
 
 concrete production rshift_expr_c
-exp::Expr_c ::= lhs::Expr_c '>>' rhs::Expr_c
+exp::Expr_c ::= lhs::Expr_c op::'>>' rhs::Expr_c
 { exp.pp = lhs.pp ++ " >> " ++ rhs.pp;
+  exp.ast = genericBinOp(lhs.ast, mkOp(op.lexeme, booleanTypeRep()), rhs.ast) ;
 -- exp.ast_Expr = rshift_expr(lhs.ast_Expr,rhs.ast_Expr);
 }
 
@@ -207,7 +211,7 @@ concrete production neg_expr_c
 exp::Expr_c ::= '-' lhs::Expr_c
 precedence = 45
 { exp.pp = "-" ++ lhs.pp ;
--- exp.ast_Expr = neg_expr(lhs.ast_Expr);
+  exp.ast = negExpr(lhs.ast);
 }
 
 
@@ -217,7 +221,7 @@ concrete production snd_expr_c
 exp::Expr_c ::= '!' lhs::Expr_c
 precedence = 45
 { exp.pp = "!" ++ lhs.pp;
--- exp.ast_Expr = snd_expr(lhs.ast_Expr);
+  exp.ast = sndNotExpr(lhs.ast);
 }
 
 concrete production expr_expr_c
@@ -265,7 +269,7 @@ exp::Expr_c ::= vref::Varref_c
   exp.ast = vref.ast ;
 }
 
-concrete production const_expr_c
+concrete production constExpr_c
 exp::Expr_c ::= c::CONST
 { exp.pp = c.lexeme ;
   exp.ast = constExpr(c);

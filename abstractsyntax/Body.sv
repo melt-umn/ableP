@@ -10,8 +10,6 @@ b::Body ::= s::Stmt
  s.ppi = b.ppi ++ " ";
  b.errors := s.errors ;
  b.host = bodyStmt(s.host) ;
--- b.basepp = "\n{\n" ++ s.ppi ++ s.pp ++ b.ppi ++ "\n}\n";
--- b.errors = s.errors;
 -- b.defs = s.defs;
 -- s.env = b.env;
 }

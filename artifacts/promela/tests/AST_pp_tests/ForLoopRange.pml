@@ -5,5 +5,4 @@ active proctype main()
  for (i : 1 .. 9) {
   printf("i=%d\n", i)
  }
-
 }

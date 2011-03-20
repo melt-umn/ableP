@@ -1,18 +1,14 @@
 grammar edu:umn:cs:melt:ableP:abstractsyntax;
 
-nonterminal Decls   with pp, ppi, ppsep, errors, host<Decls> ; 
---synthesized attribute inlined_Decls    :: Decls  occurs on Decls ;
+nonterminal Decls with pp, ppi, ppsep, errors, host<Decls> ; 
 
 abstract production seqDecls
 ds::Decls ::= ds1::Decls ds2::Decls
 { ds.pp = ds1.pp ++ -- ds.ppsep ++ 
           "\n" ++ 
           ds2.pp ;
-  ds1.ppi = ds.ppi ;  ds1.ppsep = ds.ppsep ; 
-  ds2.ppi = ds.ppi ;  ds2.ppsep = ds.ppsep ;
   ds.errors := ds1.errors ++ ds2.errors ;
   ds.host = seqDecls(ds1.host, ds2.host);
--- ds.basepp = ds1.basepp ++ ";\n" ++ ds2.ppi ++ ds2.basepp ;
 -- ds.errors = ds1.errors ++ ds2.errors;
 -- ds.defs = mergeDefs(ds1.defs, ds2.defs);
 -- ds1.env = ds.env ;

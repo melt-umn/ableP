@@ -9,21 +9,21 @@ args::Args_c ::=
   args.ast = noneExprs();  }
 
 concrete production one_args_c
-args::Args_c ::= a::Arg_c
+args::Args_c ::= a::Exprs_c
 { args.pp = a.pp;
   args.ast = a.ast ;  }
 
 
---Arg
-nonterminal Arg_c with pp, ast<Exprs> ;    -- same as v4.2.9 and v6
+--Exprs_c
+nonterminal Exprs_c with pp, ast<Exprs> ;    -- same as v4.2.9 and v6
 
 concrete production arg_expr_c
-a::Arg_c ::= exp::Expr_c
+a::Exprs_c ::= exp::Expr_c
 { a.pp = exp.pp;
   a.ast = oneExprs(exp.ast) ;   }
 
 concrete production expr_args_c
-a1::Arg_c ::= exp::Expr_c ',' a2::Arg_c
+a1::Exprs_c ::= exp::Expr_c ',' a2::Exprs_c
 { a1.pp = exp.pp ++ " , " ++ a2.pp ;
   a1.ast = consExprs (exp.ast ,a2.ast) ;  }
 
@@ -37,7 +37,7 @@ pa::PrArgs_c ::=
   pa.ast = noneExprs() ;  }
 
 concrete production one_prargs_c
-pa::PrArgs_c ::= ',' a::Arg_c
+pa::PrArgs_c ::= ',' a::Exprs_c
 { pa.pp = "," ++ a.pp;
   pa.ast = a.ast ;  }
 
@@ -45,12 +45,12 @@ pa::PrArgs_c ::= ',' a::Arg_c
 nonterminal MArgs_c with pp, ast<MArgs> ;      -- same as v4.2.9 and v6
 
 concrete production one_margs_c
-ma::MArgs_c ::= a::Arg_c
+ma::MArgs_c ::= a::Exprs_c
 { ma.pp = a.pp;
   ma.ast = margsSeq(a.ast); }
 
 concrete production expr_margs_c
-ma::MArgs_c ::= exp::Expr_c '(' a::Arg_c ')'
+ma::MArgs_c ::= exp::Expr_c '(' a::Exprs_c ')'
 { ma.pp = exp.pp ++ "(" ++ a.pp ++ ")";
   ma.ast = margsPattern( consExprs(exp.ast, a.ast) ) ;  }
 

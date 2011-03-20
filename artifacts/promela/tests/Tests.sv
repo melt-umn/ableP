@@ -13,7 +13,7 @@ IOVal<Integer> ::= args::[String] mainIO::IO
  local attribute testResults :: TestSuite ;
  testResults = consolidateTestSuite( [
                  -- [ ableP_host_tests() ] ,
-                 --   tests(parseTestsIO.iovalue) ,
+--                    tests(parseTestsIO.iovalue) ,
                     tests(astPPTestsIO.iovalue) ,
                     tests(hostASTParseTestsIO.iovalue) ,
                     tests(semanticsOKTestsIO.iovalue)
@@ -34,7 +34,7 @@ IOVal<Integer> ::= args::[String] mainIO::IO
 
   -- make tests to parse and compare pp of AST
   local astPPTestsIO::IOVal<[Test]> = traverseDirectoriesAndPerform
-       ( ".", [ "AST_pp_tests", "../../aviation/PaperExamples" ], 
+       ( ".", [ "AST_pp_tests" ] , -- , "../../aviation/PaperExamples" ], 
          mkASTppTest, dirSkip, ioval(mainIO,[]) ) ;
 
   -- make tests to parse host AST
@@ -44,7 +44,6 @@ IOVal<Integer> ::= args::[String] mainIO::IO
   -- make tests to check all semantics are OK
   local semanticsOKTestsIO::IOVal<[Test]> = traverseDirectoriesAndPerform
        ( ".", [ "SemanticsOK" ], mkSemanticsOKTest, dirSkip, ioval(mainIO,[]) ) ;
-
 }
 
 makeTestSuite ableP_host_tests ;
