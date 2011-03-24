@@ -256,6 +256,7 @@ exp::Expr ::= lhs::Expr rhs::Expr
                 then lhs.typerep
                 else error_type();
   exp.is_var_ref = false;
+ exp.host = genericBinOp(lhs.host,mkOp("-",boolean_TypeRep()),rhs.host);
  
 }
 
@@ -291,6 +292,7 @@ exp::Expr ::= lhs::Expr rhs::Expr
                 else error_type();
 
   exp.is_var_ref = false;
+ exp.host = genericBinOp(lhs.host,mkOp("*",boolean_TypeRep()),rhs.host);
 }
 
 abstract production div_expr
@@ -309,6 +311,7 @@ exp::Expr ::= lhs::Expr rhs::Expr
                 else error_type();
 
   exp.is_var_ref = false;
+ exp.host = genericBinOp(lhs.host,mkOp(" / ",booleanTypeRep()), rhs.host);
 }
 
 abstract production mod_expr
@@ -326,6 +329,7 @@ exp::Expr ::= lhs::Expr rhs::Expr
                 else error_type();
 
  exp.is_var_ref = false;
+ exp.host = genericBinOp(lhs.host, mkOp(" % ",boolean_TypeRep()), rhs.host);
 }
 
 
@@ -338,6 +342,7 @@ exp::Expr ::= lhs::Expr rhs::Expr
   exp.typerep = boolean_type();
   
   exp.is_var_ref = false;
+  exp.host = genericBinOp(lhs.host, mkOp(" & ",boolean_TypeRep()), rhs.host);
 }
 
 abstract production xor_expr
@@ -349,6 +354,7 @@ exp::Expr ::= lhs::Expr rhs::Expr
   exp.errors = lhs.errors ++ rhs.errors;
   exp.typerep = boolean_type();
   exp.is_var_ref = false;
+ exp.host = genericBinOp(lhs.host,mkOp("^",boolean_TypeRep()),rhs.host);
 }
 
 abstract production singleor
@@ -361,6 +367,7 @@ exp::Expr ::= lhs::Expr rhs::Expr
   exp.typerep = boolean_type();
 
   exp.is_var_ref = false;
+ exp.host = geneicBinOp(lhs.host,mkOp(" | ",boolean_TypeRep()),rhs.host);
 }
 
 
@@ -372,7 +379,7 @@ exp::Expr ::= lhs::Expr rhs::Expr
   exp.pp = lhs.pp ++ " > " ++ rhs.pp;
   exp.errors = lhs.errors ++ rhs.errors;
   exp.typerep = boolean_type();
-
+ exp.host = genericBinOp(lhs.host,mkOp(">",boolean_TypeRep()),rhs.host);
   exp.is_var_ref = false;
 }
 
@@ -383,7 +390,7 @@ exp::Expr ::= lhs::Expr rhs::Expr
   exp.pp = lhs.pp ++ " < " ++ rhs.pp;
   exp.errors = lhs.errors ++ rhs.errors;
   exp.typerep = boolean_type(); 
-
+  exp.host = genericBinOp(lhs.host,mkOp("<",boolean_TypeRep()),rhs.host);
   exp.is_var_ref = false;
 }
 
@@ -394,7 +401,7 @@ exp::Expr ::= lhs::Expr rhs::Expr
   exp.pp = lhs.pp ++ " >= " ++ rhs.pp;
   exp.errors = lhs.errors ++ rhs.errors;
   exp.typerep = boolean_type(); 
-
+  exp.host = genericBinOp(lhs.host,mkOp(">=",boolean_TypeRep()),rhs.host);
   exp.is_var_ref = false;
 }
 
@@ -405,7 +412,7 @@ exp::Expr ::= lhs::Expr rhs::Expr
   exp.pp = lhs.pp ++ " <= " ++ rhs.pp;
   exp.errors = lhs.errors ++ rhs.errors;
   exp.typerep = boolean_type(); 
-
+  exp.host = genericBinOp(lhs.host,mkOp(">=",boolean_TypeRep()),rhs.host);
   exp.is_var_ref = false;
 }
 
@@ -416,7 +423,8 @@ exp::Expr ::= lhs::Expr rhs::Expr
   exp.basepp = lhs.basepp ++ " != " ++ rhs.basepp;
   exp.pp = lhs.pp ++ " != " ++ rhs.pp;
   exp.errors = lhs.errors ++ rhs.errors;
-  exp.typerep = boolean_type(); 
+  exp.typerep = boolean_type();
+  exp.host = genericBinOp(lhs.host,mkOp("!=",boolean_TypeRep()),rhs.host);
 }
 
 abstract production andexpr
@@ -426,7 +434,7 @@ exp::Expr ::= lhs::Expr rhs::Expr
   exp.pp = lhs.pp ++ " && " ++ rhs.pp;
   exp.errors = lhs.errors ++ rhs.errors;
   exp.typerep = boolean_type(); 
-
+ exp.host = genericBinOp(lhs.host,mkOp("&&",boolean_TypeRep()),rhs.host);
   exp.is_var_ref = false;
 }
 abstract production orexpr
@@ -436,7 +444,7 @@ exp::Expr ::= lhs::Expr rhs::Expr
   exp.pp = lhs.pp ++ " || " ++ rhs.pp;
   exp.errors = lhs.errors ++ rhs.errors;
   exp.typerep = boolean_type(); 
-
+  exp.host = genericBinOp(lhs.host,mkOp("||",boolean_TypeRep()),rhs.host);
   exp.is_var_ref = false;
 }
 
@@ -448,7 +456,7 @@ exp::Expr ::= lhs::Expr rhs::Expr
   exp.errors = lhs.errors ++ rhs.errors;
 
   exp.typerep = lhs.typerep ; 
-
+  exp.host = genericBinOp(lhs.host,mkOp("<<",boolean_TypeRep()),rhs.host);
   exp.is_var_ref = false;
 }
 
@@ -459,7 +467,7 @@ exp::Expr ::= lhs::Expr rhs::Expr
   exp.pp = lhs.pp ++ " >> " ++ rhs.pp;
   exp.errors = lhs.errors ++ rhs.errors;
   exp.typerep = lhs.typerep ; 
- 
+  exp.host = genericBinOp(lhs.host,mkOp(">>",boolean_TypeRep()),rhs.host);
   exp.is_var_ref = false;
 }
 abstract production tild_expr
@@ -469,7 +477,7 @@ exp::Expr ::= lhs::Expr
   exp.pp = "~" ++ lhs.pp;
   exp.errors = lhs.errors;
   exp.typerep = lhs.typerep;
-
+  
   exp.is_var_ref = false;
 }
 
