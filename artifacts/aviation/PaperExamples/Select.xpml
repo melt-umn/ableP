@@ -1,0 +1,7 @@
+active proctype main()
+{
+ int v ;
+ printf("hello world\n") ;
+ select (v : 1..10+1step 2) ;
+ printf("v is %d\n", v) ;
+}
