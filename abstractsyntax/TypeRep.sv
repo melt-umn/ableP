@@ -34,42 +34,52 @@ t::TypeRep ::=
 
 --- below are not updated.
 
-abstract production unsignedType
+abstract production unsignedTypeRep
 t::TypeRep ::=
-{ t.tag = "unsigned";
-  t.pp = "unsigned";
+{ t.pp = "unsigned";
+  t.host = unsignedTypeRep();
+
+  t.tag = "unsigned";
   t.isCompatible = true;
   --t.var_ref_p = promela_bound_var_ref ;
 }
 
-abstract production shortType
+abstract production shortTypeRep
 t::TypeRep ::=
-{ t.tag = "short";
-  t.pp = "short";
+{ t.pp = "short";
+  t.host = shortTypeRep();
+
+  t.tag = "short";
   t.isCompatible = true;
   --t.var_ref_p = promela_bound_var_ref ;
 }
 
-abstract production bit_type
+abstract production bitTypeRep
 t::TypeRep ::=
-{ t.tag = "bit";
-  t.pp = "bit";
+{ t.pp = "bit";
+  t.host = bitTypeRep();
+
+  t.tag = "bit";
   t.isCompatible = true;
   --t.var_ref_p = promela_bound_var_ref ;
 }
 
-abstract production byte_type
+abstract production byteTypeRep
 t::TypeRep ::=
-{ t.tag = "byte";
-  t.pp = "byte";
+{ t.pp = "byte";
+  t.host = byteTypeRep() ;
+
+  t.tag = "byte";
   t.isCompatible = true;
   --t.var_ref_p = promela_bound_var_ref ;
 }
 
-abstract production chan_type
+abstract production chanTypeRep
 t::TypeRep ::= 
-{ t.tag = "chan";
-  t.pp = "chan " ;
+{ t.pp = "chan " ;
+  t.host = chanTypeRep();
+
+  t.tag = "chan";
   t.isCompatible = false;
   --t.var_ref_p = promela_bound_var_ref ;
 }
@@ -84,17 +94,21 @@ t::TypeRep ::= fields::Env
 
 abstract production pidTypeRep
 t::TypeRep ::=
-{ t.tag = "pid";
-  t.pp = "pid";
+{ t.pp = "pid";
+  t.host = pidTypeRep();
+
+  t.tag = "pid";
   t.isCompatible = true;
   --t.var_ref_p = promela_bound_var_ref ;
 }
 
-abstract production booleanTypeRep
+abstract production boolTypeRep
 t::TypeRep ::=
-{ t.tag = "boolean";
-  t.pp = "boolean";
-  t.isCompatible = true;
+{ t.pp = "boolean";
+  t.host = boolTypeRep();
+
+  t.tag = "boolean";
+   t.isCompatible = true;
   --t.var_ref_p = promela_bound_var_ref ;
 }
 

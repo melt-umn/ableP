@@ -30,23 +30,13 @@ t::Type_c ::= 'bool'
 -- t.ast_Type = boolType();
 }
 
-concrete production intType_c
+concrete productions
 t::Type_c ::= 'int'
-{ t.pp = "int";
-  t.ast = intTypeExpr();
-}
-
-concrete production mtypeType_c
-t::Type_c ::= 'mtype'
-{ t.pp = "mtype";
-  t.ast = mtypeTypeExpr();
-}
-
-concrete production chanType_c
+  { t.ast = intTypeExpr(); }
+t::Type_c ::= 'mtype' (mtypeType_c)
+  { t.ast = mtypeTypeExpr(); }
 t::Type_c ::= 'chan'
-{ t.pp = "chan";
---  t.ast_Type = chanType();
-}
+  { t.ast = chanTypeExpr(); }
 
 concrete production byteType_c
 t::Type_c ::= 'byte'

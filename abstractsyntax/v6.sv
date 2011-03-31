@@ -27,7 +27,7 @@ s::Stmt ::= f::FOR vr::Expr lower::Expr upper::Expr body::Stmt
                       ) ) ) ,
              labeledStmt ( label, skipStmt () )
            ) ;
-  local op::Op = mkOp("<=", booleanTypeRep()) ;
+  local op::Op = mkOp("<=", boolTypeRep()) ;
   local label::ID = terminal(ID,"l"++toString(f.line), f.line, f.column) ;
 }
 
@@ -60,8 +60,8 @@ s::Stmt ::= sk::SELECT v::Expr lower::Expr upper::Expr
                labeledStmt ( label, skipStmt () )
              )
            ) ;
-  local oplt::Op = mkOp("<", booleanTypeRep()) ;
-  local opplus::Op = mkOp("+", booleanTypeRep()) ;
+  local oplt::Op = mkOp("<", boolTypeRep()) ;
+  local opplus::Op = mkOp("+", boolTypeRep()) ;
   local one::Expr = constExpr(terminal(CONST,"1")) ;
   local label::ID = terminal(ID,"l"++toString(sk.line), sk.line, sk.column) ;
 }

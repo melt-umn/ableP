@@ -18,6 +18,61 @@ t::TypeExpr ::=
   t.host = mtypeTypeExpr();
 }
 
+abstract production chanTypeExpr
+t::TypeExpr ::=
+{ t.pp = "chan";
+ t.typerep = chanTypeRep();
+ t.errors := [ ];
+ t.host = chanTypeExpr();
+}
+
+abstract production bitTypeExpr
+t::TypeExpr ::=
+{ t.pp = "bit";
+  t.typerep = bitTypeRep();
+  t.errors := [ ];
+  t.host = bitTypeExpr() ;
+}
+
+abstract production boolTypeExpr
+t::TypeExpr ::=
+{ t.pp = "bool";
+  t.typerep = boolTypeRep();
+  t.errors := [ ];
+  t.host = boolTypeExpr() ;
+}
+
+abstract production byteTypeExpr
+t::TypeExpr ::=
+{ t.pp = "byte";
+  t.typerep = byteTypeRep();
+  t.errors := [ ];
+  t.host = byteTypeExpr() ;
+}
+
+abstract production shortTypeExpr
+t::TypeExpr ::=
+{ t.pp = "short";
+  t.typerep = shortTypeRep();
+  t.errors := [ ];
+  t.host = shortTypeExpr() ;
+}
+
+abstract production pidTypeExpr
+t::TypeExpr ::=
+{ t.pp = "pid";
+  t.typerep = pidTypeRep();
+  t.errors := [ ];
+  t.host = pidTypeExpr() ;
+}
+
+abstract production unsignedTypeExpr
+t::TypeExpr ::=
+{ t.pp = "unsigned";
+  t.typerep = unsignedTypeRep();
+  t.errors := [ ];
+  t.host = unsignedTypeExpr();
+}
 
 {-
 nonterminal Type with pp, basepp, defs, env, errors, typerep ;
@@ -89,74 +144,6 @@ tl::TypList ::= bt::Type tyl::TypList
  tl.pp = bt.pp ++ "," ++ tyl.pp;
  tl.errors = bt.errors ++ tyl.errors;
 
-}
-
--}
-
-{-
-
-abstract production bitType
-t::Type ::=
-{
- t.pp = "bit";
- t.basepp = "bit";
- t.typerep = bit_type();
- t.errors = [];
-}
-
-abstract production boolType
-t::Type ::=
-{
- t.pp = "bool";
- t.basepp = "bool";
- t.typerep = boolean_type();
- t.errors = [];
-}
-
-abstract production byteType
-t::Type ::=
-{
- t.pp = "byte";
- t.basepp = "byte";
- t.typerep = byte_type();
- t.errors = [];
-}
-
-abstract production shortType
-t::Type ::=
-{
- t.pp = "short";
- t.basepp = "short";
- t.typerep = short_type();
- t.errors = [];
-}
-
-abstract production chanType
-t::Type ::=
-{
- t.pp = "chan";
- t.basepp = "chan";
- t.typerep = chan_type();
- t.errors = [];
-}
-
-abstract production pidType
-t::Type ::=
-{
- t.pp = "pid";
- t.basepp = "pid";
- t.typerep = pid_type();
- t.errors = [];
-}
-
-
-abstract production unsignedType
-t::Type ::=
-{
- t.pp = "unsigned";
- t.basepp = "unsigned";
- t.typerep = unsigned_type();
- t.errors = [];
 }
 
 -}

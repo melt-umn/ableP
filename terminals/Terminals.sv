@@ -120,7 +120,8 @@ ignore terminal WhiteSpace_P /[\t\n\ ]+/
 ignore terminal BlockComment_P /[\/][\*]([^\*]|[\r\n]|([\*]+([^\*\/]|[\r\n])))*[\*]+[\/]/ 
  lexer classes {promela, p_WS_Comments} , dominates { Ccomment };
 
-ignore terminal LineComment_P  /[\/][\/].*/ 
+--ignore terminal LineComment_P  /[\/][\/].*/ 
+ignore terminal LineComment_P  /[\^][\^].*/ 
  lexer classes {promela, p_WS_Comments} , dominates { Ccomment } ;
 
 --ignore terminal CPPDirectiveLayout_P /[#].*/ dominates { p_WS_Comments, CPPDirectiveLayout_P, WhiteSpace }   ;

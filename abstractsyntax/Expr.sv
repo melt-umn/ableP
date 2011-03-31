@@ -77,19 +77,19 @@ op::Op ::= n::String tr::TypeRep
 -- These can be specialized as need be.
 abstract production eqExpr
 exp::Expr ::= lhs::Expr rhs::Expr
-{ forwards to genericBinOp(lhs, mkOp("==",booleanTypeRep()), rhs) ; }
+{ forwards to genericBinOp(lhs, mkOp("==",boolTypeRep()), rhs) ; }
 abstract production orExpr
 exp::Expr ::= lhs::Expr rhs::Expr
-{ forwards to genericBinOp(lhs, mkOp("||",booleanTypeRep()), rhs) ; }
+{ forwards to genericBinOp(lhs, mkOp("||",boolTypeRep()), rhs) ; }
 abstract production andExpr
 exp::Expr ::= lhs::Expr rhs::Expr
-{ forwards to genericBinOp(lhs, mkOp("&&",booleanTypeRep()), rhs) ; }
+{ forwards to genericBinOp(lhs, mkOp("&&",boolTypeRep()), rhs) ; }
 
 abstract production notExpr
 exp::Expr ::= ne::Expr
 { exp.pp = "(! " ++ ne.pp ++ ")" ;
   exp.errors := ne.errors ;
-  exp.typerep = booleanTypeRep() ;
+  exp.typerep = boolTypeRep() ;
   exp.host = notExpr(ne.host) ;
 }
 
@@ -136,7 +136,7 @@ abstract production sndNotExpr
 exp::Expr ::= lhs::Expr
 { exp.pp = "(!" ++ lhs.pp ++")" ;
   forwards to case lhs.typerep of
-                booleanTypeRep() -> notExpr(lhs)
+                boolTypeRep() -> notExpr(lhs)
               | _ -> sndExpr(lhs) end ;
   --  exp.errors := lhs.errors;
 }
@@ -144,7 +144,7 @@ abstract production sndExpr
 exp::Expr ::= lhs::Expr
 { exp.pp = "(!" ++ lhs.pp ++ ")" ;
   exp.errors := lhs.errors;
-  exp.typerep = booleanTypeRep();
+  exp.typerep = boolTypeRep();
   exp.host = sndExpr(lhs.host);
 }
 
