@@ -112,7 +112,7 @@ t::TypeRep ::=
   --t.var_ref_p = promela_bound_var_ref ;
 }
 
-abstract production procType
+abstract production procTypeRep
 t::TypeRep ::=
 { t.tag = "proc type";
   t.pp = "proc type";
@@ -120,7 +120,7 @@ t::TypeRep ::=
   --t.var_ref_p = promela_bound_var_ref ;
 }
 
-abstract production array_type
+abstract production arrayTypeRep
 t::TypeRep ::= ct::TypeRep
 { t.tag = "array type" ;
   t.pp = "array of " ++ ct.pp ;
@@ -128,7 +128,7 @@ t::TypeRep ::= ct::TypeRep
   --t.var_ref_p = promela_bound_var_ref ;
 }
 
-abstract production error_type
+abstract production errorTypeRep
 t::TypeRep ::=
 { t.tag = "error";
   t.pp = "error";

@@ -45,7 +45,6 @@ d::OneDecl_c ::= v::Vis_c t::Type_c vars::VarList_c
 -- VarList
 nonterminal VarList_c with pp, ast<Decls>, inTypeExpr, inVis ;   -- same as v4.2.9 and v6
 autocopy attribute inTypeExpr::TypeExpr ;
-autocopy attribute inVis::Vis ;
 
 --attribute ast_VarDcl occurs on VarList_c,IVar_c;
 
@@ -82,17 +81,15 @@ iv::IVar_c ::= vd::VarDcl_c a::ASGN e::Expr_c
 concrete production ivar_vardcl_assign_ch_init_c
 iv::IVar_c ::= vd::VarDcl_c a::ASGN ch::ChInit_c
 { iv.pp = vd.pp ++ " = " ++ ch.pp ; 
---  vd.typein = iv.typein;
---  iv.treedcl = varAssignDecl( iv.visibility, vd.typein, vd.ast_VarDcl, abs_expr_chinit(ch.ast_ChInit) );
---  vd.visibility = iv.visibility;
+  iv.ast = varAssignDecl (iv.inVis, iv.inTypeExpr, vd.ast, exprChInit(ch.ast)) ;
 }
 
 -- ChInit
-nonterminal ChInit_c with pp;   -- same as in v4.2.9 and v6
+nonterminal ChInit_c with pp, ast<ChInit> ;   -- same as in v4.2.9 and v6
 concrete production ch_init_c 
 ch::ChInit_c ::= '[' c::CONST ']' o::OF '{' tl::TypList_c '}'
 { ch.pp = "[ " ++ c.lexeme ++ " ]" ++ " of " ++ " { " ++ tl.pp ++ " } ";
--- ch.ast_ChInit = ch_init(c,tl.ast_TypList);
+  ch.ast = chInit(c, tl.ast);
 }
 
 
@@ -203,22 +200,13 @@ od::OneDecl_c ::= v::Vis_c u::UNAME vars::VarList_c
 
 concrete production typenameDcl_c
 od::OneDecl_c ::= v::Vis_c t::Type_c a::Asgn_c lc::LCURLY names::IDList_c rc::RCURLY
-{ od.pp = od.ppi ++ v.pp ++ " " ++ t.pp ++ a.pp  ++ " { " ++ names.pp ++ " } ";
-  od.ast = case t of
-             mtypeType_c(mt) -> mtypeDecl (v.ast, t.ast, names.ast) 
-           | _ -> error ("malformed declaration.  The type must be \"mtype\".\n") 
-           end ;
-}
+{ od.ast = mtypeDecls (v.ast, t.ast, names.ast) ;   }
 
 -- Asgn
 nonterminal Asgn_c with pp ;    -- same as in v4.2.9 and v6
-concrete production asgn_c
-a::Asgn_c ::= at::ASGN  
-{ a.pp = "=" ;  }
-
-concrete production asgn_empty_c
-a::Asgn_c ::= 
-{ a.pp = "";  }
+concrete productions
+a::Asgn_c ::= at::ASGN   { }
+a::Asgn_c ::=            { }
 
 
 

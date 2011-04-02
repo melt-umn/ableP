@@ -7,6 +7,7 @@ abstract production margsSeq
 ma::MArgs ::= es::Exprs
 { ma.pp = es.pp;
   ma.errors := es.errors ;
+  ma.uses = es.uses ;
   ma.host = margsSeq(es.host) ;
  -- ma.arg_list = a.arg_list ;
 }
@@ -15,6 +16,7 @@ abstract production margsPattern
 ma::MArgs ::= es::Exprs
 { ma.pp = es.pp;
   ma.errors := es.errors ;
+  ma.uses = es.uses ;
   ma.host = margsPattern(es.host) ;
  -- ma.arg_list = a.arg_list ;
 }
@@ -26,18 +28,21 @@ abstract production oneRArg
 ras::RArgs ::= ra::RArg
 { ras.pp = ra.pp;  
   ras.errors := ra.errors ; 
+  ras.uses = ra.uses ;
   ras.host = oneRArg(ra.host) ; }
 
 abstract production consRArg
 ras::RArgs ::= ra::RArg rest::RArgs
 { ras.pp = ra.pp ++ " , " ++ rest.pp;  
   ras.errors := ra.errors ++ rest.errors ;
+  ras.uses = ra.uses ++ rest.uses ;
   ras.host = consRArg(ra.host, rest.host);  }
 
 abstract production consParenRArg
 ras::RArgs ::= ra::RArg rest::RArgs
 { ras.pp = ra.pp ++ "(" ++ rest.pp ++ ")";
   ras.errors := ra.errors ++ rest.errors ;
+  ras.uses = ra.uses ++ rest.uses ;
   ras.host = consParenRArg(ra.host, rest.host);  }
 
 nonterminal RArg with pp, errors, host<RArg> ;
@@ -46,28 +51,32 @@ abstract production varRArg
 ra::RArg ::= vr::Expr
 { ra.pp = vr.pp;
   ra.errors := vr.errors ;
+  ra.uses = vr.uses ;
   ra.host = varRArg(vr.host);   }
 
 abstract production evalRArg
 ra::RArg ::= exp::Expr
 { ra.pp = "eval" ++ "(" ++ exp.pp ++ ")";
   ra.errors := exp.errors ;
+  ra.uses = exp.uses ;
   ra.host = evalRArg(exp.host);   }
 
 abstract production constRArg
 ra::RArg ::= cst::CONST
 { ra.pp = cst.lexeme;
   ra.errors := [ ];
+  ra.uses = [ ] ;
   ra.host = constRArg(cst) ;   }
 
 abstract production negConstRArg
 ra::RArg ::= cst::CONST
 { ra.pp = "-" ++ cst.lexeme;
   ra.errors := [ ];
+  ra.uses = [ ]  ;
   ra.host = negConstRArg(cst) ; }
 
 {-
-nonterminal Arg with basepp,pp;
+nonterminal Arg with pp, errors, ;
 
 
 synthesized attribute arg_list :: [ Expr ] occurs on Arg, Args, MArgs ;

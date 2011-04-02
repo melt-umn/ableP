@@ -1,10 +1,11 @@
 grammar edu:umn:cs:melt:ableP:artifacts:promela:tests ;
 
 import lib:testing ;
-import lib:langproc:errors hiding msg ;
+--import lib:errors hiding msg ;
 import lib:extcore ;
 
-import edu:umn:cs:melt:ableP:host ;
+import edu:umn:cs:melt:ableP:host hiding msg ;
+--import edu:umn:cs:melt:ableP:host:hostParser ;
 import edu:umn:cs:melt:ableP:host:tests ;
 
 function main

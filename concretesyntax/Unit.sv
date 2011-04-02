@@ -16,7 +16,7 @@ nonterminal Unit_c with pp, ppi, ast<Unit> ; -- the same in v4.2.9 and v6
 concrete production unit_proc_c
 u::Unit_c ::= p::Proc_c
 { u.pp = p.pp ;
-  u.ast = p.ast ; 
+  u.ast = unitDecls(p.ast) ;
 }
 action { usedProcess = 0; }
 

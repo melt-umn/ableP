@@ -1,28 +1,38 @@
-mtype = {Unknown, Above, Below } ;   /* altitude status */
-mtype = {Good, Bad} ;                /* quality of instrument readings */
+mtype = {Unknown, Above, Below } ;   /* altitude status values */
+mtype = {High, Med, Low} ;           /* quality of instrument readings */
 
-int above_t, trouble_t ;  /* this should be a timer and the init block should be
-                             generated for all timers */
-init { above_t = 10 ; trouble_t = 10 ; }  /* overload assignment for time type. */
+chan startup = [0] of {int, int} ;
+chan monitor = [0] of {mtype, mtype} ;
 
-active proctype determineStatus ()
+timer trouble_t ;   /* expands to "int trouble_t = -1;" */
+
+/* Dont show this */
+proctype monitorStatus () 
+{ mtype stat; int alt;      printf("monitor status ... \n") ;
+  do :: monitor ? alt, stat ; printf ("Warning.") ; od ; }
+
+active proctype determineStatus () 
 {
  int altitude, threshold, hyst ;
- mtype altQuality, altStatus ;
+ mtype altQuality, altStatus = Unknown ;
 
- check:
+ startup ? threshold, hyst ;  /* receive threshold and hysteresis values */
+ timer above_t ;              /* expands to "int above_t; above_t = -1;" */
+ run monitorStatus ( ) ;      /* start monitoring process */
+
+ check:  /* determine the altitude status from altitude and altQuality. */
   select (altitude: 1000 .. 10000 step 100) ;
-  select (altQuality: Unknown, Above, Below ) ;
+  select (altQuality: High, Med, Low) ;
 
   if :: tbl altStatus == Unknown        : T *  /* Assign value to altStatus */
-            altQuality == Good          : T T
+            altQuality == High          : T T
             altitude > threshold        : T T
             altitude > threshold + hyst : * T  
         lbt -> altStatus = Above ;
-     :: tbl altQuality == Good   : T
+     :: tbl altQuality == High   : T
             altitude > threshold : F  
         lbt -> altStatus = Below ; 
-     :: else; altStatus = (altQuality == Good -> Unknown : altStatus) ;
+     :: else; altStatus = (altQuality == High -> Unknown : altStatus) ;
   fi ;
 
   if :: altStatus == Above -> goto above; 
@@ -30,22 +40,13 @@ active proctype determineStatus ()
   fi ;
 
  above:
-   printm (altStatus) ;
-   /* delay(t,1); */
+   delay(above_t,1);              /* delay until next "tick" */
    goto check ;
 
  trouble:
-   printm (altStatus) ;
-   monitor!altStatus,altitude ;   /* send msg to monitor   */
-   /* delay(t,1); */
+   monitor!altStatus,altitude ;   /* send msg to monitor */
+   delay(trouble_t,1);            /* delay until next "tick" */
    goto check ;
 }
 
-active proctype monitorStatus () 
-{ mtype stat; int alt;
-  printf("monitor status ... \n") ;
-  do :: monitor ? alt, stat ; 
-        /* access 2d array? */
-        printf ("Warning.") ;
-  od ;
-}
+

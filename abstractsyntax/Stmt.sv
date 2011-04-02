@@ -1,11 +1,16 @@
 grammar edu:umn:cs:melt:ableP:abstractsyntax ;
 
-nonterminal Stmt with pp, ppi, errors, host<Stmt> ;
+nonterminal Stmt with pp, ppi, ppsep, errors, host<Stmt> ;
 
 abstract production seqStmt
 s::Stmt ::= s1::Stmt s2::Stmt
-{ s.pp = s.ppi ++ s1.pp ++ s2.pp ; 
+{ s.pp = s.ppi ++ s1.pp ++ s.ppsep ++ s2.pp ; 
   s.errors := s1.errors ++ s2.errors ;
+  s1.env = s.env ;
+  s2.env = mergeDefs(s1.defs, s.env) ;
+  s.defs = mergeDefs(s1.defs, s2.defs) ;
+
+  s.uses = s1.uses ++ s2.uses ;
   s.host = seqStmt(s1.host, s2.host);
 }
 
@@ -13,11 +18,12 @@ abstract production one_decl
 s::Stmt ::= d::Decls
 { s.pp = d.pp ; -- ++ " ";
   d.ppi = s.ppi ;
-  d.ppsep = "" ; -- ;" \n" ;
+  d.ppsep = "; \n" ;
   s.errors := d.errors ;
+  s.defs = d.defs;
+  d.env = s.env ;
+  s.uses = d.uses ;
   s.host = one_decl(d.host);
---  s.defs = d.defs;
---  d.env = s.env ;
 }
 
 abstract production printStmt
@@ -28,6 +34,8 @@ s::Stmt ::= st::String es::Exprs
           | _ -> ", " ++ es.pp end  ++
           ");\n" ;
  s.errors := es.errors ;
+ s.defs = emptyDefs();
+ s.uses = [ ] ;
  s.host = printStmt(st, es.host) ;
 }
 
@@ -35,12 +43,16 @@ abstract production printmStmt
 s::Stmt ::= vref::Expr
 { s.pp = s.ppi ++ "printm" ++ "(" ++ vref.pp ++ ") ;\n";
   s.errors := vref.errors;
+  s.defs = emptyDefs();
+  s.uses = vref.uses ;
   s.host = printmStmt(vref.host) ;
 }
 abstract production printmConstStmt
 s::Stmt ::= cn::CONST
 { s.pp = s.ppi ++  "printm" ++ "(" ++ cn.lexeme ++ ") ;\n";
   s.errors := [ ];
+  s.defs = emptyDefs();
+  s.uses = [ ] ;
   s.host = printmConstStmt(cn) ;
 }
 
@@ -48,6 +60,8 @@ abstract production assign
 s::Stmt ::= lhs::Expr rhs::Expr 
 { s.pp = s.ppi ++ lhs.pp ++ " = " ++ rhs.pp ++ " ;\n" ; 
   s.errors := lhs.errors ++ rhs.errors ;
+  s.defs = emptyDefs();
+  s.uses = lhs.uses ++ rhs.uses ;
   s.host = assign(lhs.host, rhs.host) ;
 }
 
@@ -59,7 +73,8 @@ s::Stmt ::= op::Options
   op.ppi = s.ppi ++ "  ";
   s.errors := op.errors;
   s.host = ifStmt(op.host);
---  sc.defs = emptyDefs();
+  s.defs = emptyDefs();
+  s.uses = op.uses ;
 --  op.env = sc.env;
 }
 
@@ -68,15 +83,17 @@ s::Stmt ::= op::Options
 { s.pp = s.ppi ++ "do\n" ++ s.ppi ++ op.pp ++ s.ppi ++ "od ;\n";
   op.ppi = s.ppi ++ "  " ;
   s.errors := op.errors;
+  s.defs = emptyDefs();
+  s.uses = op.uses ;
   s.host = doStmt(op.host);
---  s.defs = emptyDefs();
---  op.env = s.env;
 }
 
 abstract production breakStmt
 s::Stmt ::=
 { s.pp = s.ppi ++ "break";
   s.errors := [ ];
+  s.defs = emptyDefs();
+  s.uses = [ ] ;
   s.host = breakStmt();
 --  s.defs = emptyDefs();
 }
@@ -85,6 +102,8 @@ abstract production gotoStmt
 s::Stmt ::= id::ID
 { s.pp = s.ppi ++ "goto " ++ id.lexeme ++ " ;\n" ;
   s.errors := [ ];
+  s.defs = emptyDefs();
+  s.uses = [ ] ; --TODO check that ID is valid, etc.
   s.host = gotoStmt(id);
 --  s.defs = emptyDefs();
 }
@@ -94,6 +113,8 @@ s::Stmt ::= id::ID st::Stmt
 { s.pp = s.ppi ++ id.lexeme ++ ": " ++ st.pp;
   st.ppi = s.ppi;
   s.errors := st.errors;
+  s.defs = emptyDefs();  --TODO add ID to defs - but this has different scope than normal variables...
+  s.uses = st.uses ;
   s.host = labeledStmt(id, st.host);
 --  s.defs = st.defs;
 --  st.env = s.env;
@@ -103,8 +124,9 @@ abstract production elseStmt
 s::Stmt ::= 
 { s.pp = s.ppi ++ "else ;\n";
   s.errors := [ ];
+  s.defs = emptyDefs();
+  s.uses = [ ] ;
   s.host = elseStmt();
---  s.defs = emptyDefs();
 }
 
 abstract production skipStmt
@@ -121,12 +143,14 @@ s::Stmt ::=
 }
 
 -- Options --
-nonterminal Options with pp, ppi, errors, host<Options> ;
+nonterminal Options with pp, ppi, ppsep, errors, host<Options> ;
 abstract production oneOption
 ops::Options ::= s::Stmt
 { ops.pp = ":: " ++ s.pp;
   s.ppi = ops.ppi ++ "   " ;
   ops.errors := s.errors;
+  ops.defs = emptyDefs();
+  ops.uses = s.uses ;
   ops.host = oneOption(s.host);
 --  st.env = ops.env;
 }
@@ -137,6 +161,13 @@ ops::Options ::= s::Stmt rest::Options
   s.ppi = ops.ppi ++ "   ";
   rest.ppi = ops.ppi;
   ops.errors := s.errors ++ rest.errors;
+
+  s.env = ops.env ;
+  rest.env = mergeDefs(s.defs, ops.env) ;
+  ops.defs = mergeDefs(s.defs, rest.defs) ;
+
+  ops.uses = s.uses ++ rest.uses ;
+
   ops.host = consOption(s.host, rest.host);
 --  st.env = ops.env;
 --  rest.env = ops.env;
@@ -149,9 +180,9 @@ abstract production exprStmt
 s::Stmt ::= e::Expr
 { s.pp =  e.pp ++ " ;\n" ;
   s.errors := e.errors;
+  s.defs = emptyDefs();
+  s.uses = e.uses ;
   s.host = exprStmt(e.host);
---  s.defs = emptyDefs();
---  e.env = t.env;
 }
 
 
@@ -162,10 +193,9 @@ sc::Stmt ::= vref::Expr op::String ma::MArgs
 { -- op is either "!" or "!!", one of the two kinds of snd operators.
   sc.pp =  vref.pp ++ op ++ ma.pp ++ " ;\n" ;
   sc.errors := vref.errors ++ ma.errors ; 
+  sc.defs = emptyDefs();
+  sc.uses = vref.uses ++ ma.uses ;
   sc.host = sndStmt (vref.host, op, ma.host) ;
---  sc.defs = emptyDefs();
---  vref.env = sc.env;
---  ma.env = sc.env;
 }
 
 abstract production rcvStmt
@@ -174,10 +204,9 @@ sc::Stmt ::= vref::Expr op::String ra::RArgs
   -- one of the four kinds of rcv operators.
   sc.pp =  vref.pp ++ op ++ ra.pp ++ " ;\n" ;
   sc.errors := vref.errors ++ ra.errors ; 
+  sc.defs = emptyDefs();
+  sc.uses = vref.uses ++ ra.uses ;
   sc.host = rcvStmt (vref.host, op, ra.host) ;
---  sc.defs = emptyDefs();
---  vref.env = sc.env;
---  ma.env = sc.env;
 }
 
 
@@ -190,7 +219,7 @@ import edu:umn:cs:melt:ableP:terminals;
 
 nonterminal Asgn with basepp,pp;
 nonterminal VrefList with basepp,pp;
-nonterminal ChInit with basepp,pp;
+
 
 abstract production asgn
 a::Asgn ::= 

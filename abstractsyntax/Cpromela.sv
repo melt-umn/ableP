@@ -4,6 +4,8 @@ abstract production unitCcmpd
 u::Unit ::= cc::Ccmpd
 { u.pp = "\n" ++ cc.pp ;
   u.errors :=  [ ] ;
+  u.defs = emptyDefs() ;
+  u.uses = [ ] ;
   u.host = unitCcmpd(cc) ;
 }
 
@@ -11,6 +13,8 @@ abstract production unitCdcls
 u::Unit ::= cc::Cdcls
 { u.pp = "\n" ++ cc.pp ;
   u.errors :=  [ ] ;
+  u.defs = emptyDefs() ;
+  u.uses = [ ] ;
   u.host = unitCdcls(cc) ;
 }
 
@@ -18,6 +22,8 @@ abstract production cStateTrack
 u::Unit ::= kwd::String str1::String str2::String str3::String
 { u.pp = kwd ++ " " ++ str1 ++ " " ++ str2 ++ " " ++ str3 ;
   u.errors := [ ] ;
+  u.defs = emptyDefs() ;
+  u.uses = [ ] ;
   u.host = cStateTrack(kwd, str1, str2, str3) ;
 }
 

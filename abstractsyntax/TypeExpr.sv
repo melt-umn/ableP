@@ -74,6 +74,22 @@ t::TypeExpr ::=
   t.host = unsignedTypeExpr();
 }
 
+nonterminal TypeExprs with pp, errors, host<TypeExprs> ;
+
+abstract production oneTypeExpr
+tes::TypeExprs::= te::TypeExpr
+{ tes.pp = te.pp;
+  tes.errors := te.errors;
+  tes.host = oneTypeExpr(te.host) ;
+}
+
+abstract production consTypeExpr
+tes::TypeExprs ::= te::TypeExpr rest::TypeExprs
+{ tes.pp = te.pp ++ "," ++ rest.pp ;
+  tes.errors := te.errors ++ rest.errors;
+  tes.host = consTypeExpr(te.host, rest.host);
+}
+
 {-
 nonterminal Type with pp, basepp, defs, env, errors, typerep ;
 nonterminal TypList with pp, basepp, defs, env, errors  ;
@@ -129,21 +145,5 @@ t::Type ::= er::Error
 }
 
 
-abstract production tl_basetype
-tl::TypList ::= bt::Type
-{
- tl.basepp = bt.basepp;
- tl.pp = bt.pp;
- tl.errors = bt.errors;
-}
-
-abstract production tl_comma
-tl::TypList ::= bt::Type tyl::TypList
-{
- tl.basepp = bt.basepp ++ "," ++ tyl.basepp;
- tl.pp = bt.pp ++ "," ++ tyl.pp;
- tl.errors = bt.errors ++ tyl.errors;
-
-}
 
 -}

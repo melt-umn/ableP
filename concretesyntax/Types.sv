@@ -1,84 +1,50 @@
 grammar edu:umn:cs:melt:ableP:concretesyntax ;
 
-nonterminal BaseType_c with pp, ppi;   -- same as v4.2.9 and v6
+nonterminal BaseType_c with pp, ppi, ast<TypeExpr> ;   -- same as v4.2.9 and v6
 
 concrete production bt_uname_c
 bt::BaseType_c ::= un::UNAME   -- was Type_c on lhs
-{ bt.pp = un.lexeme;
---  bt.ast_Type = named_type(un);
-}
+{ } -- bt.ast = named_type(un); }
 
 concrete production bt_type_c
 bt::BaseType_c ::= t::Type_c   -- new 
-{ bt.pp = t.pp;
-}
+{ bt.ast = t.ast ; }
 
 
 nonterminal Type_c with pp, ast<TypeExpr> ; -- is a terminal in spin.y, but has same effect
 
-concrete production bitType_c
-t::Type_c ::= 'bit'
-{
-  t.pp = "bit";
---  t.ast_Type = bitType();
---always commented out  t.typeexpr = bitType();
-}
-
-concrete production boolType_c
-t::Type_c ::= 'bool'
-{ t.pp = "bool";
--- t.ast_Type = boolType();
-}
-
 concrete productions
+t::Type_c ::= 'bit'
+  { t.ast = bitTypeExpr(); }
+t::Type_c ::= 'bool'
+  { t.ast = boolTypeExpr(); }
 t::Type_c ::= 'int'
   { t.ast = intTypeExpr(); }
 t::Type_c ::= 'mtype' (mtypeType_c)
   { t.ast = mtypeTypeExpr(); }
 t::Type_c ::= 'chan'
   { t.ast = chanTypeExpr(); }
-
-concrete production byteType_c
 t::Type_c ::= 'byte'
-{ t.pp = "byte";
---  t.ast_Type = byteType();
-}
-
-concrete production pidType_c
+  { t.ast = byteTypeExpr(); }
 t::Type_c ::= 'pid'
-{ t.pp = "pid";
---  t.ast_Type = pidType();
-}
-
-concrete production shortType_c
+  { t.ast = pidTypeExpr(); }
 t::Type_c ::= 'short'
-{ t.pp = "short";
---  t.ast_Type = shortType();
-}
-
-concrete production unsigned_c
+  { t.ast = shortTypeExpr(); }
 t::Type_c ::= 'unsigned'
-{ t.pp = "unsigned";
---  t.ast_Type = unsignedType();
-}
+  { t.ast = unsignedTypeExpr(); }
 
 
 --TypList
-nonterminal  TypList_c with pp, ppi ;   --- same as v4.2.9 and v6
+nonterminal TypList_c with pp, ppi, ast<TypeExprs> ;   --- same as v4.2.9 and v6
 
 concrete production tl_basetype_c
 tl::TypList_c ::= bt::BaseType_c
-{ tl.pp = bt.pp;
---  tl.ast_TypList = tl_basetype(bt.ast_Type);
-}
+{ tl.ast = oneTypeExpr(bt.ast);  }
 
 
---comma seperated type list
 concrete production tl_comma_c
 tl::TypList_c ::= bt::BaseType_c ',' tyl::TypList_c
-{ tl.pp = bt.pp ++ "," ++ tyl.pp;
---  tl.ast_TypList = tl_comma(bt.ast_Type,tyl.ast_TypList);
-}
+{ tl.ast = consTypeExpr( bt.ast, tyl.ast); }
 
 
 {- ALWAYS COMMENTED OUT

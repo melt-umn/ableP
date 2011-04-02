@@ -3,11 +3,17 @@ grammar edu:umn:cs:melt:ableP:abstractsyntax ;
 nonterminal Expr with pp, errors, host<Expr>, typerep ;
 nonterminal Exprs with pp, errors, host<Exprs> ;
 
-abstract production varRef
+abstract production varRefExpr
 e::Expr ::= id::ID
 { e.pp = id.lexeme ; 
-  e.errors := [ ] ;
-  e.host = varRef(id) ;
+  e.errors := if eres.found then [ ] 
+              else [ mkError ("Id \"" ++ id.lexeme ++ "\" not declared. " ++
+                              mkLoc(id.line,id.column) ++ "\n" ) ] ;
+  e.typerep = eres.dcl.typerep ;
+
+  local eres::EnvResult = lookup_name(id.lexeme, e.env) ;
+  e.uses = [ mkUse(eres.dcl.idNum, e) ];
+  e.host = varRefExpr(id) ;
 }
 
 abstract production constExpr
@@ -15,12 +21,14 @@ e::Expr ::= c::CONST
 { e.pp = c.lexeme ;
   e.errors := [ ] ;
   e.host = constExpr(c);
+  e.uses = [ ];
 }
 
 abstract production dotAccess
 e::Expr ::= r::Expr f::ID
 { e.pp = "(" ++ r.pp ++ "." ++ f.lexeme ++ ")" ; 
   e.errors := [ ] ;
+  e.uses = r.uses ;
   e.host = dotAccess(r.host, f);
 }
 
@@ -28,6 +36,7 @@ abstract production arrayAccess
 e::Expr ::= a::Expr i::Expr
 { e.pp = "(" ++ a.pp ++ "[" ++ i.pp ++ "]" ++ ")" ; 
   e.errors := [ ] ;
+  e.uses = a.uses ++ i.uses ;
   e.host = arrayAccess(a.host, i.host);
 }
 
@@ -35,12 +44,14 @@ abstract production noneExprs
 es::Exprs ::=
 { es.pp = "" ;
   es.errors := [ ] ;
+  es.uses = [ ] ;
   es.host = noneExprs() ;
 }
 abstract production oneExprs
 es::Exprs ::= e::Expr
 { es.pp = e.pp ;
   es.errors := e.errors ;
+  es.uses = e.uses ;
   es.host = oneExprs(e.host);
 }
 abstract production consExprs
@@ -51,6 +62,7 @@ es::Exprs ::= e::Expr rest::Exprs
            | _ -> rest.pp 
           end ; 
   es.errors := e.errors ++ rest.errors ;
+  es.uses = e.uses ++ rest.uses ;
   es.host = consExprs(e.host, rest.host);
 }
 
@@ -63,6 +75,7 @@ e::Expr ::= lhs::Expr op::Op rhs::Expr
 { e.pp = "(" ++ lhs.pp ++ " "++ op.pp ++ " " ++ rhs.pp ++ ")" ;
   e.errors := lhs.errors ++ rhs.errors;
   e.typerep = op.typerep ;
+  e.uses = lhs.uses ++ rhs.uses ;
   e.host = genericBinOp(lhs.host, op.host, rhs.host);
 }
 
@@ -75,9 +88,16 @@ op::Op ::= n::String tr::TypeRep
 
 
 -- These can be specialized as need be.
+
+-- Relational operators --
 abstract production eqExpr
 exp::Expr ::= lhs::Expr rhs::Expr
 { forwards to genericBinOp(lhs, mkOp("==",boolTypeRep()), rhs) ; }
+abstract production gteExpr
+exp::Expr ::= lhs::Expr rhs::Expr
+{ forwards to genericBinOp(lhs, mkOp(">=",boolTypeRep()), rhs) ; }
+
+-- Logical operators --
 abstract production orExpr
 exp::Expr ::= lhs::Expr rhs::Expr
 { forwards to genericBinOp(lhs, mkOp("||",boolTypeRep()), rhs) ; }
@@ -85,11 +105,17 @@ abstract production andExpr
 exp::Expr ::= lhs::Expr rhs::Expr
 { forwards to genericBinOp(lhs, mkOp("&&",boolTypeRep()), rhs) ; }
 
+-- Aritmetic operators --
+abstract production minus
+exp::Expr ::= lhs::Expr rhs::Expr
+{ forwards to genericBinOp(lhs, mkOp("-",boolTypeRep()), rhs) ; }
+
 abstract production notExpr
 exp::Expr ::= ne::Expr
 { exp.pp = "(! " ++ ne.pp ++ ")" ;
   exp.errors := ne.errors ;
   exp.typerep = boolTypeRep() ;
+  exp.uses = ne.uses ;
   exp.host = notExpr(ne.host) ;
 }
 
@@ -97,6 +123,7 @@ abstract production trueExpr
 e::Expr ::= c::CONST
 { e.pp = c.lexeme ;
   e.errors := [ ] ;
+  e.uses = [ ] ;
   e.host = trueExpr(c);
 }
 
@@ -105,6 +132,7 @@ e::Expr ::= c::Expr thenexp::Expr elseexp::Expr
 { e.pp = "(" ++ c.pp ++ "->" ++ thenexp.pp ++ ":" ++ elseexp.pp ++ ")";
   e.errors := c.errors ++ thenexp.errors ++ elseexp.errors;
   e.typerep = thenexp.typerep;
+  e.uses = c.uses ++ thenexp.uses ++ elseexp.uses ;
   e.host = condExpr(c.host, thenexp.host, elseexp.host) ; 
 --  exp.is_var_ref = false;
 }
@@ -114,6 +142,7 @@ abstract production exprCExpr
 exp::Expr ::= kwd::C_EXPR ce::String
 { exp.pp =  kwd.lexeme ++ "{" ++ ce ++ "}" ;
   exp.errors := [ ];
+  exp.uses = [ ] ; 
   exp.host = exprCExpr(kwd, ce);
 }
 
@@ -121,6 +150,7 @@ abstract production exprCCmpd
 exp::Expr ::= kwd::C_EXPR ce::String
 { exp.pp = kwd.lexeme ++ "{" ++ ce ++ "}" ;
   exp.errors := [ ] ;
+  exp.uses = [ ] ; 
   exp.host = exprCCmpd(kwd, ce);
 }
 
@@ -128,6 +158,7 @@ abstract production exprCExprCmpd
 exp::Expr ::= kwd::C_EXPR ce::String cp::String
 { exp.pp = kwd.lexeme ++ "[" ++ ce ++ "] {" ++ cp ++ "}" ;
   exp.errors := [ ] ;
+  exp.uses = [ ] ; 
   exp.host = exprCExprCmpd(kwd, ce, cp);
 }
 
@@ -138,25 +169,63 @@ exp::Expr ::= lhs::Expr
   forwards to case lhs.typerep of
                 boolTypeRep() -> notExpr(lhs)
               | _ -> sndExpr(lhs) end ;
-  --  exp.errors := lhs.errors;
+  exp.errors := lhs.errors;
 }
+
 abstract production sndExpr
 exp::Expr ::= lhs::Expr
 { exp.pp = "(!" ++ lhs.pp ++ ")" ;
   exp.errors := lhs.errors;
-  exp.typerep = boolTypeRep();
+  exp.typerep = lhs.typerep ;
+  exp.uses = lhs.uses ; 
   exp.host = sndExpr(lhs.host);
 }
 
 abstract production negExpr
 exp::Expr ::= lhs::Expr
-{ exp.pp = "(-" ++ lhs.pp ++")" ;
+{ exp.pp = "(!" ++ lhs.pp ++")" ;
   exp.errors := lhs.errors;
-  exp.typerep = lhs.typerep ;
+  exp.typerep = boolTypeRep();
+  exp.uses = lhs.uses ; 
   exp.host = negExpr(lhs.host);
 }
 
 
+abstract production run
+exp::Expr ::= pn::ID args::Exprs p::Priority
+{ exp.pp = "run " ++ pn.lexeme ++ "(" ++ args.pp ++ ")" ++ p.pp;
+
+  local eres::EnvResult = lookup_name(pn.lexeme, exp.env) ;
+  exp.errors := (if eres.found then [ ] 
+                 else [ mkError ("Id \"" ++ pn.lexeme ++ "\" not declared. " ++
+                                 mkLoc(pn.line,pn.column) ++ "\n" ) ] )
+              ++ args.errors ;
+
+  exp.typerep = eres.dcl.typerep ;
+  exp.uses = [ mkUse(eres.dcl.idNum, exp) ] ++ args.uses ;
+
+  exp.host = run(pn, args.host, p.host);
+}
+
+
+abstract production exprChInit
+exp::Expr ::= ci::ChInit
+{ exp.pp = ci.pp;
+  exp.errors := ci.errors;
+  exp.host = exprChInit(ci.host) ;
+  exp.uses = [ ] ;
+  exp.typerep = chanTypeRep();
+}
+
+
+nonterminal ChInit with pp, errors, host<ChInit> ;
+
+abstract production chInit
+ch::ChInit ::= c::CONST tl::TypeExprs
+{ ch.pp = "[ " ++ c.lexeme ++ " ] of { " ++ tl.pp ++ " }";
+  ch.errors := tl.errors;
+  ch.host = chInit(c,tl.host);
+}
 
 {-
 ------------------
@@ -495,16 +564,6 @@ exp::Expr ::= lhs::Expr
 
 
 
-abstract production run_expr
-exp::Expr ::= an::Aname args::Args op::OptPriority
-{
-  exp.basepp = "run " ++ an.basepp ++ "(" ++ args.basepp ++ ")" ++ op.basepp;
-  exp.pp = "run " ++ an.pp ++ "(" ++ args.pp ++ ")" ++ op.pp;
-  exp.errors = args.errors;
-  exp.typerep = pid_type();
-
-  exp.is_var_ref = false;
-}
 
 abstract production length_expr
 exp::Expr ::= vref::Expr
@@ -724,16 +783,6 @@ exp::Expr ::= arr::Expr ls::LSQUARE  index::Expr  rs::RSQUARE
 }
 
 
-abstract production abs_expr_chinit
-exp::Expr ::= ci::ChInit
-{
- exp.basepp = ci.basepp;
- exp.pp = ci.pp;
- exp.errors = ci.errors;
- exp.is_var_ref = false;
-
-
-}
 
 abstract production abs_blank_expr
 exp::Expr ::=
@@ -746,14 +795,5 @@ exp::Expr ::=
 
 }
 
-
-abstract production ch_init
-ch::ChInit ::= c::CONST tl::TypList
-{
- ch.basepp = "[ " ++ c.lexeme ++ " ] of { " ++ tl.basepp ++ " }";
- ch.pp = "[ " ++ c.lexeme ++ " ] of { " ++ tl.pp ++ " }";
- ch.errors = tl.errors;
-
-}
 
 -}

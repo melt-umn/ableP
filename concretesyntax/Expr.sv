@@ -93,7 +93,7 @@ exp::Expr_c ::= lhs::Expr_c '+' rhs::Expr_c
 concrete production minus_expr_c
 exp::Expr_c ::= lhs::Expr_c '-' rhs::Expr_c
 { exp.pp = lhs.pp ++ " - " ++ rhs.pp;
--- exp.ast_Expr = minus_expr(lhs.ast_Expr,rhs.ast_Expr);
+  exp.ast = minus(lhs.ast,rhs.ast);
 }
 
 concrete production mult_expr_c
@@ -231,12 +231,10 @@ e::Expr_c ::= '(' c::Expr_c s1::SEMI thenexp::Expr_c ':' elseexp::Expr_c ')'
 }
 
 concrete production run_expr_c
-exp::Expr_c ::= r::RUN an::Aname_c '(' args::Args_c ')' op::OptPriority_c
-{ exp.pp = "run " ++ an.pp ++ "(" ++ args.pp ++ ")" ++ op.pp;
--- exp.ast_Expr = run_expr(an.ast_Aname,args.ast_Args,op.ast_OptPriority);
+exp::Expr_c ::= r::RUN an::Aname_c '(' args::Args_c ')' p::OptPriority_c
+{ exp.pp = "run " ++ an.pp ++ "(" ++ args.pp ++ ")" ++ p.pp;
+  exp.ast = run(an.ast, args.ast, p.ast);
 }
-
-
 
 concrete production length_expr_c
 exp::Expr_c ::= l::LEN '(' vref::Varref_c ')'
@@ -402,7 +400,7 @@ concrete production name_pfld_c
 pf::Pfld ::= id::ID
 { pf.pp = id.lexeme;
   pf.ast = case pf.context of
-             nothing() -> varRef(id)
+             nothing() -> varRefExpr(id)
            | just(e) -> dotAccess(e, id) 
            end ;
 }
@@ -410,7 +408,7 @@ concrete production expr_pfld_c
 pf::Pfld ::= id::ID '[' ex::Expr_c ']'
 { pf.pp = id.lexeme ++ "[" ++ ex.pp ++ "]";
   pf.ast = case pf.context of
-             nothing() -> arrayAccess(varRef(id), ex.ast)
+             nothing() -> arrayAccess(varRefExpr(id), ex.ast)
            | just(e) -> arrayAccess(dotAccess(e,id), ex.ast)
            end ;
 }
@@ -418,14 +416,12 @@ pf::Pfld ::= id::ID '[' ex::Expr_c ']'
 
 
 --Aname
-nonterminal Aname_c with pp;   -- same as v4.2.9 and v6
-
---synthesized attribute ast_Aname::Aname occurs on Aname_c;
+nonterminal Aname_c with pp, ast<ID> ;   -- same as v4.2.9 and v6
 
 concrete production aname_pname_c
 an::Aname_c ::= pn::PNAME
 { an.pp = pn.lexeme ;
--- an.ast_Aname = aname_pname(pn);
+  an.ast = terminal(ID, pn.lexeme, pn.line, pn.column) ;
 }
 action
 { -- not clear to me why we add pnames to the list - it must already be here?
@@ -436,12 +432,10 @@ action
            else pnames;
 }
 
-
-
 concrete production aname_name_c
 an::Aname_c ::= id::ID
 { an.pp = id.lexeme ;
---  an.ast_Aname = aname_name(id);
+  an.ast = id ;
 }
 action
 { -- not sure why we add this to the list either - does this define ID as a PNAME???

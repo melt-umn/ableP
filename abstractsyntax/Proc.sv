@@ -2,24 +2,25 @@ grammar edu:umn:cs:melt:ableP:abstractsyntax;
 
 --nonterminal Proc with pp, ppi, errors ;
 
-abstract production proc_decl
-proc::Unit ::= i::Inst procty::ProcType nm::ID dcl::Decls
-               pri::Priority ena::Enabler 
-               b::Body
+abstract production procDecl
+proc::Decls ::= i::Inst procty::ProcType nm::ID dcl::Decls
+                pri::Priority ena::Enabler 
+                b::Body
 { proc.pp = "\n" ++ i.pp ++ " " ++ procty.pp ++ " " ++ nm.lexeme ++
             " (" ++ dcl.pp ++ ") " ++ pri.pp ++ ena.pp ++ b.pp;
   b.ppi = proc.ppi;
+  dcl.ppsep = "; " ;
+  b.ppsep = "; \n" ;
   proc.errors := dcl.errors ++ b.errors ;
-  proc.host = proc_decl(i.host, procty.host, nm, dcl.host,
-                        pri.host, ena.host, b.host);
+  proc.host = procDecl(i.host, procty.host, nm, dcl.host,
+                       pri.host, ena.host, b.host);
 
--- proc.defs = mergeDefs(valueBinding(nm.lexeme,proc_type()),mergeDefs(dcl.defs,b.defs));
+  proc.defs = valueBinding(nm.lexeme, proc) ;
+  dcl.env = mergeDefs(proc.defs, proc.env) ;
+  b.env = mergeDefs(dcl.defs, dcl.env) ;
 
--- b.env = mergeDefs(dcl.defs, mergeDefs(proc.defs,proc.env)) ;
+  proc.uses = dcl.uses ++ b.uses;
 -- optena.env = proc.env;
--- proc.inlined_Unit = proc_decl(i.inlined_Inst, procty.inlined_ProcType, nm, dcl.inlined_Decls, 
---                               optpri.inlined_OptPriority, optena.inlined_OptEnabler, b.inlined_Body);
-
 }
 
 --ProcType

@@ -1,21 +1,21 @@
 grammar edu:umn:cs:melt:ableP:abstractsyntax;
 
-nonterminal Unit with pp, ppi, errors, host<Unit> ;
+nonterminal Unit with pp, ppi, ppterm, errors, host<Unit> ;
 
-nonterminal Args with basepp,pp;
-nonterminal NS with basepp,pp;
----nonterminal Error with basepp,pp;
---nonterminal OptPriority with basepp,pp;
+nonterminal Args with pp;
+nonterminal NS with pp;
 
 abstract production unitDecls
 un::Unit ::= ds::Decls
-{ un.pp = ds.pp;
+{ un.pp = ds.pp ++ un.ppterm ;
   ds.ppi = un.ppi;
   ds.ppsep = "; \n" ;
   un.errors := ds.errors;
+
+  un.defs = ds.defs ;
+  un.uses = ds.uses ;
+
   un.host = unitDecls(ds.host);
--- un.defs = ds.defs;
--- ds.env = un.env ;
 }
 
 abstract production init
@@ -23,9 +23,9 @@ i::Unit ::= op::Priority body::Body
 { i.pp = "\n" ++ "init " ++ op.pp ++ body.ppi ++ body.pp ;
   body.ppi = "  ";
   i.errors := body.errors;
+  i.defs = body.defs ;
+  i.uses = body.uses ;
   i.host = init(op.host, body.host) ;
--- i.defs = body.defs;
--- body.env = i.env;
 -- i.inlined_Unit = init(op.inlined_OptPriority, body.inlined_Body);
 }
 

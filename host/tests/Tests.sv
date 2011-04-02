@@ -1,9 +1,9 @@
 grammar edu:umn:cs:melt:ableP:host:tests ;
 
 import lib:testing ;
-import lib:langproc:errors hiding msg ;
+--import lib:langproc:errors hiding msg ;
 import lib:extcore ;
-import edu:umn:cs:melt:ableP:host ;
+import edu:umn:cs:melt:ableP:host hiding msg ;
 
 
 

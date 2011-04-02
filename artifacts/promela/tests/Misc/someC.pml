@@ -1,8 +1,8 @@
-c_code { ^^ ASDF
-  int x ;
+c_code { 
+  int x ; foo foo
 }
 
 active proctype main()
-{  ^^ some thing
+{ 
 	printf("hello world\n")
 }

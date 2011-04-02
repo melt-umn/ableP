@@ -2,13 +2,12 @@ grammar edu:umn:cs:melt:ableP:host:driver;
 
 import edu:umn:cs:melt:ableP:terminals;
 import edu:umn:cs:melt:ableP:concretesyntax only Program_c, ast ;
-import edu:umn:cs:melt:ableP:abstractsyntax only Program, pp, host, errors ;
-import lib:langproc:errors ;
+import edu:umn:cs:melt:ableP:abstractsyntax ; -- only Program, pp, host, errors ;
+import edu:umn:cs:melt:ableP:host:hostParser only promelaParser ;
 
 function driver
 IOVal<Integer> ::= args::[String]
                    ext_parser::Function(ParseResult<Program_c>::=String String) 
-                   host_parser::Function(ParseResult<Program_c>::=String String)
                    driverIO::IO 
 {
   local filename::String = head(args) ;

@@ -1,6 +1,6 @@
 grammar edu:umn:cs:melt:ableP:concretesyntax;
 
-nonterminal Proc_c with pp, ppi, ast<Unit> ; -- same in v4.2.9 and v6
+nonterminal Proc_c with pp, ppi, ast<Decls> ; -- same in v4.2.9 and v6
 --proc    : inst          /* optional instantiator */
 --          proctype NAME 
 --          '(' decl ')'  
@@ -19,8 +19,8 @@ proc::Proc_c ::= i::Inst_c procty::ProcType_c nm::ID
 { proc.pp = "\n" ++ i.pp ++ " " ++ procty.pp ++ " " ++ nm.lexeme ++
             " (" ++ dcl.pp ++ ") " ++ optpri.pp ++ optena.pp ++ b.pp;
   b.ppi = proc.ppi;
-  proc.ast = proc_decl(i.ast, procty.ast,nm, dcl.ast, 
-                       optpri.ast, optena.ast,b.ast);
+  proc.ast = procDecl(i.ast, procty.ast,nm, dcl.ast, 
+                      optpri.ast, optena.ast,b.ast);
 }
 
 action

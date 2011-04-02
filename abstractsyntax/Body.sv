@@ -1,6 +1,6 @@
 grammar edu:umn:cs:melt:ableP:abstractsyntax;
 
-nonterminal Body with pp, ppi, errors, host<Body> ;
+nonterminal Body with pp, ppi, ppsep, errors, host<Body> ;
 
 -- Body
 abstract production bodyStmt
@@ -8,10 +8,12 @@ b::Body ::= s::Stmt
 {
  b.pp = "\n{\n" ++ s.ppi ++ s.pp ++ b.ppi ++ "\n}\n";
  s.ppi = b.ppi ++ " ";
+ s.ppsep = "; \n" ;
  b.errors := s.errors ;
  b.host = bodyStmt(s.host) ;
--- b.defs = s.defs;
--- s.env = b.env;
+ b.defs = emptyDefs() ;
+ s.env = b.env;
+ b.uses = s.uses ;
 }
 
 abstract production stmt_block
@@ -20,6 +22,11 @@ s::Stmt ::= b::Body
  s.pp = b.pp;
  b.ppi = s.ppi;
  s.errors := b.errors ;
+
+ s.defs = b.defs; 
+ b.env = s.env;
+ s.uses = b.uses ;
+
  s.host = stmt_block(b.host);
 -- s.basepp = b.basepp;
 -- s.errors = b.errors;

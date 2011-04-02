@@ -1,5 +1,24 @@
 grammar edu:umn:cs:melt:ableP:abstractsyntax;
 
+nonterminal VarRef with pp, errors, host<VarRef>, env, typerep, dcl ;
+
+{-
+abstract production varRef
+v::VarRef ::= id::ID
+{ v.pp = id.lexeme ; 
+  v.errors := if eres.found then [ ] 
+              else [ mkError ("Id \"" ++ id.lexeme ++ "\" not declared. " ++
+                              mkLoc(id.line,id.column) ++ "\n" ) ] ;
+  v.typerep = eres.dcl.typerep ;
+  v.dcl = eres.dcl ;
+
+  local eres::EnvResult = lookup_name(id.lexeme, v.env) ;
+  v.uses = [ mkUse(eres.dcl.idNum, v) ];
+  v.host = varRef(id) ;
+}
+-}
+
+----------------- OLD -----------------------------
 {-
 
 abstract production expr_name
