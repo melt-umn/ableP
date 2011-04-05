@@ -22,6 +22,7 @@ fe::FullExpr_c ::= e::Expression_c
 
 --Expression
 nonterminal Expression_c with pp, ast<Expr> ;     -- same as in v4.2.9 and v6
+
 -- Expr in spin.y
 concrete production expr_probe_c
 exp::Expression_c ::= pr::Probe_c
@@ -74,7 +75,7 @@ exp::Expression_c ::= lhs::Expr_c op::OR rhs::Expression_c
 
 --Expr, (expr in spin.y)
 nonterminal Expr_c with pp, ast<Expr> ; -- same as v4.2.9 and v6 (except for fixable CHARLIT and LTL)
-
+synthesized attribute cst_Expr_c::Expr_c occurs on Expr ;
 
 concrete production paren_expr_c
 exp1::Expr_c ::= '(' exp2::Expr_c ')'
@@ -298,7 +299,7 @@ exp::Expr_c ::= pn::PNAME '[' ex::Expr_c ']' '@' n::ID
 }
 
 concrete production pfld_expr_c
-exp::Expr_c ::= pn::PNAME '[' ex::Expr_c ']' ':' pf::Pfld
+exp::Expr_c ::= pn::PNAME '[' ex::Expr_c ']' ':' pf::Pfld_c
 { exp.pp = pn.lexeme ++ "[" ++ ex.pp ++ "]" ++ ":" ++ pf.pp;
 }
 
@@ -309,7 +310,7 @@ exp::Expr_c ::= pn::PNAME '@' n::ID
 }
 
 concrete production fld_expr_c
-exp::Expr_c ::= pn::PNAME ':' pf::Pfld
+exp::Expr_c ::= pn::PNAME ':' pf::Pfld_c
 { exp.pp = pn.lexeme ++ ":" ++ pf.pp;
 }
 
@@ -362,8 +363,10 @@ v::Varref_c ::= c::Cmpnd_c
 } 
 
 nonterminal Cmpnd_c with pp, ast<Expr>, context ;  -- same as in v4.2.9 and v6
+synthesized attribute cst_Cmpnd_c::Cmpnd_c occurs on Expr ;
+
 concrete production cmpnd_pfld_c
-c::Cmpnd_c ::= p::Pfld s::Sfld 
+c::Cmpnd_c ::= p::Pfld_c s::Sfld_c 
 { c.pp = p.pp ++ s.pp ;  
   c.ast = s.ast ;
           --case s of
@@ -375,9 +378,11 @@ c::Cmpnd_c ::= p::Pfld s::Sfld
 }
 
 --Sfld
-nonterminal Sfld with pp, ast<Expr>, context ;  -- same as in v4.2.9 and v6
+nonterminal Sfld_c with pp, ast<Expr>, context ;  -- same as in v4.2.9 and v6
+synthesized attribute cst_Sfld_c::Sfld_c occurs on Expr ;
+
 concrete production empty_sfld_c
-sf::Sfld ::= 
+sf::Sfld_c ::= 
 { sf.pp =  "" ; 
   sf.ast = case sf.context of 
              nothing() -> error ("Should not ask for ast on empty_sfld_c!") 
@@ -386,7 +391,7 @@ sf::Sfld ::=
 }
 
 concrete production dot_sfld_c
-sf::Sfld ::= d::STOP c::Cmpnd_c 
+sf::Sfld_c ::= d::STOP c::Cmpnd_c 
 precedence = 45
 { sf.pp = "." ++ c.pp ; 
   sf.ast = c.ast ;
@@ -395,9 +400,11 @@ precedence = 45
 
 --Pfld
 -- Here, ID may be a field name (of type array) or an expression that names an array.
-nonterminal Pfld with pp, ast<Expr>, context ;   -- same as in v4.2.9 and v6
+nonterminal Pfld_c with pp, ast<Expr>, context ;   -- same as in v4.2.9 and v6
+synthesized attribute cst_Pfld_c::Pfld_c occurs on Expr ;
+
 concrete production name_pfld_c
-pf::Pfld ::= id::ID
+pf::Pfld_c ::= id::ID
 { pf.pp = id.lexeme;
   pf.ast = case pf.context of
              nothing() -> varRefExpr(id)
@@ -405,7 +412,7 @@ pf::Pfld ::= id::ID
            end ;
 }
 concrete production expr_pfld_c
-pf::Pfld ::= id::ID '[' ex::Expr_c ']'
+pf::Pfld_c ::= id::ID '[' ex::Expr_c ']'
 { pf.pp = id.lexeme ++ "[" ++ ex.pp ++ "]";
   pf.ast = case pf.context of
              nothing() -> arrayAccess(varRefExpr(id), ex.ast)
@@ -417,6 +424,7 @@ pf::Pfld ::= id::ID '[' ex::Expr_c ']'
 
 --Aname
 nonterminal Aname_c with pp, ast<ID> ;   -- same as v4.2.9 and v6
+synthesized attribute cst_Aname_c::Aname_c occurs on Expr ; -- really ID !!
 
 concrete production aname_pname_c
 an::Aname_c ::= pn::PNAME

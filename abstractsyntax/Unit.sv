@@ -2,8 +2,26 @@ grammar edu:umn:cs:melt:ableP:abstractsyntax;
 
 nonterminal Unit with pp, ppi, ppterm, errors, host<Unit> ;
 
-nonterminal Args with pp;
-nonterminal NS with pp;
+abstract production seqUnit
+u::Unit ::= u1::Unit u2::Unit
+{ u.pp = u1.pp ++ u2.pp;
+  u1.ppi = "";   u2.ppi = "";
+  u1.ppterm = "; \n" ; u2.ppterm = "; \n" ;
+  u.errors := u1.errors ++ u2.errors ;
+  u.host = seqUnit(u1.host, u2.host);
+  u.defs = mergeDefs(u1.defs,u2.defs);  
+  u1.env = u.env ;
+  u2.env = mergeDefs(u1.defs,u.env);
+--  us.inlined_Units = units_snoc(some.inlined_Units, u.inlined_Unit);
+}
+
+abstract production emptyUnit
+u::Unit ::= 
+{ u.pp = "" ;
+  u.errors := [ ] ;
+  u.host = emptyUnit();
+  u.defs = emptyDefs() ;
+}
 
 abstract production unitDecls
 un::Unit ::= ds::Decls
@@ -19,8 +37,8 @@ un::Unit ::= ds::Decls
 }
 
 abstract production init
-i::Unit ::= op::Priority body::Body
-{ i.pp = "\n" ++ "init " ++ op.pp ++ body.ppi ++ body.pp ;
+i::Unit ::= op::Priority body::Stmt
+{ i.pp = "\n" ++ "init " ++ op.pp ++ "{" ++  body.ppi ++ body.pp ++ "}" ;
   body.ppi = "  ";
   i.errors := body.errors;
   i.defs = body.defs ;
@@ -28,6 +46,27 @@ i::Unit ::= op::Priority body::Body
   i.host = init(op.host, body.host) ;
 -- i.inlined_Unit = init(op.inlined_OptPriority, body.inlined_Body);
 }
+
+abstract production commentedUnit
+u::Unit ::= comm::String u2::Unit
+{
+ u.pp = comm ++ u2.pp ;
+ u.errors := u2.errors ;
+ u.defs = u2.defs ;
+ u.host = commentedUnit (comm, u2.host) ;
+ u.uses = u2.uses ;
+}
+
+abstract production ppUnit
+u::Unit ::= comm::String 
+{
+ u.pp = comm ;
+ u.errors := [ ] ;
+ u.defs = emptyDefs() ;
+ u.host = ppUnit(comm);
+ u.uses = [ ] ;
+}
+
 
 {-  Will go back and add these as necessesary.
 
@@ -43,26 +82,6 @@ u::Unit ::=
 --  u.inlined_Unit = unit_semi();
 }
 
-abstract production unit_empty
-u::Unit ::= 
-{ u.pp = "";
--- u.basepp = "";
--- u.errors = [];
--- u.defs = emptyDefs(); 
--- u.inlined_Unit = unit_empty();
-}
-
-abstract production commented_unit
-u::Unit ::= comm::String u2::Unit
-{
- u.pp = comm ++ u2.pp ;
- u.basepp = comm ++ u2.basepp ;
-
- u.errors = [];
- u.defs = emptyDefs(); 
-
- u.inlined_Unit = unit_empty();
-}
 
 
 

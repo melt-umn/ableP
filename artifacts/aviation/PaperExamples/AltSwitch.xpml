@@ -4,12 +4,7 @@ mtype = {High, Med, Low} ;           /* quality of instrument readings */
 chan startup = [0] of {int, int} ;
 chan monitor = [0] of {mtype, mtype} ;
 
-timer trouble_t ;   /* expands to "int trouble_t = -1;" */
-
-/* Dont show this */
-proctype monitorStatus () 
-{ mtype stat; int alt;      printf("monitor status ... \n") ;
-  do :: monitor ? alt, stat ; printf ("Warning.") ; od ; }
+timer trouble_t, above_t ;   /* expands to "int trouble_t = -1;" */
 
 active proctype determineStatus () 
 {
@@ -17,10 +12,9 @@ active proctype determineStatus ()
  mtype altQuality, altStatus = Unknown ;
 
  startup ? threshold, hyst ;  /* receive threshold and hysteresis values */
- timer above_t ;              /* expands to "int above_t; above_t = -1;" */
  run monitorStatus ( ) ;      /* start monitoring process */
 
- check:  /* determine the altitude status from altitude and altQuality. */
+ check:  /* select, non-deterministically, values for altitude and altQuality. */
   select (altitude: 1000 .. 10000 step 100) ;
   select (altQuality: High, Med, Low) ;
 
@@ -44,8 +38,8 @@ active proctype determineStatus ()
    goto check ;
 
  trouble:
-   monitor!altStatus,altitude ;   /* send msg to monitor */
-   delay(trouble_t,1);            /* delay until next "tick" */
+   monitor!altStatus,altitude ;        /* send msg to monitor */
+   trouble_t = 1; expire(trouble_t);   /* what delay expands to */
    goto check ;
 }
 

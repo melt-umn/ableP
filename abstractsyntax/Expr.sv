@@ -183,7 +183,7 @@ exp::Expr ::= lhs::Expr
 
 abstract production negExpr
 exp::Expr ::= lhs::Expr
-{ exp.pp = "(!" ++ lhs.pp ++")" ;
+{ exp.pp = "(-" ++ lhs.pp ++")" ;
   exp.errors := lhs.errors;
   exp.typerep = boolTypeRep();
   exp.uses = lhs.uses ; 

@@ -75,22 +75,22 @@ String ::= bs :: [Binding]
 
 
 synthesized attribute uses::[Use]
-  occurs on Units, Unit, Stmt, Body, Options, Expr, Exprs,
+  occurs on Unit, Stmt, Options, Expr, Exprs,
             Decls, Declarator, 
             Args, MArgs, RArgs, RArg ;
 
 autocopy attribute alluses::[Use]
-  occurs on Units, Unit, Stmt, Body, Options, Expr, Exprs,
+  occurs on Unit, Stmt, Options, Expr, Exprs,
             Decls, Declarator, 
             Args, MArgs, RArgs, RArg ;
 
 attribute env
-  occurs on Units, Unit, Stmt, Body, Options, Expr, Exprs,
+  occurs on Unit, Stmt, Options, Expr, Exprs,
             Decls, Declarator, IDList,
             Args, MArgs, RArgs, RArg ;
 
 attribute defs
-  occurs on Units, Unit, Stmt, Options, Body, 
+  occurs on Unit, Stmt, Options,
             Decls, Declarator, IDList ;
 
 nonterminal Use ;

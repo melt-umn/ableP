@@ -75,6 +75,8 @@ ra::RArg ::= cst::CONST
   ra.uses = [ ]  ;
   ra.host = negConstRArg(cst) ; }
 
+nonterminal Args with pp;
+
 {-
 nonterminal Arg with pp, errors, ;
 

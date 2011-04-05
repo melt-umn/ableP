@@ -5,12 +5,13 @@ grammar edu:umn:cs:melt:ableP:abstractsyntax;
 abstract production procDecl
 proc::Decls ::= i::Inst procty::ProcType nm::ID dcl::Decls
                 pri::Priority ena::Enabler 
-                b::Body
+                b::Stmt
 { proc.pp = "\n" ++ i.pp ++ " " ++ procty.pp ++ " " ++ nm.lexeme ++
-            " (" ++ dcl.pp ++ ") " ++ pri.pp ++ ena.pp ++ b.pp;
+            " (" ++ dcl.pp ++ ") " ++ pri.pp ++ ena.pp ++ "{" ++ b.pp ++ "}" ;
   b.ppi = proc.ppi;
   dcl.ppsep = "; " ;
   b.ppsep = "; \n" ;
+  proc.typerep = procTypeRep() ;
   proc.errors := dcl.errors ++ b.errors ;
   proc.host = procDecl(i.host, procty.host, nm, dcl.host,
                        pri.host, ena.host, b.host);

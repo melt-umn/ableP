@@ -1,0 +1,21 @@
+#!/bin/bash
+
+#silver.copper --onlycs edu:umn:cs:melt:ableJ14:host 
+
+#silver.copper --onlycs edu:umn:cs:melt:ableJ14:exts:foreach
+
+#java -classpath \
+#  /project/melt/People/evw/Melt/Copper/CopperCompiler.jar edu/umn/cs/melt/copper/main/ParserCompiler -compose None None \
+#  .Generated/Module_edu_umn_cs_melt_ableJ14_host_Grammar.copper  \
+#  .Generated/Module_edu_umn_cs_melt_ableJ14_exts_foreach_Grammar.copper  > /dev/null
+
+export GRAMMAR_PATH="../../../../../../../../grammars"
+export  SILVER_HOME="../../../../../../../../silver/trunk/jars"
+
+java -Xss8M -Xmx2000M -jar $SILVER_HOME/CopperCompiler.jar -compose \
+          Parser_edu_umn_cs_melt_ableP_host_hostParser_promelaParser.copper \
+          Parser_edu_umn_cs_melt_ableP_extensions_syntax_check_ext_pp.copper > Parse.java  
+
+
+#          $SILVER_HOME/../generated/src/edu/umn/cs/melt/ableP/host/hostParser/Parser_edu_umn_cs_melt_ableP_host_hostParser_promelaParser.copper \
+#          $SILVER_HOME/../generated/src/edu/umn/cs/melt/ableP/extensions/syntax_check/ext/Parser_edu_umn_cs_melt_ableP_extensions_syntax_check_ext_pp.copper > Parse.java  

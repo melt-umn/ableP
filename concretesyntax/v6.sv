@@ -18,7 +18,10 @@ Special : for_pre ':' expr DOTDOT expr ')'	{ for_setup($1, $3, $5); in_for = 0;}
 -}
 
 nonterminal ForPre_c with pp, ast<Expr>, forTerminal ;
+synthesized attribute cst_ForPre_c :: ForPre_c occurs on Expr ;
+
 synthesized attribute forTerminal::FOR ;
+
 concrete production forPre_c
 fp::ForPre_c ::= f::FOR '(' v::Varref_c 
 { fp.pp = "for (" ++ v.pp ; 
@@ -27,6 +30,8 @@ fp::ForPre_c ::= f::FOR '(' v::Varref_c
 }
 
 nonterminal ForPost_c with pp, ast<Stmt> ;
+synthesized attribute cst_ForPost_c :: ForPost_c occurs on Stmt ;
+
 concrete production forPost_c
 fp::ForPost_c ::= '{' s::Sequence_c os::OS_c '}'
 { fp.pp = "{ " ++ s.pp ++ os.pp ++ "}" ; 

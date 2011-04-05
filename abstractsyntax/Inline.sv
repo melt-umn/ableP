@@ -1,5 +1,7 @@
 grammar edu:umn:cs:melt:ableP:abstractsyntax;
 
+nonterminal NS with pp;
+
 {-
 -- inline declarations --
 -------------------------

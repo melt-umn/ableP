@@ -1,16 +1,18 @@
 grammar edu:umn:cs:melt:ableP:concretesyntax ;
 
 -- Body
-nonterminal Body_c with pp, ppi, ast<Body> ; -- same as in v4.2.9 and v6
+nonterminal Body_c with pp, ppi, ast<Stmt> ; -- same as in v4.2.9 and v6
+
 concrete production body_statements_c 
 b::Body_c ::= '{' s::Sequence_c os::OS_c '}'
 { b.pp = "\n{\n" ++ s.ppi ++ s.pp ++ os.pp ++ " \n}";
   s.ppi = b.ppi ++ "  " ;
-  b.ast = bodyStmt(s.ast);
+  b.ast = blockStmt(s.ast);
 }
 
 -- Sequence
 nonterminal Sequence_c with pp, ppi, ast<Stmt>;   -- same as in v4.2.9 and v6
+
 concrete production single_step_c 
 s::Sequence_c ::= st::Step_c
 { s.pp =  st.pp;

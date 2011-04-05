@@ -59,7 +59,19 @@ s::Stmt ::= cn::CONST
 abstract production assign
 s::Stmt ::= lhs::Expr rhs::Expr 
 { s.pp = s.ppi ++ lhs.pp ++ " = " ++ rhs.pp ++ " ;\n" ; 
+  production attribute overloads :: [Stmt] with ++ ;
+  overloads := [ ] ;
+
+  forwards to if null(overloads) then defaultAssign(lhs,rhs) 
+              else head(overloads) ;
+}
+
+abstract production defaultAssign
+s::Stmt ::= lhs::Expr rhs::Expr 
+{ s.pp = s.ppi ++ lhs.pp ++ " = " ++ rhs.pp ++ " ;\n" ; 
+
   s.errors := lhs.errors ++ rhs.errors ;
+
   s.defs = emptyDefs();
   s.uses = lhs.uses ++ rhs.uses ;
   s.host = assign(lhs.host, rhs.host) ;

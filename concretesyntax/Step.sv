@@ -1,23 +1,20 @@
 grammar edu:umn:cs:melt:ableP:concretesyntax ;
 
-
---synthesized attribute ast_Vis::Vis occurs on Vis_c;
---synthesized attribute ast_VrefList::VrefList occurs on VrefList_c;
---synthesized attribute ast_TypList::TypList occurs on TypList_c;
---synthesized attribute ast_VarDcl::VarDcl occurs on VarDcl_c;
---synthesized attribute ast_ChInit::ChInit occurs on ChInit_c;
-
---????????nonterminal Type_c with pp ;
---synthesized attribute ast_Type::Type occurs on Type_c, BaseType_c;
-
-
 -- Step
 nonterminal Step_c with pp, ppi, ast<Stmt> ;  -- same as v4.2.9 and v6
+
 concrete production one_decl_c
 s::Step_c ::= od::OneDecl_c
 { s.pp = od.pp ;
   od.ppi = s.ppi;
   s.ast = one_decl(od.ast);
+}
+
+concrete production step_stamt_c
+s::Step_c ::= st::Stmt_c
+{ s.pp = st.pp;
+  st.ppi = s.ppi;
+  s.ast = st.ast;
 }
 
 concrete production vref_lst_c
@@ -38,14 +35,7 @@ s::Step_c ::= id::ID ':' xu::XU
 --  s.ast_Stmt = name_xu(id,xu);
 }
 
-concrete production step_stamt_c
-s::Step_c ::= st::Stmt_c
-{ s.pp = st.pp;
-  st.ppi = s.ppi;
-  s.ast = st.ast;
-}
-
-concrete production stmt_stmt_c
+concrete production unless_c
 s::Step_c ::= st1::Stmt_c un::UNLESS st2::Stmt_c
 { s.pp = st1.pp ++ "\n unless \n" ++ st2.pp ++ "\n";
 --  st1.ppi = s.ppi;

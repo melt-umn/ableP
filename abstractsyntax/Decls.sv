@@ -32,8 +32,6 @@ ds::Decls ::=
 -- Declarations, binding names to values or types.
 synthesized attribute idNum::Integer occurs on Decls ;
 attribute typerep occurs on Decls ;
---TODO -maybe we should make Decls a list of Decl so that idNum
--- decorates Decl but not Decls since this is not right for seqDecls.
 
 abstract production varDecl
 ds::Decls ::= vis::Vis t::TypeExpr v::Declarator
@@ -64,6 +62,10 @@ ds::Decls ::= vis::Vis t::TypeExpr v::Declarator
 }
 
 abstract production varAssignDecl
+ds::Decls ::= vis::Vis t::TypeExpr v::Declarator e::Expr
+{ forwards to defaultVarAssignDecl(vis, t, v, e) ; } 
+
+abstract production defaultVarAssignDecl
 ds::Decls ::= vis::Vis t::TypeExpr v::Declarator e::Expr
 {
  ds.pp = ds.ppi ++ vis.pp ++ t.pp ++ " " ++ v.pp ++ " = " ++ e.pp ;
@@ -173,6 +175,7 @@ ds::Decls ::= v::Vis name::ID
  ds.pp = v.pp ++ " mtype = { " ++ name.lexeme ++ " } " ;
  ds.errors := [ ] ; 
  ds.defs = valueBinding(name.lexeme, ds);
+ ds.typerep = mtypeTypeRep() ;
 }
 
 {-

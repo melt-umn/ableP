@@ -7,11 +7,11 @@ imports edu:umn:cs:melt:ableP:terminals;
 
 -- Attibutes used by most nonterminals.
 synthesized attribute pp::String ;
+
+-- TODO, remove this as we will now do pp from the CST.
 autocopy attribute ppi::String;
 autocopy attribute ppsep::String;
 autocopy attribute ppterm::String;
-
---synthesized attribute basepp::String;
 
 synthesized attribute errors::[ Error ] with ++ ;
 

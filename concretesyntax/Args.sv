@@ -43,6 +43,7 @@ pa::PrArgs_c ::= ',' a::Exprs_c
 
 --MArgs
 nonterminal MArgs_c with pp, ast<MArgs> ;      -- same as v4.2.9 and v6
+synthesized attribute cst_MArgs_c::MArgs_c occurs on MArgs ;
 
 concrete production one_margs_c
 ma::MArgs_c ::= a::Exprs_c
@@ -59,6 +60,7 @@ ma::MArgs_c ::= exp::Expr_c '(' a::Exprs_c ')'
 
 --RArg
 nonterminal RArg_c with pp, ast<RArg> ;    -- same as v4.2.9 and v6
+synthesized attribute cst_RArg_c::RArg_c occurs on RArg ;
 
 concrete production var_rarg_c
 ra::RArg_c ::= vr::Varref_c
@@ -84,6 +86,7 @@ precedence = 20
 
 --RArgs
 nonterminal RArgs_c with pp, ast<RArgs>;      -- same as v4.2.9 and v6
+synthesized attribute cst_RArgs_c::RArgs_c occurs on RArgs ;
 
 concrete production one_rargs_c
 ras::RArgs_c ::= ra::RArg_c

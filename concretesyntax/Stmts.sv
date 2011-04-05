@@ -192,6 +192,7 @@ st::Statement_c ::= sk::SKIP
 
 --Options
 nonterminal Options_c with pp, ppi, ast<Options> ;   -- same as in v4.2.9 and v6
+synthesized attribute cst_Options_c::Options_c occurs on Options ;
 
 concrete production single_option_c
 ops::Options_c ::= op::Option_c
@@ -211,6 +212,7 @@ ops::Options_c ::= op::Option_c rest::Options_c
 
 --Option
 nonterminal Option_c with pp, ppi, ast<Stmt> ;    -- same as in v4.2.9 and v6
+synthesized attribute cst_Option_c::Option_c occurs on Stmt ;
 
 concrete production op_seq_c
 op::Option_c ::= '::' seq::Sequence_c os::OS_c

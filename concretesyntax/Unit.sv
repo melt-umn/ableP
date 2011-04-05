@@ -37,7 +37,8 @@ u::Unit_c ::= e::Events_c
 
 concrete production unit_one_decl_c
 u::Unit_c ::= dec::OneDecl_c
-{ u.pp = dec.pp ;  u.ast = unitDecls(dec.ast) ;  }
+{ u.pp = dec.pp ;  u.ast = unitDecls(dec.ast) ;  
+}
 
 concrete production unit_utype_c
 u::Unit_c ::= ut::Utype_c
@@ -56,13 +57,13 @@ action { usedInline = 1; }
 concrete production unit_semi_c
 u::Unit_c ::= se::SEMI
 { u.pp = ";\n"; 
---  u.ast = errror ("Should be filtered out by unit_snoc_c.");
-}
+  u.ast = emptyUnit() ;  }
 
 
 
 --Init 
 nonterminal Init_c with pp, ast<Unit> ;   -- same in v4.2.9 and v6
+synthesized attribute cst_Init_c :: Init_c occurs on Unit ;
 
 concrete production init_c
 i::Init_c ::= it::INIT op::OptPriority_c body::Body_c
@@ -73,6 +74,7 @@ i::Init_c ::= it::INIT op::OptPriority_c body::Body_c
 
 --Claim  
 nonterminal Claim_c with pp, ast<Unit> ; -- same in v4.2.9, new prod added to get to v6
+synthesized attribute cst_Claim_c :: Claim_c occurs on Unit ;
 
 --synthesized attribute ast_Body::Body occurs on Body_c;
 --synthesized attribute ast_OptPriority::OptPriority occurs on OptPriority_c;
@@ -89,6 +91,7 @@ c::Claim_c ::= ck::CLAIM body::Body_c
 
 --Events 
 nonterminal Events_c with pp, ast<Unit> ;  --  same in v4.2.9 and v6
+synthesized attribute cst_Events_c :: Events_c occurs on Unit ;
 
 concrete production events_c
 e::Events_c ::= tr::TRACE body::Body_c
@@ -101,6 +104,7 @@ e::Events_c ::= tr::TRACE body::Body_c
 
 --Utype
 nonterminal Utype_c with pp, ast<Unit>;  -- same in v4.2.9 and v6
+synthesized attribute cst_Utype_c :: Utype_c occurs on Unit ;
 
 concrete production utype_dcllist_c
 u::Utype_c ::= td::TYPEDEF id::ID '{' dl::DeclList_c '}'
@@ -156,7 +160,9 @@ nm::NM ::= un::UNAME
 -}
 
 -- NS
-nonterminal NS_c with pp, ast<Unit>;  -- different! by equal! can be fixed with new parser attr.
+nonterminal NS_c with pp, ast<Unit>;  -- different! but equal! can be fixed with new parser attr.
+synthesized attribute cst_NS_c::NS_c occurs on Unit ;
+
 
 concrete production inline_dcl_iname_c
 ns::NS_c ::= il::INLINE ina::INAME '(' args::Args_c ')' stmt::Statement_c

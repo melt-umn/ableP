@@ -2,30 +2,34 @@ grammar edu:umn:cs:melt:ableP:concretesyntax;
 
 --Decl_c
 nonterminal Decl_c with pp, ppi, ast<Decls>;   -- same as in v4.2.9 and v6
+
 concrete production empty_Decl_c
 dcl::Decl_c ::= 
 { dcl.pp = "";
   dcl.ast = emptyDecl();
 }
+
 concrete production decllist_c
 dcl::Decl_c ::= dcllist::DeclList_c
 { dcl.pp = dcllist.pp;
-  dcllist.ppi = "";
+  dcllist.ppi = dcl.ppi ;
   dcl.ast = dcllist.ast ;
 }
 
 --DeclList_c
 nonterminal DeclList_c with pp, ppi, ast<Decls> ;    -- same as in v4.2.9 and v6
+synthesized attribute cst_DeclList_c::DeclList_c occurs on Decls ;
+
 concrete production single_Decl_c
 dcls::DeclList_c ::= dcl::OneDecl_c
-{ dcls.pp = "  " ++ dcl.pp;
+{ dcls.pp = dcl.pp;
   dcl.ppi = dcls.ppi;
   dcls.ast = dcl.ast ;
 }
 
 concrete production multi_Decl_c
 dcls::DeclList_c ::= dcl::OneDecl_c sc::SEMI rest::DeclList_c
-{ dcls.pp = dcl.pp ++ "; \n" ++ dcls.ppi ++ rest.pp;
+{ dcls.pp = dcl.pp ++ "; \n" ++ rest.pp;
   dcl.ppi = dcls.ppi;
   rest.ppi = dcls.ppi;
   dcls.ast = seqDecls(dcl.ast, rest.ast);
@@ -33,6 +37,7 @@ dcls::DeclList_c ::= dcl::OneDecl_c sc::SEMI rest::DeclList_c
 
 --OneDecl_c
 nonterminal OneDecl_c with pp, ppi, ast<Decls> ;   -- same as in v4.2.9 and v6
+synthesized attribute cst_OneDecl_c::OneDecl_c occurs on Decls ;
 
 concrete production varDcls_c
 d::OneDecl_c ::= v::Vis_c t::Type_c vars::VarList_c
@@ -42,42 +47,53 @@ d::OneDecl_c ::= v::Vis_c t::Type_c vars::VarList_c
   vars.inVis = v.ast ;
 }
 
+concrete production typeDclUNAME_c
+od::OneDecl_c ::= v::Vis_c u::UNAME vars::VarList_c
+{ od.pp = od.ppi ++ v.pp ++ " " ++ u.lexeme ++ " " ++ vars.pp; }
+
+concrete production typenameDcl_c
+od::OneDecl_c ::= v::Vis_c t::Type_c a::Asgn_c lc::LCURLY names::IDList_c rc::RCURLY
+{ od.pp = od.ppi ++ v.pp ++ " " ++ t.pp ++ a.pp ++ "{ " ++ names.pp ++ " }" ;
+  od.ast = mtypeDecls (v.ast, t.ast, names.ast) ;   }
+
+-- Asgn
+nonterminal Asgn_c with pp ;    -- same as in v4.2.9 and v6
+concrete productions
+a::Asgn_c ::= at::ASGN   { a.pp = " " ++ at.lexeme ++ " " ; }
+a::Asgn_c ::=            { a.pp = " " ; }
+
+
+
 -- VarList
 nonterminal VarList_c with pp, ast<Decls>, inTypeExpr, inVis ;   -- same as v4.2.9 and v6
+synthesized attribute cst_VarList_c::VarList_c occurs on Decls ;
 autocopy attribute inTypeExpr::TypeExpr ;
-
---attribute ast_VarDcl occurs on VarList_c,IVar_c;
 
 concrete production one_var_c
 vl::VarList_c ::= iv::IVar_c
-{ vl.pp = iv.pp ; 
-  vl.ast = iv.ast ;
---  vl.treedcl = iv.treedcl;
+{ vl.pp = iv.pp ;      vl.ast = iv.ast ;   
 }
-
 concrete production cons_var_c
 vl::VarList_c ::= iv::IVar_c ',' rest::VarList_c
 { vl.pp = iv.pp ++ " ," ++ rest.pp ; 
-  vl.ast = seqDecls(iv.ast, rest.ast) ;
---  vl.treedcl = seqDecls(iv.treedcl,vltail.treedcl);
+  vl.ast = seqDecls(iv.ast, rest.ast) ;   
 }
 
 
 -- IVar
 nonterminal IVar_c with pp, ast<Decls>, inTypeExpr, inVis;   -- same as in v4.2.9 and v6
+synthesized attribute cst_IVar_c::IVar_c occurs on Decls ;
 
 concrete production ivar_vardcl_c
 iv::IVar_c ::= vd::VarDcl_c
 { iv.pp = vd.pp ; 
   iv.ast = varDecl (iv.inVis, iv.inTypeExpr, vd.ast ) ;
 }
-
 concrete production ivar_vardcl_assign_expr_c
 iv::IVar_c ::= vd::VarDcl_c a::ASGN e::Expr_c
 { iv.pp = vd.pp ++ " = " ++ e.pp ; 
   iv.ast = varAssignDecl (iv.inVis, iv.inTypeExpr, vd.ast, e.ast) ;
 }
-
 concrete production ivar_vardcl_assign_ch_init_c
 iv::IVar_c ::= vd::VarDcl_c a::ASGN ch::ChInit_c
 { iv.pp = vd.pp ++ " = " ++ ch.pp ; 
@@ -86,6 +102,8 @@ iv::IVar_c ::= vd::VarDcl_c a::ASGN ch::ChInit_c
 
 -- ChInit
 nonterminal ChInit_c with pp, ast<ChInit> ;   -- same as in v4.2.9 and v6
+synthesized attribute cst_ChInit_c::ChInit_c occurs on ChInit ;
+
 concrete production ch_init_c 
 ch::ChInit_c ::= '[' c::CONST ']' o::OF '{' tl::TypList_c '}'
 { ch.pp = "[ " ++ c.lexeme ++ " ]" ++ " of " ++ " { " ++ tl.pp ++ " } ";
@@ -95,6 +113,7 @@ ch::ChInit_c ::= '[' c::CONST ']' o::OF '{' tl::TypList_c '}'
 
 --VarDcl_c
 nonterminal VarDcl_c with pp, ppi, ast<Declarator> ;   -- same as in v4.2.9 and v6
+synthesized attribute cst_VarDcl_c::VarDcl_c occurs on Declarator ;
 
 concrete production vd_id_c
 vd::VarDcl_c ::= id::ID
@@ -114,6 +133,8 @@ vd::VarDcl_c ::= id::ID '[' cnt::CONST ']'
 
 -- Vis, visibility
 nonterminal Vis_c with pp, ast<Vis> ;  -- same as in v4.2.9 and v6
+synthesized attribute cst_Vis_c::Vis_c occurs on Vis ;
+
 concrete production vis_empty_c  
 v::Vis_c ::= 
 { v.pp = "" ; v.ast = vis_empty() ; }
@@ -126,6 +147,37 @@ v::Vis_c ::= s::SHOW
 concrete production vis_islocal_c
 v::Vis_c ::= i::ISLOCAL 
 { v.pp = "local" ;  v.ast = vis_islocal() ; }
+
+
+
+
+
+
+
+--NameList
+nonterminal IDList_c with pp, ast<IDList> ;   -- same as v4.2.9 and v6
+synthesized attribute cst_IDList_c::IDList_c occurs on IDList ;
+-- nlst in spin.y
+
+concrete production singleName_c
+nlst::IDList_c ::= n::ID
+{ nlst.pp = n.lexeme;
+  nlst.ast = singleName(n);
+}
+
+concrete production snocNames_c
+nlst::IDList_c ::= some::IDList_c n::ID
+{ nlst.pp = some.pp ++ n.lexeme;
+  nlst.ast = snocNames( some.ast ,n );
+}
+
+concrete production commaNames_c  
+nlst1::IDList_c ::= nlst2::IDList_c ','   -- commas are optional
+{ nlst1.pp = nlst2.pp ++ ",";
+  nlst1.ast = nlst2.ast ;
+}
+
+
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -193,30 +245,8 @@ v::Vis_c ::= i::ISLOCAL
 
 
 
-concrete production typeDclUNAME_c
-od::OneDecl_c ::= v::Vis_c u::UNAME vars::VarList_c
-{ od.pp = od.ppi ++ v.pp ++ " " ++ u.lexeme ++ " " ++ vars.pp; }
-
-
-concrete production typenameDcl_c
-od::OneDecl_c ::= v::Vis_c t::Type_c a::Asgn_c lc::LCURLY names::IDList_c rc::RCURLY
-{ od.ast = mtypeDecls (v.ast, t.ast, names.ast) ;   }
-
--- Asgn
-nonterminal Asgn_c with pp ;    -- same as in v4.2.9 and v6
-concrete productions
-a::Asgn_c ::= at::ASGN   { }
-a::Asgn_c ::=            { }
-
-
-
-
 
 --newly added rule for message types -- not in original grammar
-
-
-
-
 
 --concrete production tynameDecl_c
 --od::OneDecl_c ::= t::Type_c a::Asgn_c lc::LCURLY nlist::IDList_c rc::RCURLY
@@ -278,31 +308,6 @@ od::OneDecl_c ::= t::Type_c vars::VarList_c
 -}
 
 
-
-
-
-
---NameList
-nonterminal IDList_c with pp, ast<IDList> ;   -- same as v4.2.9 and v6
--- nlst in spin.y
-
-concrete production singleName_c
-nlst::IDList_c ::= n::ID
-{ nlst.pp = n.lexeme;
-  nlst.ast = singleName(n);
-}
-
-concrete production snocNames_c
-nlst::IDList_c ::= some::IDList_c n::ID
-{ nlst.pp = some.pp ++ n.lexeme;
-  nlst.ast = snocNames( some.ast ,n );
-}
-
-concrete production commaNames_c  
-nlst1::IDList_c ::= nlst2::IDList_c ','   -- commas are optional
-{ nlst1.pp = nlst2.pp ++ ",";
-  nlst1.ast = nlst2.ast ;
-}
 
 
 
