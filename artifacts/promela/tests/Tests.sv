@@ -4,8 +4,10 @@ import lib:testing ;
 --import lib:errors hiding msg ;
 import lib:extcore ;
 
-import edu:umn:cs:melt:ableP:host hiding msg ;
---import edu:umn:cs:melt:ableP:host:hostParser ;
+import edu:umn:cs:melt:ableP:abstractsyntax hiding msg ;
+import edu:umn:cs:melt:ableP:concretesyntax ;
+import edu:umn:cs:melt:ableP:terminals ;
+import edu:umn:cs:melt:ableP:host:hostParser ;
 import edu:umn:cs:melt:ableP:host:tests ;
 
 function main
@@ -14,10 +16,10 @@ IOVal<Integer> ::= args::[String] mainIO::IO
  local attribute testResults :: TestSuite ;
  testResults = consolidateTestSuite( [
                  -- [ ableP_host_tests() ] ,
---                    tests(parseTestsIO.iovalue) ,
-                    tests(astPPTestsIO.iovalue) ,
-                    tests(hostASTParseTestsIO.iovalue) ,
-                    tests(semanticsOKTestsIO.iovalue)
+                    tests(parseTestsIO.iovalue) 
+--                    tests(astPPTestsIO.iovalue) ,
+--                    tests(hostASTParseTestsIO.iovalue) ,
+--                    tests(semanticsOKTestsIO.iovalue)
                  ] ) ;
  testResults.ioIn = semanticsOKTestsIO.io;
 

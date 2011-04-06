@@ -2,113 +2,11 @@ grammar edu:umn:cs:melt:ableP:terminals ;
 
 import edu:umn:cs:melt:ableC:terminals ;
 
-
-terminal Bogus_t '@@' ;
-
---ignore terminal LineComment  /[\/][\/].*/ ;
---ignore terminal WhiteSpace   /[\n\t\ ]+/ ;
-
-
-----------
-
+-- lexer classes for promela terminals and its keywords
 lexer class promela_kwd;
 lexer class promela;
 
 
--- Promela classifies identifiers as either:
---  - process type names 
---  - inline names
---  - other ??
-
-
-parser attribute usedProcess :: Integer
-     action { usedProcess = 0 ; } ;
-
-parser attribute usedInline :: Integer
-     action { usedInline = 0 ; };
-
-parser attribute pnames :: [String]
-     action { pnames = [  ] ; } ;
-
-parser attribute inames :: [String]
-     action { inames = [ ] ; } ;
-
-parser attribute unames :: [String]
-     action { unames = [ ] ; } ;
-
-{-
-disambiguate Identifier_t,TypeName_t
- {
-   pluck if listContains(lexeme,head(typenames))
-         then TypeName_t
-         else Identifier_t;
- }
--}
-
--- Disambiguate ID & PNAME
---disambiguation group ProcessID with {ID,PNAME}
-disambiguate ID, PNAME
- {
-    pluck if listContains(lexeme,pnames)
-          then PNAME
-          else ID;
-}
-
-
--- Disambiguate ID & INAME
---disambiguation group InlineID with {ID,INAME}
-disambiguate ID, INAME
- {
-    pluck if listContains(lexeme,inames)
-          then INAME
-          else ID;
-}
-
--- Disambiguate ID & UNAME
---disambiguation group UserID with {ID,UNAME}
-disambiguate ID, UNAME
- {
-    pluck if listContains(lexeme,unames)
-          then UNAME
-          else ID;
-}
-
-
--- Disambiguate ID,INAME & PNAME
---disambiguation group ProInID with {ID,PNAME,INAME}
-disambiguate ID, PNAME, INAME
-{
-    pluck if listContains(lexeme,pnames)
-          then PNAME
-          else if listContains(lexeme,inames)
-               then INAME
-               else ID;
-}
-
--- Disambiguate ID,UNAME & PNAME
---disambiguation group ProInID with {ID,PNAME,UNAME}
-disambiguate ID, PNAME, UNAME
-{
-    pluck if listContains(lexeme,pnames)
-          then PNAME
-          else if listContains(lexeme,unames)
-               then UNAME
-               else ID;
-}
-
-
--- Disambiguate ID,INAME,PNAME & UNAME
---disambiguation group ProInUseID with {ID,PNAME,INAME,UNAME}
-disambiguate ID, PNAME, INAME, UNAME
- {
-     pluck if listContains(lexeme,pnames)
-           then PNAME
-           else if listContains(lexeme,inames)
-                then INAME
-                else if listContains(lexeme,unames)
-                     then UNAME
-                     else ID;
-}
 
                         
 -- White space and comments --
@@ -120,11 +18,11 @@ ignore terminal WhiteSpace_P /[\t\n\ ]+/
 ignore terminal BlockComment_P /[\/][\*]([^\*]|[\r\n]|([\*]+([^\*\/]|[\r\n])))*[\*]+[\/]/ 
  lexer classes {promela, p_WS_Comments} , dominates { Ccomment };
 
---ignore terminal LineComment_P  /[\/][\/].*/ 
-ignore terminal LineComment_P  /[\^][\^].*/ 
+ignore terminal LineComment_P  /[\/][\/].*/ 
  lexer classes {promela, p_WS_Comments} , dominates { Ccomment } ;
 
---ignore terminal CPPDirectiveLayout_P /[#].*/ dominates { p_WS_Comments, CPPDirectiveLayout_P, WhiteSpace }   ;
+-- ignore terminal CPPDirectiveLayout_P /[#].*/ 
+-- dominates { p_WS_Comments, CPPDirectiveLayout_P, WhiteSpace }   ;
 
 
 terminal ASSERT       'assert'       lexer classes {promela,promela_kwd};
@@ -146,7 +44,6 @@ terminal PC_VALUE     'pc_value'     lexer classes {promela,promela_kwd};
 terminal TYPEDEF      'typedef'      lexer classes {promela,promela_kwd};
 terminal MTYPE        'mtype'        lexer classes {promela,promela_kwd}; 
 terminal INLINE       'inline'       lexer classes {promela,promela_kwd};
--- missing LABEL????
 terminal OF           'of'           lexer classes {promela,promela_kwd};
 
 terminal GOTO         'goto'         lexer classes {promela,promela_kwd};
@@ -324,6 +221,67 @@ terminal SCOLON  ':' lexer classes {promela},precedence = 2,association = right;
 --	timeout		typedef		unless		unsigned
 --	xr		xs
 
+-- Promela classifies identifiers as either:
+--  - process type names 
+--  - inline names
+--  - others 
+
+
+parser attribute usedProcess :: Integer
+     action { usedProcess = 0 ; } ;
+parser attribute usedInline :: Integer
+     action { usedInline = 0 ; };
+parser attribute pnames :: [String]
+     action { pnames = [  ] ; } ;
+parser attribute inames :: [String]
+     action { inames = [ ] ; } ;
+parser attribute unames :: [String]
+     action { unames = [ ] ; } ;
+
+disambiguate ID, PNAME
+{ pluck if   listContains(lexeme,pnames)
+        then PNAME
+        else ID;
+}
+
+disambiguate ID, INAME
+{ pluck if   listContains(lexeme,inames)
+        then INAME
+        else ID;
+}
+
+disambiguate ID, UNAME
+{ pluck if  listContains(lexeme,unames)
+        then UNAME
+        else ID;
+}
+
+disambiguate ID, PNAME, INAME
+{ pluck if   listContains(lexeme,pnames)
+        then PNAME
+        else if   listContains(lexeme,inames)
+             then INAME
+             else ID;
+}
+
+disambiguate ID, PNAME, UNAME
+{ pluck if   listContains(lexeme,pnames)
+        then PNAME
+        else if   listContains(lexeme,unames)
+             then UNAME
+             else ID;
+}
+
+disambiguate ID, PNAME, INAME, UNAME
+{ pluck if   listContains(lexeme,pnames)
+        then PNAME
+        else if   listContains(lexeme,inames)
+             then INAME
+             else if   listContains(lexeme,unames)
+                  then UNAME
+                  else ID;
+}
+
 
 function listContains
 Boolean ::= element::String l::[String]
@@ -334,3 +292,6 @@ Boolean ::= element::String l::[String]
               then true
               else listContains(element,tail(l));
 }
+
+
+terminal Bogus_t '@@' ;

@@ -35,7 +35,7 @@ abstract production selectFrom
 s::Stmt ::= sl::'select' v::Expr exprs::Exprs
 { s.pp = "select ( " ++ v.pp ++ ":" ++ exprs.pp ++ " ); \n" ;
   s.errors := v.errors ++ exprs.errors ++
-              if true
+              if true -- ToDo
               then [ mkError ("Error: select statement on line " ++ toString(sl.line) ++
                               " requires all possible choices to have the same type " ++
                               " as variable assigned to, which is \"" ++

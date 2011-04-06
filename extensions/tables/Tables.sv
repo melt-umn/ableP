@@ -157,6 +157,7 @@ er::ExprRow ::= e::Expr tvl::TruthValueList
   er.exprs = tvl.exprs; 
   er.lineno = tvl.lineno;
   er.errors := e.errors;
+  -- ToDo - check that this is boolean
 }
 
 abstract production tvlistsCons
