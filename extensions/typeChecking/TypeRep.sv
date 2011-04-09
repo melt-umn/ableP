@@ -1,6 +1,7 @@
-grammar edu:umn:cs:melt:ableP:abstractsyntax;
+grammar edu:umn:cs:melt:ableP:extensions:typeChecking ;
 
 synthesized attribute typerep::TypeRep;
+synthesized attribute typereps::[TypeRep] ;
 
 nonterminal TypeRep with tag, host<TypeRep> ;
 

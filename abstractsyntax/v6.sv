@@ -27,8 +27,18 @@ s::Stmt ::= f::FOR vr::Expr lower::Expr upper::Expr body::Stmt
                       ) ) ) ,
              labeledStmt ( label, skipStmt () )
            ) ;
-  local op::Op = mkOp("<=", boolTypeRep()) ;
+  local op::Op = mkOp("<=", boolTypeExpr()) ;
   local label::ID = terminal(ID,"l"++toString(f.line), f.line, f.column) ;
+}
+
+
+abstract production forIn
+s::Stmt ::= f::FOR vr::Expr e::Expr body::Stmt
+{ s.pp = "for ( " ++ vr.pp ++ " in " ++ e.pp ++ ")" ++
+         " {\n" ++ body.pp ++ "\n} ;" ;
+
+  s.errors := vr.errors ++ e.errors ++ body.errors ;
+  s.host = forIn(f,vr.host, e.host,body.host) ;
 }
 
 
@@ -60,8 +70,8 @@ s::Stmt ::= sk::SELECT v::Expr lower::Expr upper::Expr
                labeledStmt ( label, skipStmt () )
              )
            ) ;
-  local oplt::Op = mkOp("<", boolTypeRep()) ;
-  local opplus::Op = mkOp("+", boolTypeRep()) ;
+  local oplt::Op = mkOp("<", boolTypeExpr()) ;
+  local opplus::Op = mkOp("+", boolTypeExpr()) ;
   local one::Expr = constExpr(terminal(CONST,"1")) ;
   local label::ID = terminal(ID,"l"++toString(sk.line), sk.line, sk.column) ;
 }

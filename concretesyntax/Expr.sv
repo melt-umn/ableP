@@ -39,37 +39,37 @@ exp1::Expression_c ::= '(' exp2::Expression_c ')'
 concrete production and_expression_c
 exp::Expression_c ::= lhs::Expression_c op::AND rhs::Expression_c
 { exp.pp = lhs.pp ++ "&&" ++ rhs.pp;
-  exp.ast = genericBinOp(lhs.ast, mkOp(op.lexeme, boolTypeRep()), rhs.ast) ;
+  exp.ast = genericBinOp(lhs.ast, mkOp(op.lexeme, boolTypeExpr()), rhs.ast) ;
 }
 
 concrete production and_expr_c
 exp::Expression_c ::= lhs::Expression_c op::AND rhs::Expr_c
 { exp.pp = lhs.pp ++ "&&" ++ rhs.pp;
-  exp.ast = genericBinOp(lhs.ast, mkOp(op.lexeme, boolTypeRep()), rhs.ast) ;
+  exp.ast = genericBinOp(lhs.ast, mkOp(op.lexeme, boolTypeExpr()), rhs.ast) ;
 }
 
 concrete production and_expr_expression_c
 exp::Expression_c ::= lhs::Expr_c op::AND rhs::Expression_c
 { exp.pp = lhs.pp ++ "&&" ++ rhs.pp;
-  exp.ast = genericBinOp(lhs.ast, mkOp(op.lexeme, boolTypeRep()), rhs.ast) ;
+  exp.ast = genericBinOp(lhs.ast, mkOp(op.lexeme, boolTypeExpr()), rhs.ast) ;
 }
 
 concrete production or_expression_c
 exp::Expression_c ::= lhs::Expression_c op::OR rhs::Expression_c
 { exp.pp = lhs.pp ++ "||" ++ rhs.pp;
-  exp.ast = genericBinOp(lhs.ast, mkOp(op.lexeme, boolTypeRep()), rhs.ast) ;
+  exp.ast = genericBinOp(lhs.ast, mkOp(op.lexeme, boolTypeExpr()), rhs.ast) ;
 }
 
 concrete production or_expr_c
 exp::Expression_c ::= lhs::Expression_c op::OR rhs::Expr_c
 { exp.pp = lhs.pp ++ "||" ++ rhs.pp;
-  exp.ast = genericBinOp(lhs.ast, mkOp(op.lexeme, boolTypeRep()), rhs.ast) ;
+  exp.ast = genericBinOp(lhs.ast, mkOp(op.lexeme, boolTypeExpr()), rhs.ast) ;
 }
 
 concrete production expr_or_c
 exp::Expression_c ::= lhs::Expr_c op::OR rhs::Expression_c
 { exp.pp = lhs.pp ++ "||" ++ rhs.pp;
-  exp.ast = genericBinOp(lhs.ast, mkOp(op.lexeme, boolTypeRep()), rhs.ast) ;
+  exp.ast = genericBinOp(lhs.ast, mkOp(op.lexeme, boolTypeExpr()), rhs.ast) ;
 }
 
 
@@ -88,7 +88,7 @@ exp1::Expr_c ::= '(' exp2::Expr_c ')'
 concrete production plus_expr_c
 exp::Expr_c ::= lhs::Expr_c '+' rhs::Expr_c
 { exp.pp = lhs.pp ++ " + " ++ rhs.pp;
-  exp.ast = genericBinOp(lhs.ast, mkOp("+", intTypeRep()), rhs.ast) ;
+  exp.ast = genericBinOp(lhs.ast, mkOp("+", intTypeExpr()), rhs.ast) ;
 }
 
 concrete production minus_expr_c
@@ -100,19 +100,19 @@ exp::Expr_c ::= lhs::Expr_c '-' rhs::Expr_c
 concrete production mult_expr_c
 exp::Expr_c ::= lhs::Expr_c '*' rhs::Expr_c
 { exp.pp = lhs.pp ++ " * " ++ rhs.pp;
-  exp.ast = genericBinOp(lhs.ast, mkOp("*", intTypeRep()), rhs.ast) ;
+  exp.ast = genericBinOp(lhs.ast, mkOp("*", intTypeExpr()), rhs.ast) ;
 }
 
 concrete production div_expr_c
 exp::Expr_c ::= lhs::Expr_c '/' rhs::Expr_c
 { exp.pp = lhs.pp ++ " / " ++ rhs.pp;
-  exp.ast = genericBinOp(lhs.ast, mkOp("/", intTypeRep()), rhs.ast) ;
+  exp.ast = genericBinOp(lhs.ast, mkOp("/", intTypeExpr()), rhs.ast) ;
 }
 
 concrete production mod_expr_c
 exp::Expr_c ::= lhs::Expr_c '%' rhs::Expr_c
 { exp.pp = lhs.pp ++ " % " ++ rhs.pp;
-  exp.ast = genericBinOp(lhs.ast, mkOp("%", intTypeRep()), rhs.ast) ;
+  exp.ast = genericBinOp(lhs.ast, mkOp("%", intTypeExpr()), rhs.ast) ;
 }
 
 
@@ -140,13 +140,13 @@ exp::Expr_c ::= lhs::Expr_c '|' rhs::Expr_c
 concrete production gt_expr_c
 exp::Expr_c ::= lhs::Expr_c '>' rhs::Expr_c
 { exp.pp = lhs.pp ++ " > " ++ rhs.pp ;
-  exp.ast = genericBinOp(lhs.ast, mkOp(">", boolTypeRep()), rhs.ast) ;
+  exp.ast = genericBinOp(lhs.ast, mkOp(">", boolTypeExpr()), rhs.ast) ;
 }
 
 concrete production lt_expr_c
 exp::Expr_c ::= lhs::Expr_c '<' rhs::Expr_c
 { exp.pp = lhs.pp ++ " < " ++ rhs.pp;
-  exp.ast = genericBinOp(lhs.ast, mkOp("<", boolTypeRep()), rhs.ast) ;
+  exp.ast = genericBinOp(lhs.ast, mkOp("<", boolTypeExpr()), rhs.ast) ;
 }
 
 concrete production ge_expr_c
@@ -158,47 +158,47 @@ exp::Expr_c ::= lhs::Expr_c '>=' rhs::Expr_c
 concrete production le_expr_c
 exp::Expr_c ::= lhs::Expr_c '<=' rhs::Expr_c
 { exp.pp = lhs.pp ++ " <= " ++ rhs.pp;
-  exp.ast = genericBinOp(lhs.ast, mkOp("<=", boolTypeRep()), rhs.ast) ;
+  exp.ast = genericBinOp(lhs.ast, mkOp("<=", boolTypeExpr()), rhs.ast) ;
 }
 
 
 concrete production eq_expr_c
 exp::Expr_c ::= lhs::Expr_c '==' rhs::Expr_c
 { exp.pp = lhs.pp ++ " == " ++ rhs.pp;
-  exp.ast = genericBinOp(lhs.ast, mkOp("==", boolTypeRep()), rhs.ast) ;
+  exp.ast = genericBinOp(lhs.ast, mkOp("==", boolTypeExpr()), rhs.ast) ;
 }
 
 concrete production ne_expr_c
 exp::Expr_c ::= lhs::Expr_c '!=' rhs::Expr_c
 { exp.pp = lhs.pp ++ " != " ++ rhs.pp;
-  exp.ast = genericBinOp(lhs.ast, mkOp("!=", boolTypeRep()), rhs.ast) ;
+  exp.ast = genericBinOp(lhs.ast, mkOp("!=", boolTypeExpr()), rhs.ast) ;
 -- exp.ast_Expr = ne_expr(lhs.ast_Expr,rhs.ast_Expr);
 }
 
 concrete production andexpr_c
 exp::Expr_c ::= lhs::Expr_c '&&' rhs::Expr_c
 { exp.pp = lhs.pp ++ " && " ++ rhs.pp;
-  exp.ast = genericBinOp(lhs.ast, mkOp("&&", boolTypeRep()), rhs.ast) ;
+  exp.ast = genericBinOp(lhs.ast, mkOp("&&", boolTypeExpr()), rhs.ast) ;
 -- exp.ast_Expr = andexpr(lhs.ast_Expr,rhs.ast_Expr);
 }
 
 concrete production orexpr_c
 exp::Expr_c ::= lhs::Expr_c '||' rhs::Expr_c
 { exp.pp = lhs.pp ++ " || " ++ rhs.pp;
-  exp.ast = genericBinOp(lhs.ast, mkOp("||", boolTypeRep()), rhs.ast) ;
+  exp.ast = genericBinOp(lhs.ast, mkOp("||", boolTypeExpr()), rhs.ast) ;
 }
 
 concrete production lshift_expr_c
 exp::Expr_c ::= lhs::Expr_c op::'<<' rhs::Expr_c
 { exp.pp = lhs.pp ++ " << " ++ rhs.pp;
-  exp.ast = genericBinOp(lhs.ast, mkOp(op.lexeme, boolTypeRep()), rhs.ast) ;
+  exp.ast = genericBinOp(lhs.ast, mkOp(op.lexeme, boolTypeExpr()), rhs.ast) ;
 -- exp.ast_Expr = lshift_expr(lhs.ast_Expr,rhs.ast_Expr);
 }
 
 concrete production rshift_expr_c
 exp::Expr_c ::= lhs::Expr_c op::'>>' rhs::Expr_c
 { exp.pp = lhs.pp ++ " >> " ++ rhs.pp;
-  exp.ast = genericBinOp(lhs.ast, mkOp(op.lexeme, boolTypeRep()), rhs.ast) ;
+  exp.ast = genericBinOp(lhs.ast, mkOp(op.lexeme, boolTypeExpr()), rhs.ast) ;
 -- exp.ast_Expr = rshift_expr(lhs.ast_Expr,rhs.ast_Expr);
 }
 

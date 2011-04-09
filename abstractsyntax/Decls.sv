@@ -19,19 +19,18 @@ ds::Decls ::= ds1::Decls ds2::Decls
 
 abstract production emptyDecl
 ds::Decls ::= 
+
 { ds.pp = "" ;
   ds.errors := [ ] ;
   ds.host = emptyDecl();
 
   ds.defs = emptyDefs();
   ds.uses = [ ] ;
-  ds.typerep = errorTypeRep() ;
 -- ds.inlined_Decls = empty_Decl();
 }
 
 -- Declarations, binding names to values or types.
 synthesized attribute idNum::Integer occurs on Decls ;
-attribute typerep occurs on Decls ;
 
 abstract production varDecl
 ds::Decls ::= vis::Vis t::TypeExpr v::Declarator
@@ -54,8 +53,6 @@ ds::Decls ::= vis::Vis t::TypeExpr v::Declarator
  ds.defs = valueBinding(v.name, ds) ;
  ds.uses = [ ] ;
  ds.idNum = genInt();
- ds.typerep = v.typerep ;
- v.typerep_in = t.typerep;
 -- ds.defs = valueBinding(v.name, v.typerep) ; 
 -- ds.inlined_Decls = varDecl(vis, t, v);
 -- t.env = ds.env ;
@@ -75,22 +72,17 @@ ds::Decls ::= vis::Vis t::TypeExpr v::Declarator e::Expr
  ds.defs = valueBinding(v.name, ds) ;
  ds.uses = e.uses ;
  ds.idNum = genInt();
- ds.typerep = v.typerep ;
- v.typerep_in = t.typerep;
 -- ds.defs = valueBinding(v.name, v.typerep) ;
 }
 
+nonterminal Declarator  with pp, errors, host<Declarator>, name; 
 
-inherited attribute typerep_in :: TypeRep ;
-
-nonterminal Declarator  with pp, errors, host<Declarator>, name, typerep, typerep_in ;
 abstract production vd_id
 vd::Declarator ::= id::ID
 { vd.pp = id.lexeme;
   vd.errors := [ ];
   vd.host = vd_id(id);
   vd.name = id.lexeme ;
-  vd.typerep = vd.typerep_in ;
 }
 
 abstract production vd_idconst
@@ -99,7 +91,6 @@ vd::Declarator ::= id::ID cnt::CONST
   vd.errors := [ ];
   vd.host = vd_idconst(id,cnt);
   vd.name = id.lexeme ;
-  vd.typerep = vd.typerep_in ; -- ToDo - are there typing issues here?
 }
 
 abstract production vd_array
@@ -108,8 +99,8 @@ vd::Declarator ::= id::ID cnt::CONST
   vd.errors := [ ];
   vd.host = vd_array(id,cnt);
   vd.name = id.lexeme ;
-  vd.typerep = arrayTypeRep(vd.typerep_in);
 }
+
 
 -- Visibility --
 nonterminal Vis with pp, host<Vis> ;
@@ -175,7 +166,6 @@ ds::Decls ::= v::Vis name::ID
  ds.pp = v.pp ++ " mtype = { " ++ name.lexeme ++ " } " ;
  ds.errors := [ ] ; 
  ds.defs = valueBinding(name.lexeme, ds);
- ds.typerep = mtypeTypeRep() ;
 }
 
 {-

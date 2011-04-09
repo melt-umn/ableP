@@ -1,11 +1,10 @@
 grammar edu:umn:cs:melt:ableP:abstractsyntax;
 
-nonterminal TypeExpr with pp, errors, host<TypeExpr>, typerep ;
+nonterminal TypeExpr with pp, errors, host<TypeExpr> ;
 
 abstract production intTypeExpr
 t::TypeExpr ::=
 { t.pp = "int";
-  t.typerep = intTypeRep();
   t.errors := [ ];
   t.host = intTypeExpr();
 }
@@ -13,7 +12,6 @@ t::TypeExpr ::=
 abstract production mtypeTypeExpr
 t::TypeExpr ::=
 { t.pp = "mtype";
-  t.typerep = mtypeTypeRep();
   t.errors := [];
   t.host = mtypeTypeExpr();
 }
@@ -21,15 +19,13 @@ t::TypeExpr ::=
 abstract production chanTypeExpr
 t::TypeExpr ::=
 { t.pp = "chan";
- t.typerep = chanTypeRep();
- t.errors := [ ];
- t.host = chanTypeExpr();
+  t.errors := [ ];
+  t.host = chanTypeExpr();
 }
 
 abstract production bitTypeExpr
 t::TypeExpr ::=
 { t.pp = "bit";
-  t.typerep = bitTypeRep();
   t.errors := [ ];
   t.host = bitTypeExpr() ;
 }
@@ -37,7 +33,6 @@ t::TypeExpr ::=
 abstract production boolTypeExpr
 t::TypeExpr ::=
 { t.pp = "bool";
-  t.typerep = boolTypeRep();
   t.errors := [ ];
   t.host = boolTypeExpr() ;
 }
@@ -45,7 +40,6 @@ t::TypeExpr ::=
 abstract production byteTypeExpr
 t::TypeExpr ::=
 { t.pp = "byte";
-  t.typerep = byteTypeRep();
   t.errors := [ ];
   t.host = byteTypeExpr() ;
 }
@@ -53,7 +47,6 @@ t::TypeExpr ::=
 abstract production shortTypeExpr
 t::TypeExpr ::=
 { t.pp = "short";
-  t.typerep = shortTypeRep();
   t.errors := [ ];
   t.host = shortTypeExpr() ;
 }
@@ -61,7 +54,6 @@ t::TypeExpr ::=
 abstract production pidTypeExpr
 t::TypeExpr ::=
 { t.pp = "pid";
-  t.typerep = pidTypeRep();
   t.errors := [ ];
   t.host = pidTypeExpr() ;
 }
@@ -69,7 +61,6 @@ t::TypeExpr ::=
 abstract production unsignedTypeExpr
 t::TypeExpr ::=
 { t.pp = "unsigned";
-  t.typerep = unsignedTypeRep();
   t.errors := [ ];
   t.host = unsignedTypeExpr();
 }

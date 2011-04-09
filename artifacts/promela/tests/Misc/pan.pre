@@ -1,10 +1,29 @@
-# 1 "Select.pml"
+# 1 "embeddedC.pml"
 # 1 "<built-in>"
 # 1 "<command-line>"
-# 1 "Select.pml"
-active proctype main()
-{
- int i;
- select (i : 4..10);
- printf("The selection is: %d\n", i);
+# 1 "embeddedC.pml"
+c_decl { 
+  typedef struct Coord {
+    int x, y; 
+  } Coord;
 }
+
+c_state "Coord pt" "Global"  
+int z = 3;                   
+
+active proctype example() 
+{
+  c_code { now.pt.x = now.pt.y = 0; };
+
+  do :: c_expr { now.pt.x == now.pt.y } -> c_code { now.pt.y++; }
+     :: else -> break
+  od; 
+
+  c_code {
+    printf("values %d: %d, %d,%d\n", 
+       Pexample->_pid, now.z, now.pt.x, now.pt.y);
+  }; 
+
+  assert(false)  
+}
+

@@ -1,7 +1,32 @@
 grammar edu:umn:cs:melt:ableP:abstractsyntax ;
 
-nonterminal Expr with pp, errors, host<Expr>, typerep ;
+nonterminal Expr with pp, errors, host<Expr> ;
 nonterminal Exprs with pp, errors, host<Exprs> ;
+
+abstract production noneExprs
+es::Exprs ::=
+{ es.pp = "" ;
+  es.errors := [ ] ;
+  es.uses = [ ] ;
+  es.host = noneExprs() ;
+}
+abstract production oneExprs
+es::Exprs ::= e::Expr
+{ es.pp = e.pp ;
+  es.host = oneExprs(e.host);
+  forwards to consExprs(e,noneExprs()) ;
+}
+abstract production consExprs
+es::Exprs ::= e::Expr rest::Exprs
+{ es.pp = e.pp ++ 
+          case rest of 
+             noneExprs() -> ""
+           | _ -> ", " ++ rest.pp 
+          end ; 
+  es.errors := e.errors ++ rest.errors ;
+  es.uses = e.uses ++ rest.uses ;
+  es.host = consExprs(e.host, rest.host);
+}
 
 abstract production varRefExpr
 e::Expr ::= id::ID
@@ -9,9 +34,8 @@ e::Expr ::= id::ID
   e.errors := if eres.found then [ ] 
               else [ mkError ("Id \"" ++ id.lexeme ++ "\" not declared. " ++
                               mkLoc(id.line,id.column) ++ "\n" ) ] ;
-  e.typerep = eres.dcl.typerep ;
 
-  local eres::EnvResult = lookup_name(id.lexeme, e.env) ;
+  production eres::EnvResult = lookup_name(id.lexeme, e.env) ;
   e.uses = [ mkUse(eres.dcl.idNum, e) ];
   e.host = varRefExpr(id) ;
 }
@@ -40,31 +64,6 @@ e::Expr ::= a::Expr i::Expr
   e.host = arrayAccess(a.host, i.host);
 }
 
-abstract production noneExprs
-es::Exprs ::=
-{ es.pp = "" ;
-  es.errors := [ ] ;
-  es.uses = [ ] ;
-  es.host = noneExprs() ;
-}
-abstract production oneExprs
-es::Exprs ::= e::Expr
-{ es.pp = e.pp ;
-  es.errors := e.errors ;
-  es.uses = e.uses ;
-  es.host = oneExprs(e.host);
-}
-abstract production consExprs
-es::Exprs ::= e::Expr rest::Exprs
-{ es.pp = e.pp ++ ", " ++
-          case rest of 
-             noneExprs() -> ""
-           | _ -> rest.pp 
-          end ; 
-  es.errors := e.errors ++ rest.errors ;
-  es.uses = e.uses ++ rest.uses ;
-  es.host = consExprs(e.host, rest.host);
-}
 
 
 
@@ -74,16 +73,15 @@ abstract production genericBinOp
 e::Expr ::= lhs::Expr op::Op rhs::Expr
 { e.pp = "(" ++ lhs.pp ++ " "++ op.pp ++ " " ++ rhs.pp ++ ")" ;
   e.errors := lhs.errors ++ rhs.errors;
-  e.typerep = op.typerep ;
   e.uses = lhs.uses ++ rhs.uses ;
   e.host = genericBinOp(lhs.host, op.host, rhs.host);
 }
 
-nonterminal Op with pp, host<Op>, typerep ;
+nonterminal Op with pp, host<Op> ; 
 abstract production mkOp
-op::Op ::= n::String tr::TypeRep
-{ op.pp = n;   op.typerep = tr ; 
-  op.host = mkOp(n, tr.host) ;
+op::Op ::= n::String te::TypeExpr
+{ op.pp = n;   
+  op.host = mkOp(n, te.host) ;
 }
 
 
@@ -92,32 +90,23 @@ op::Op ::= n::String tr::TypeRep
 -- Relational operators --
 abstract production eqExpr
 exp::Expr ::= lhs::Expr rhs::Expr
-{ forwards to genericBinOp(lhs, mkOp("==",boolTypeRep()), rhs) ; }
+{ forwards to genericBinOp(lhs, mkOp("==",boolTypeExpr()), rhs) ; }
 abstract production gteExpr
 exp::Expr ::= lhs::Expr rhs::Expr
-{ forwards to genericBinOp(lhs, mkOp(">=",boolTypeRep()), rhs) ; }
+{ forwards to genericBinOp(lhs, mkOp(">=",boolTypeExpr()), rhs) ; }
 
 -- Logical operators --
 abstract production orExpr
 exp::Expr ::= lhs::Expr rhs::Expr
-{ forwards to genericBinOp(lhs, mkOp("||",boolTypeRep()), rhs) ; }
+{ forwards to genericBinOp(lhs, mkOp("||",boolTypeExpr()), rhs) ; }
 abstract production andExpr
 exp::Expr ::= lhs::Expr rhs::Expr
-{ forwards to genericBinOp(lhs, mkOp("&&",boolTypeRep()), rhs) ; }
+{ forwards to genericBinOp(lhs, mkOp("&&",boolTypeExpr()), rhs) ; }
 
 -- Aritmetic operators --
 abstract production minus
 exp::Expr ::= lhs::Expr rhs::Expr
-{ forwards to genericBinOp(lhs, mkOp("-",boolTypeRep()), rhs) ; }
-
-abstract production notExpr
-exp::Expr ::= ne::Expr
-{ exp.pp = "(! " ++ ne.pp ++ ")" ;
-  exp.errors := ne.errors ;
-  exp.typerep = boolTypeRep() ;
-  exp.uses = ne.uses ;
-  exp.host = notExpr(ne.host) ;
-}
+{ forwards to genericBinOp(lhs, mkOp("-",boolTypeExpr()), rhs) ; }
 
 abstract production trueExpr
 e::Expr ::= c::CONST
@@ -131,7 +120,6 @@ abstract production condExpr
 e::Expr ::= c::Expr thenexp::Expr elseexp::Expr
 { e.pp = "(" ++ c.pp ++ "->" ++ thenexp.pp ++ ":" ++ elseexp.pp ++ ")";
   e.errors := c.errors ++ thenexp.errors ++ elseexp.errors;
-  e.typerep = thenexp.typerep;
   e.uses = c.uses ++ thenexp.uses ++ elseexp.uses ;
   e.host = condExpr(c.host, thenexp.host, elseexp.host) ; 
 --  exp.is_var_ref = false;
@@ -162,46 +150,33 @@ exp::Expr ::= kwd::C_EXPR ce::String cp::String
   exp.host = exprCExprCmpd(kwd, ce, cp);
 }
 
--- Send or Negate
+-- Send or Not
 abstract production sndNotExpr
 exp::Expr ::= lhs::Expr
 { exp.pp = "(!" ++ lhs.pp ++")" ;
-  forwards to case lhs.typerep of
-                boolTypeRep() -> notExpr(lhs)
-              | _ -> sndExpr(lhs) end ;
   exp.errors := lhs.errors;
-}
-
-abstract production sndExpr
-exp::Expr ::= lhs::Expr
-{ exp.pp = "(!" ++ lhs.pp ++ ")" ;
-  exp.errors := lhs.errors;
-  exp.typerep = lhs.typerep ;
-  exp.uses = lhs.uses ; 
-  exp.host = sndExpr(lhs.host);
+  exp.host = sndNotExpr(lhs.host);
 }
 
 abstract production negExpr
 exp::Expr ::= lhs::Expr
 { exp.pp = "(-" ++ lhs.pp ++")" ;
   exp.errors := lhs.errors;
-  exp.typerep = boolTypeRep();
+
   exp.uses = lhs.uses ; 
   exp.host = negExpr(lhs.host);
 }
-
 
 abstract production run
 exp::Expr ::= pn::ID args::Exprs p::Priority
 { exp.pp = "run " ++ pn.lexeme ++ "(" ++ args.pp ++ ")" ++ p.pp;
 
-  local eres::EnvResult = lookup_name(pn.lexeme, exp.env) ;
+  production eres::EnvResult = lookup_name(pn.lexeme, exp.env) ;
   exp.errors := (if eres.found then [ ] 
                  else [ mkError ("Id \"" ++ pn.lexeme ++ "\" not declared. " ++
                                  mkLoc(pn.line,pn.column) ++ "\n" ) ] )
               ++ args.errors ;
 
-  exp.typerep = eres.dcl.typerep ;
   exp.uses = [ mkUse(eres.dcl.idNum, exp) ] ++ args.uses ;
 
   exp.host = run(pn, args.host, p.host);
@@ -214,9 +189,7 @@ exp::Expr ::= ci::ChInit
   exp.errors := ci.errors;
   exp.host = exprChInit(ci.host) ;
   exp.uses = [ ] ;
-  exp.typerep = chanTypeRep();
 }
-
 
 nonterminal ChInit with pp, errors, host<ChInit> ;
 

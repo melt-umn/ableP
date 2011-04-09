@@ -4,6 +4,8 @@ imports edu:umn:cs:melt:ableP:concretesyntax ;
 imports edu:umn:cs:melt:ableP:abstractsyntax ;
 imports edu:umn:cs:melt:ableP:terminals ;
 
+imports edu:umn:cs:melt:ableP:extensions:typeChecking ;
+
 terminal TIMER 'timer'  lexer classes { promela,promela_kwd};
 terminal DELAY 'delay'  lexer classes { promela,promela_kwd};
 
@@ -83,41 +85,41 @@ st::Stmt ::= tmr::Expr
 
 -- Need to create this process so that all ids of type timer get plugged
 -- into it so that they "tick" when a timeout occurs.
--- We need a synthesized attribute that maps uses back to decls.  
--- Reverse of our reference attrs! 
--- This is a genuine need for the decl-ref-to-use case.
 
 -- proctype Timers() { do :: timeout -> atomic{ tick(tmr1); tick(tmr2) } od }
 
 aspect production program
 p::Program ::= u::Unit
-{
- newUnits <- mkTimerProc() ;
-
- newUnits <- ppUnit ("int TICK_MAYBE ;\n");
-
- newUnits <- commentedUnit ("/* Hi */\n", emptyUnit()) ;
-
- newUnits <- 
-  unitDecls(defaultVarDecl ( vis_empty(), intTypeExpr(), vd_id ( terminal(ID,"FOOO"))));
-
+{ newUnits <- mkTimerProc() ;
 }
 
 abstract production mkTimerProc
 u::Unit ::=
-{
- forwards to ppUnit ("proctype Timers() { \n" ++
-                     "{ do :: timeout -> atomic{ " ++
-                     allTimerDecls( u.env.bindings ) ++
-                     " } od } \n" ) ;
+{ local declaredTimers::[String] = allTimerDecls( u.env.bindings ) ;
+
+  forwards to 
+    if   null(declaredTimers)
+    then emptyUnit() 
+    else ppUnit ("proctype Timers() { \n" ++
+                 "{ do :: timeout -> atomic{ " ++
+                 mkTickStmts( declaredTimers ) ++
+                 " } od } \n" ) ;
 }
 
 function allTimerDecls
-String ::= bs::[Binding]
+[String] ::= bs::[Binding]
 { return if   null(bs)
-         then ""
+         then [ ]
          else (case head(bs).dcl.typerep of
-                 timerTypeRep() -> "tick(" ++ head(bs).name ++ "); "
-               | _ -> "" end )
+                 timerTypeRep() -> [ head(bs).name ]
+               | _ -> [ ] end )
               ++ allTimerDecls(tail(bs))  ;
+}
+
+function mkTickStmts
+String ::= timers::[String]
+{ return if   null(timers)
+         then ""
+         else "tick(" ++ head(timers) ++ "); "
+              ++ mkTickStmts(tail(timers))  ;
 }

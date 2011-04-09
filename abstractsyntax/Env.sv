@@ -60,19 +60,6 @@ e::EnvResult ::= f::Boolean d::Decorated Decls
   e.dcl = d ;
 }
 
-function show_env
-String ::= e::Env
-{ return show_env_helper( e.bindings );
-}
-
-function show_env_helper
-String ::= bs :: [Binding]
-{ return if   null(bs) 
-         then ""
-         else head(bs).name ++ " : " ++ head(bs).dcl.typerep.pp ++ " \n" ++ 
-              show_env_helper(tail(bs)) ;
-}
-
 
 synthesized attribute uses::[Use]
   occurs on Unit, Stmt, Options, Expr, Exprs,

@@ -1,6 +1,6 @@
 grammar edu:umn:cs:melt:ableP:abstractsyntax;
 
-nonterminal VarRef with pp, errors, host<VarRef>, env, typerep, dcl ;
+nonterminal VarRef with pp, errors, host<VarRef>, env, dcl ;
 
 {-
 abstract production varRef

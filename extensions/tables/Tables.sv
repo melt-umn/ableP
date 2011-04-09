@@ -44,8 +44,7 @@ ers1::ExprRows_c ::= ers2::ExprRows_c erow::ExprRow_c
 
 concrete production exprRowOne_c
 ers::ExprRows_c ::= erow::ExprRow_c
-{ ers.pp = erow.pp;
-  erow.ppi = ers.ppi;
+{ ers.pp = erow.pp;  erow.ppi = ers.ppi;
   ers.ast = exprRowOne(erow.ast);
 }
 
@@ -78,7 +77,7 @@ tv::TruthValue ::= truetv::TrueTV_t
 concrete production tvFalse
 tv::TruthValue ::= falsetv::FalseTV_t
 { tv.pp = "F";
-  tv.fexpr = notExpr(tv.rowexpr);
+  tv.fexpr = sndNotExpr(tv.rowexpr);
   tv.lineno = falsetv.line;
 }
 

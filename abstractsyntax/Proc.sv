@@ -11,7 +11,6 @@ proc::Decls ::= i::Inst procty::ProcType nm::ID dcl::Decls
   b.ppi = proc.ppi;
   dcl.ppsep = "; " ;
   b.ppsep = "; \n" ;
-  proc.typerep = procTypeRep() ;
   proc.errors := dcl.errors ++ b.errors ;
   proc.host = procDecl(i.host, procty.host, nm, dcl.host,
                        pri.host, ena.host, b.host);

@@ -1,8 +1,6 @@
 grammar edu:umn:cs:melt:ableP:concretesyntax ;
 
 {- 12/leader.pml, 14/v14_16.pml
-Thus we don't need to the optname nonterminal introduced in v6 for the modified claim
-production shown abouve.
    
 for_pre : FOR '('			{ in_for = 1; }
 	  varref			{ $$ = $4; }
@@ -38,18 +36,19 @@ fp::ForPost_c ::= '{' s::Sequence_c os::OS_c '}'
   fp.ast = s.ast ;
 }
 
-concrete production for1_c
+concrete production forRange_c
 s::Special_c ::= fpre::ForPre_c ':' lower::Expr_c '..' upper::Expr_c ')' 
                  fpost::ForPost_c 
 { s.pp = fpre.pp ++ " : " ++ lower.pp ++ " .. " ++ upper.pp ++ ")" ++ fpost.pp ; 
   s.ast = forRange ( fpre.forTerminal, fpre.ast, lower.ast, upper.ast, fpost.ast ) ;
 }
 
-concrete production for2_c
+concrete production forIn_c
 s::Special_c ::= fpre::ForPre_c 'in' v::Varref_c ')' fpost::ForPost_c 
-{ s.pp = fpre.pp ++ " in " ++ v.pp ++ ")" ++ fpost.pp ; }
+{ s.pp = fpre.pp ++ " in " ++ v.pp ++ ")" ++ fpost.pp ; 
+  s.ast = forIn(fpre.forTerminal, fpre.ast, v.ast, fpost.ast) ;
+}
 
--- this is a statement - can we still do "choice" as an expression.
 
 --terminal SELECT 'select'           lexer classes {promela,promela_kwd};
 concrete production select_c
@@ -72,7 +71,11 @@ optname : /* empty */	{ ... }
 	| NAME		{ $$ = $1; }
 	;
 
+Thus we don't need to the optname nonterminal introduced in v6 for the
+modified claim production shown abouve.
+
 So we add the following production 
+
 -}
 concrete production namedClaim_c    -- to get to v6 for Claim_c
 c::Claim_c ::= ck::CLAIM id::ID body::Body_c

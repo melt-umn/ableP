@@ -1,8 +1,10 @@
 c_code { 
-  int x ; foo foo
+  int x = 0 ; 
 }
 
 active proctype main()
-{ 
-	printf("hello world\n")
+{
+  int x ;
+  printf("hello world\n") ;
+  c_code { 
 }
