@@ -65,8 +65,8 @@ sc::Special_c ::= g::GOTO id::ID
 concrete production stmt_special_c
 sc::Special_c ::= id::ID ':' st::Stmt_c
 { sc.pp = id.lexeme ++ ":" ++ st.ppi ++ st.pp;
- st.ppi = sc.ppi;
- sc.ast = labeledStmt(id,st.ast);
+  st.ppi = sc.ppi;
+  sc.ast = labeledStmt(id,st.ast);
 }
 
 --
@@ -82,13 +82,13 @@ st::Statement_c ::= vref::Varref_c '=' exp::Expr_c
 concrete production incr_stmt_c
 st::Statement_c ::= vref::Varref_c inc::INCR
 { st.pp = vref.pp ++ "++";
---  st.ast_Stmt = incr_stmt(vref.ast_Expr);
+  st.ast = incrStmt(vref.ast);
 }
 
 concrete production decr_stmt_c
 st::Statement_c ::= vref::Varref_c de::DECR
 { st.pp = vref.pp ++ "--";
---  st.ast_Stmt = decr_stmt(vref.ast_Expr);
+  st.ast = decrStmt(vref.ast);
 }
 
 concrete production print_stmt_c
@@ -112,14 +112,13 @@ st::Statement_c ::= pr::PRINTM '(' cn::CONST ')'
 concrete production assert_stmt_c
 st::Statement_c ::= ast::ASSERT fe::FullExpr_c
 { st.pp = "assert " ++ fe.pp;
--- st.ast_Stmt = assert_stmt(fe.ast_Expr);
+  st.ast = assertStmt(fe.ast);
 }
 
-concrete production ccode_stmt_new_c
-st::Statement_c ::= cc::Ccode_c 
+concrete production ccode_stmt_c
+st::Statement_c ::= cc::Ccode_c
 { st.pp = cc.pp ;
--- st.ast_Stmt = stmt_ccode(cc.ast_Ccode) ;
--- st.ifordo = false;
+  st.ast = cc.ast_Stmt ;
 }
 
 concrete production rrcv_stmt_c
@@ -159,29 +158,29 @@ concrete production atomic_stmt_c
 st::Statement_c ::= at::ATOMIC '{' seq::Sequence_c os::OS_c '}'
 { st.pp = "atomic" ++ "\n{\n " ++ seq.ppi ++ seq.pp ++ os.pp ++ " \n}";
   seq.ppi = st.ppi;
--- st.ast_Stmt = atomic_stmt( body_stmts(seq.ast_Stmt));
+  st.ast = atomicStmt( seq.ast );
 }
 
 concrete production step_stmt_c
 st::Statement_c ::= ds::D_STEP '{' seq::Sequence_c os::OS_c '}'
 { st.pp =  "d_step" ++ "\n{\n " ++ seq.ppi ++ seq.pp ++ os.pp ++ " \n}";
   seq.ppi = st.ppi;
--- st.ast_Stmt = dstep_stmt( body_stmts(seq.ast_Stmt));
+  st.ast = dstepStmt( seq.ast );
 }
 
 concrete production seq_stmt_c
 st::Statement_c ::= '{' seq::Sequence_c os::OS_c '}'
 { st.pp = "{\n " ++ seq.ppi ++ seq.pp ++ os.pp ++ " \n}";
   seq.ppi = st.ppi;
--- st.ast_Stmt = stmt_block( body_stmts( seq.ast_Stmt ) ) ;
+  st.ast = blockStmt (seq.ast ) ;
 }
 
 
--- OK for v6 and v4.2.9, but see discussion of the screwy way Spin does this.
+-- OK for v6 and v4.2.9, but see discussion of the interesting way Spin does this.
 concrete production inline_stmt_c
 st::Statement_c ::= ina::INAME '(' args::Args_c ')' 
 { st.pp = ina.lexeme ++ "(" ++ args.pp ++ ")" ;
--- st.ast_Stmt = inline_stmt(ina,args.ast_Args);
+  st.ast = inlineStmt(ina, args.ast);
 }
 
 concrete production skip_stmt_c

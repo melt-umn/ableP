@@ -1,7 +1,8 @@
 grammar edu:umn:cs:melt:ableP:abstractsyntax ;
 
-nonterminal Stmt with pp, ppi, ppsep, errors, host<Stmt> ;
+nonterminal Stmt with pp, ppi, ppsep, errors, host<Stmt>, inlined<Stmt> ;
 
+-- Grouping: sequence, block ...
 abstract production seqStmt
 s::Stmt ::= s1::Stmt s2::Stmt
 { s.pp = s.ppi ++ s1.pp ++ s.ppsep ++ s2.pp ; 
@@ -12,6 +13,21 @@ s::Stmt ::= s1::Stmt s2::Stmt
 
   s.uses = s1.uses ++ s2.uses ;
   s.host = seqStmt(s1.host, s2.host);
+  s.inlined = seqStmt(s1.inlined, s2.inlined);
+}
+
+abstract production blockStmt
+s::Stmt ::= body::Stmt
+{
+ s.pp = "\n{\n" ++ body.ppi ++ body.pp ++ s.ppi ++ "\n}\n";
+ body.ppi = s.ppi ++ " ";
+ body.ppsep = "; \n" ;
+ s.errors := body.errors ;
+ s.host = blockStmt(body.host) ;
+ s.inlined = blockStmt(body.inlined) ;
+ s.defs = emptyDefs() ;
+ body.env = s.env;
+ s.uses = body.uses ;
 }
 
 abstract production one_decl
@@ -24,8 +40,10 @@ s::Stmt ::= d::Decls
   d.env = s.env ;
   s.uses = d.uses ;
   s.host = one_decl(d.host);
+  s.inlined = one_decl(d.inlined);
 }
 
+-- Print statements
 abstract production printStmt
 s::Stmt ::= st::String es::Exprs
 { s.pp = s.ppi ++ "printf (" ++ st ++ 
@@ -37,6 +55,7 @@ s::Stmt ::= st::String es::Exprs
  s.defs = emptyDefs();
  s.uses = [ ] ;
  s.host = printStmt(st, es.host) ;
+ s.inlined = printStmt(st, es.inlined) ;
 }
 
 abstract production printmStmt
@@ -46,6 +65,7 @@ s::Stmt ::= vref::Expr
   s.defs = emptyDefs();
   s.uses = vref.uses ;
   s.host = printmStmt(vref.host) ;
+  s.inlined = printmStmt(vref.inlined) ;
 }
 abstract production printmConstStmt
 s::Stmt ::= cn::CONST
@@ -54,28 +74,9 @@ s::Stmt ::= cn::CONST
   s.defs = emptyDefs();
   s.uses = [ ] ;
   s.host = printmConstStmt(cn) ;
+  s.inlined = printmConstStmt(cn) ;
 }
 
-abstract production assign
-s::Stmt ::= lhs::Expr rhs::Expr 
-{ s.pp = s.ppi ++ lhs.pp ++ " = " ++ rhs.pp ++ " ;\n" ; 
-  production attribute overloads :: [Stmt] with ++ ;
-  overloads := [ ] ;
-
-  forwards to if null(overloads) then defaultAssign(lhs,rhs) 
-              else head(overloads) ;
-}
-
-abstract production defaultAssign
-s::Stmt ::= lhs::Expr rhs::Expr 
-{ s.pp = s.ppi ++ lhs.pp ++ " = " ++ rhs.pp ++ " ;\n" ; 
-
-  s.errors := lhs.errors ++ rhs.errors ;
-
-  s.defs = emptyDefs();
-  s.uses = lhs.uses ++ rhs.uses ;
-  s.host = assign(lhs.host, rhs.host) ;
-}
 
 -- Control Flow                                 --
 --------------------------------------------------
@@ -85,6 +86,7 @@ s::Stmt ::= op::Options
   op.ppi = s.ppi ++ "  ";
   s.errors := op.errors;
   s.host = ifStmt(op.host);
+  s.inlined = ifStmt(op.inlined);
   s.defs = emptyDefs();
   s.uses = op.uses ;
 --  op.env = sc.env;
@@ -98,6 +100,7 @@ s::Stmt ::= op::Options
   s.defs = emptyDefs();
   s.uses = op.uses ;
   s.host = doStmt(op.host);
+  s.inlined = doStmt(op.inlined);
 }
 
 abstract production breakStmt
@@ -107,6 +110,7 @@ s::Stmt ::=
   s.defs = emptyDefs();
   s.uses = [ ] ;
   s.host = breakStmt();
+  s.inlined = breakStmt();
 --  s.defs = emptyDefs();
 }
 
@@ -117,6 +121,7 @@ s::Stmt ::= id::ID
   s.defs = emptyDefs();
   s.uses = [ ] ; --TODO check that ID is valid, etc.
   s.host = gotoStmt(id);
+  s.inlined = gotoStmt(id);
 --  s.defs = emptyDefs();
 }
 
@@ -127,6 +132,7 @@ s::Stmt ::= id::ID st::Stmt
   s.errors := st.errors;
   s.defs = emptyDefs();  --TODO add ID to defs - but this has different scope than normal variables...
   s.uses = st.uses ;
+  s.inlined = labeledStmt(id, st.inlined);
   s.host = labeledStmt(id, st.host);
 --  s.defs = st.defs;
 --  st.env = s.env;
@@ -138,6 +144,7 @@ s::Stmt ::=
   s.errors := [ ];
   s.defs = emptyDefs();
   s.uses = [ ] ;
+  s.inlined = elseStmt();
   s.host = elseStmt();
 }
 
@@ -155,7 +162,7 @@ s::Stmt ::=
 }
 
 -- Options --
-nonterminal Options with pp, ppi, ppsep, errors, host<Options> ;
+nonterminal Options with pp, ppi, ppsep, errors, host<Options>, inlined<Options> ;
 abstract production oneOption
 ops::Options ::= s::Stmt
 { ops.pp = ":: " ++ s.pp;
@@ -164,6 +171,7 @@ ops::Options ::= s::Stmt
   ops.defs = emptyDefs();
   ops.uses = s.uses ;
   ops.host = oneOption(s.host);
+  ops.inlined = oneOption(s.inlined);
 --  st.env = ops.env;
 }
 
@@ -181,21 +189,11 @@ ops::Options ::= s::Stmt rest::Options
   ops.uses = s.uses ++ rest.uses ;
 
   ops.host = consOption(s.host, rest.host);
+  ops.inlined = consOption(s.inlined, rest.inlined);
 --  st.env = ops.env;
 --  rest.env = ops.env;
 }
 
-
--- Misc. Statements                             --
---------------------------------------------------
-abstract production exprStmt
-s::Stmt ::= e::Expr
-{ s.pp =  e.pp ++ " ;\n" ;
-  s.errors := e.errors;
-  s.defs = emptyDefs();
-  s.uses = e.uses ;
-  s.host = exprStmt(e.host);
-}
 
 
 -- Message sends and receives                   --
@@ -203,121 +201,148 @@ s::Stmt ::= e::Expr
 abstract production sndStmt
 sc::Stmt ::= vref::Expr op::String ma::MArgs
 { -- op is either "!" or "!!", one of the two kinds of snd operators.
-  sc.pp =  vref.pp ++ op ++ ma.pp ++ " ;\n" ;
+  sc.pp =  vref.pp ++ op ++ ma.pp ; --++ " ;\n" ;
   sc.errors := vref.errors ++ ma.errors ; 
   sc.defs = emptyDefs();
   sc.uses = vref.uses ++ ma.uses ;
   sc.host = sndStmt (vref.host, op, ma.host) ;
+  sc.inlined = sndStmt (vref.inlined, op, ma.inlined) ;
 }
 
 abstract production rcvStmt
 sc::Stmt ::= vref::Expr op::String ra::RArgs
 { -- op is either "?", "??", "?<>", or "??<>"
   -- one of the four kinds of rcv operators.
-  sc.pp =  vref.pp ++ op ++ ra.pp ++ " ;\n" ;
+  sc.pp =  vref.pp ++ op ++ ra.pp ; --  ++ " ;\n" ;
   sc.errors := vref.errors ++ ra.errors ; 
   sc.defs = emptyDefs();
   sc.uses = vref.uses ++ ra.uses ;
   sc.host = rcvStmt (vref.host, op, ra.host) ;
+  sc.inlined = rcvStmt (vref.inlined, op, ra.inlined) ;
 }
 
 
+-- Block-type statements                        --
+--------------------------------------------------
+abstract production atomicStmt
+s::Stmt ::= b::Stmt
+{ s.pp = "atomic { " ++  b.pp ++ " } ";
+  s.errors := b.errors ;
+  s.defs = emptyDefs();
+  s.host = atomicStmt(b.host) ;
+  s.inlined = atomicStmt(b.inlined) ;
+}
+
+abstract production dstepStmt
+s::Stmt ::= b::Stmt
+{ s.pp = "d_step { " ++  b.pp ++ " } ";
+  s.errors := b.errors ;
+  s.defs = emptyDefs();
+  s.host = dstepStmt(b.host) ;
+  s.inlined = dstepStmt(b.inlined) ;
+}
+
+-- Assignments, increments, side-effects        --
+--------------------------------------------------
+abstract production assign
+s::Stmt ::= lhs::Expr rhs::Expr 
+{ s.pp = s.ppi ++ lhs.pp ++ " = " ++ rhs.pp ; --  ++ " ;\n" ; 
+  production attribute overloads :: [Stmt] with ++ ;
+  overloads := [ ] ;
+
+  forwards to if null(overloads) then defaultAssign(lhs,rhs) 
+              else head(overloads) ;
+}
+
+abstract production defaultAssign
+s::Stmt ::= lhs::Expr rhs::Expr 
+{ s.pp = s.ppi ++ lhs.pp ++ " = " ++ rhs.pp ++ " ;\n" ; 
+  s.errors := lhs.errors ++ rhs.errors ;
+  s.defs = emptyDefs();
+  s.uses = lhs.uses ++ rhs.uses ;
+  s.host = assign(lhs.host, rhs.host) ;
+  s.inlined = assign(lhs.inlined, rhs.inlined) ;
+}
+
+abstract production incrStmt
+st::Stmt ::= vref::Expr
+{ st.pp = vref.pp ++ "++";
+  st.errors := vref.errors;
+  st.defs = emptyDefs();
+  st.host = incrStmt(vref.host);
+  st.inlined = incrStmt(vref.inlined);
+}
+abstract production decrStmt
+st::Stmt ::= vref::Expr
+{ st.pp = vref.pp ++ "--";
+  st.errors := vref.errors;
+  st.defs = emptyDefs();
+  st.host = decrStmt(vref.host);
+  st.inlined = decrStmt(vref.inlined);
+}
+
+-- Misc. Statements                             --
+--------------------------------------------------
+abstract production exprStmt
+s::Stmt ::= e::Expr
+{ s.pp =  e.pp ; -- ++ " ;\n" ;
+  s.errors := e.errors;
+  s.defs = emptyDefs();
+  s.uses = e.uses ;
+  s.host = exprStmt(e.host);
+  s.inlined = exprStmt(e.inlined);
+}
+
+abstract production assertStmt
+st::Stmt ::= fe::Expr
+{ st.pp = "assert " ++ fe.pp ;
+  st.errors := fe.errors;
+  st.defs = emptyDefs();
+  st.host = assertStmt(fe.host) ;
+  st.inlined = assertStmt(fe.inlined) ;
+}
+
+abstract production unlessStmt
+st::Stmt ::= st1::Stmt st2::Stmt
+{ st.pp = st1.pp ++ " unless " ++ st2.pp ++ "\n" ;
+  st.errors := st1.errors ++ st2.errors;
+  st.defs = emptyDefs(); -- mergeDefs(st1.defs,st2.defs);
+  st.host = unlessStmt(st1.host, st2.host);
+  st.inlined = unlessStmt(st1.inlined, st2.inlined);
+}
+
+-- ToDo.  Fix semantics here.
+abstract production xuStmt
+st::Stmt ::= xu::XU vlst::Exprs
+{ st.pp = xu.lexeme ++ " " ++ vlst.pp ;
+  st.errors := vlst.errors ;
+  st.defs = emptyDefs() ; 
+  st.host = xuStmt(xu, vlst.host);
+  st.inlined = xuStmt(xu, vlst.inlined);
+}
+
+-- ToDo.  Fix semantics here.
+abstract production namedXUStmt
+st::Stmt ::= id::ID xu::XU
+{ st.pp = id.lexeme ++ ":" ++ xu.lexeme ;
+  st.errors := [ ] ;
+  st.defs = emptyDefs() ;
+  st.host = namedXUStmt(id, xu);
+  st.inlined = namedXUStmt(id, xu);
+}
+
+-- ToDo.  Fix semantics here.
+abstract production namedDecl
+st::Stmt ::= id::ID d::Decls
+{ st.pp = id.lexeme ++ ":" ++ d.pp  ;
+  st.errors := d.errors;
+  st.defs = d.defs;
+  st.host = namedDecl(id, d.host) ;
+  st.inlined = namedDecl(id, d.inlined) ;
+}
 
 {-
-----------
-grammar edu:umn:cs:melt:ableP:abstractsyntax;
 
-import edu:umn:cs:melt:ableP:terminals;
-
-nonterminal Asgn with basepp,pp;
-nonterminal VrefList with basepp,pp;
-
-
-abstract production asgn
-a::Asgn ::= 
-{
- a.basepp = "=";
- a.pp = "=";
-}
-
-abstract production asgn_empty
-a::Asgn ::= 
-{
- a.basepp = "";
- a.pp = "";
-}
-
-abstract production single_varref
-vrl::VrefList ::= vref::Expr
-{
-  vrl.basepp = vref.basepp;
-  vrl.pp = vref.basepp;
-  vrl.errors = vref.errors;
-  vref.env = vrl.env;
-}
-
-abstract production comma_varref
-vrl1::VrefList ::= vref::Expr vrl2::VrefList
-{
- vrl1.basepp = vref.basepp ++ "," ++ vrl2.basepp;
- vrl1.pp = vref.pp ++ "," ++ vrl2.pp;
- vrl1.errors = vref.errors ++ vrl2.errors;
- vref.env = vrl1.env;
- vrl2.env = vrl1.env;
-}
-
-grammar edu:umn:cs:melt:ableP:abstractsyntax;
-
-nonterminal RArgs with basepp,pp;
-
-nonterminal Options with basepp,ppi,pp;
-nonterminal OS with basepp,pp;
-
-abstract production stmt_seq
-st::Stmt ::= s1::Stmt s2::Stmt
-{
-  st.pp = s1.pp ++ " ;\n" ++ st.ppi ++ s2.pp ;
-  s1.ppi = st.ppi ;
-  s2.ppi = st.ppi ;
-  st.basepp = s1.basepp ++ " ;\n" ++ st.ppi ++ s2.basepp ;
-
-  st.errors = s1.errors ++ s2.errors;
-  st.defs = mergeDefs(s1.defs,s2.defs);
-  s1.env = st.env;
-  s2.env = mergeDefs(s1.defs,st.env);
-}
-
-
-
-
-abstract production vref_lst
-st::Stmt ::= xu::XU vlst::VrefList
-{
- st.pp = xu.lexeme ++ " " ++ vlst.pp ;
- st.basepp =  xu.lexeme ++ " " ++ vlst.basepp ;
- st.defs = emptyDefs() ; 
- st.errors = vlst.errors ;
-}
-
--- ? - labeled statement ?
-abstract production name_od
-st::Stmt ::= id::ID d::Decls
-{
- st.pp = id.lexeme ++ ":" ++ d.pp  ;
- d.ppi = "" ;
- d.ppsep = ", ";
- st.basepp = id.lexeme ++ ":" ++ d.basepp ;
- st.errors = d.errors;
- st.defs = d.defs;
- d.env = st.env ;
-}
-
-abstract production name_xu
-st::Stmt ::= id::ID xu::XU
-{
- st.pp = id.lexeme ++ ":" ++ xu.lexeme ;
- st.basepp = id.lexeme ++ ":" ++ xu.lexeme ;
-}
 -- Message sends and receives                   --
 --------------------------------------------------
 
@@ -378,8 +403,6 @@ st::Stmt ::= vref::Expr ma::MArgs
 }
 
 
--- Assignments, increments, side-effects        --
---------------------------------------------------
 abstract production assign_stmt
 st::Stmt ::= vref::Expr a1::ASGN exp::Expr
 {
@@ -391,27 +414,6 @@ st::Stmt ::= vref::Expr a1::ASGN exp::Expr
  exp.env = st.env;
 }
 
-
-abstract production incr_stmt
-st::Stmt ::= vref::Expr
-{
-  st.basepp =  vref.basepp ++ "++";
-
-  st.pp = vref.pp ++ "++";
-  st.errors = vref.errors;
-  st.defs = emptyDefs();
-  vref.env = st.env;
-}
-abstract production decr_stmt
-st::Stmt ::= vref::Expr
-{
- st.basepp =  vref.basepp ++ "--";
-
- st.pp = vref.pp ++ "--";
- st.errors = vref.errors;
- vref.env = st.env;
- st.defs = emptyDefs();
-}
 
 abstract production print_stmt
 st::Stmt ::= str::STRING par::Args
@@ -432,60 +434,6 @@ st::Stmt ::= str::STRING par::Args
 }
 
 
--- Block-type statements                        --
---------------------------------------------------
-abstract production atomic_stmt
-st::Stmt ::= b::Body
-{
- st.pp = "atomic " ++  b.pp ;
- b.ppi = st.ppi;
- st.basepp = "atomic " ++ b.basepp ;
- st.errors = b.errors ;
- st.defs = b.defs;
- b.env = st.env;
-}
-
-abstract production dstep_stmt
-st::Stmt ::= b::Body
-{
- st.pp = "d_step" ++ "\n" ++ b.pp ;
- b.ppi = st.ppi;
- st.basepp = "d_step" ++ "\n" ++ b.basepp ;
-
- st.errors = b.errors ;
- st.defs = b.defs;
-}
--- Misc. Statements                             --
---------------------------------------------------
-
-abstract production assert_stmt
-st::Stmt ::= fe::Expr
-{
- st.basepp = "assert " ++ fe.basepp ;
-
- st.pp = "assert " ++ fe.pp ;
- st.errors = fe.errors;
- st.defs = emptyDefs();
- fe.env = st.env;
-}
-
-
-
-abstract production unless_stmt
-st::Stmt ::= st1::Stmt st2::Stmt
-{
-  st.pp = st1.pp ++ "\n unless \n" ++ st2.pp ++ "\n" ;
-  st1.ppi = st.ppi;
-  st2.ppi = st.ppi;
-  st.basepp = st1.basepp ++ "\n unless \n" ++ st2.basepp ++ "\n" ;
-
-
-  st.errors = st1.errors ++ st2.errors;
-
-  st.defs = mergeDefs(st1.defs,st2.defs);
-  st1.env = st.env;
- st2.env = mergeDefs(st1.defs,st.env);
-}
 
 abstract production empty_stmt
 st::Stmt ::= 

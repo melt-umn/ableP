@@ -1,41 +1,101 @@
 grammar edu:umn:cs:melt:ableP:abstractsyntax;
 
-nonterminal NS with pp;
+synthesized attribute inlined<a> :: a ;
 
-{-
+{- Interesting definitions of inlined are placed here, the standard
+   ones are on the abstract productions to avoid creating lots of
+   uninteresting aspect.
+-}
+
+aspect production varRefExpr
+e::Expr ::= id::ID
+{ -- We need to know if 'id' is an argument in an inline declaration
+  -- body.  If so, we replace it with the actual argument from the
+  -- inline call site. This expressions is part of the declaration,
+  -- created for this call site, for the formal parameter.
+
+  e.inlined = case eres.dcl of
+                inlineArgDecl(_,ine) -> ine
+              | _ -> varRefExpr(id)  end ;
+}
+
+
 -- inline declarations --
 -------------------------
-abstract production inline_dcl
-u::Unit ::= n::ID args::Inline_Args stmt::Stmt
-{
- u.pp = "\n" ++ "inline " ++ n.lexeme ++ "(" ++ args.pp ++ ")\n" ++ stmt.pp;
- stmt.ppi = "   ";
-
-  u.defs = valueBinding(n.lexeme, inline_type(n, args, stmt));
+abstract production inlineDecl
+d::Decls ::= n::ID formals::InlineArgs stmt::Stmt
+{ d.pp = "inline " ++ n.lexeme ++ "(" ++ formals.pp ++ ")\n" ++ stmt.pp;
+  stmt.ppi = "   ";
+  -- d.errors := forward.errors ;
+  d.defs = valueBinding(n.lexeme, d) ;
+  d.host = inlineDecl(n, formals.host, stmt.host) ;
 
  -- We cannot, and should not do error checking here as the body of the inline may
  -- contain identifiers that are declared just above the point of inlining and are 
  -- thus not in scope (that is, not in u.env) here.
- --    u.errors = args.errors ++ stmt.errors;
- --    stmt.env = mergeDefs(args.defs, u.env);
+ --    u.errors = formals.errors ++ stmt.errors;
+ --    stmt.env = mergeDefs(formals.defs, u.env);
 
- forwards to commented_unit("/* inline \"" ++ n.lexeme ++ "\" was defined here. */\n", unit_empty());
+ forwards to -- commented_unit("/* inline \"" ++ n.lexeme ++ "\" was defined here. */\n", 
+             emptyDecl();
+}
+nonterminal InlineArgs with pp, host<InlineArgs>, asList<String> ;
 
- u.inlined_Unit = unit_semi() ;
+abstract production noneInlineArgs
+ia::InlineArgs ::= 
+{ ia.pp = "" ;
+  ia.asList = [ ] ;
+  ia.host = noneInlineArgs();
+}
+abstract production consInlineArgs
+ia::InlineArgs ::= id::ID  rest::InlineArgs
+{ ia.pp = id.lexeme ++ case rest of
+                         noneInlineArgs() -> ""
+                       | consInlineArgs(_,_) -> ", " end  ++ rest.pp ;
+  ia.asList = [id.lexeme] ++ rest.asList ;
+  ia.host = consInlineArgs(id, rest.host);
 }
 
-nonterminal Inline_Args with pp, basepp, errors, defs ;
+
+-- inline statement - instantiate the inline construct --
+---------------------------------------------------------
+abstract production inlineStmt
+st::Stmt ::= n_ref::INAME actuals::Exprs
+{ st.pp = n_ref.lexeme ++ "(" ++ actuals.pp ++ ") ;\n";
+  -- st.errors := forward.errors ;
+  st.defs = emptyDefs() ;
+  st.host = inlineStmt(n_ref, actuals.host);
+
+  local res::EnvResult = lookup_name(n_ref.lexeme, st.env) ;
+ 
+  forwards to body with { env = mergeDefs( asDecl.defs, st.env) ; } ;
+   -- we bind a formal to a Decl
+   -- this Decl has the actual Expr that is to be inlined.
+
+  local body::Stmt = case res.dcl of
+           inlineDecl (_, _, s)  -> new(s)
+         | _ -> error ("Should not be asking for body of inline.") end ;
+  local formals::InlineArgs = case res.dcl of
+           inlineDecl (_, fs, _)  -> new(fs)
+         | _ -> error ("Should not be asking for formals.") end ;
+
+  local declList::[Decls] = zipWith_p ( formals.asList, actuals.asList , inlineArgDecl) ;
+  local asDecl::Decls = foldr1_p ( seqDecls, declList ) ;
+}
+
+abstract production inlineArgDecl
+d::Decls ::= id::String actual::Expr
+{
+ d.pp = "Internal: " ++ id ++ " " ++ actual.pp ;
+ d.defs = valueBinding(id, d) ;
+}
+
+
+{-
+
+
 synthesized attribute id_list :: [ ID ] occurs on Inline_Args ;
 
-abstract production inline_args_one
-a::Inline_Args ::= id::ID
-{
- a.pp = id.lexeme ;
- a.basepp = id.lexeme ;
- a.errors = [ ] ;
- a.defs = valueBinding(id.lexeme, inline_arg_type()) ;
- a.id_list = [ id ] ;
-}
 
 abstract production inline_args_none
 a::Inline_Args ::= 
@@ -56,30 +116,17 @@ a::Inline_Args ::= id::ID rest::Inline_Args
  a.defs = mergeDefs( valueBinding(id.lexeme, inline_arg_type()), rest.defs ) ;
  a.id_list = [ id ] ++ rest.id_list ;
 }
-
-
--- inline statement - instantiate the inline construct --
----------------------------------------------------------
-abstract production inline_stmt
-st::Stmt ::= n_ref::INAME actuals::Args 
+abstract production inlineArgs
+a::Inline_Args ::= id::ID
 {
- st.pp = n_ref.lexeme ++ "(" ++ actuals.pp ++ ") ;\n";
-
- local attribute res :: EnvResult ;
- res = lookup_name(n_ref.lexeme, st.env) ;
-  
- forwards to ft'' ;
-
- local attribute ft::Stmt ;
- ft = case res.typerep of
-        inline_type(n_dcl, formals, in_stmt) 
-        -> commented_stmt("/* inlined \"" ++ n_dcl.lexeme ++ "\" here. */ \n", substitute(n_dcl,n_ref,in_stmt,formals,actuals) )
-
-       | _   
-         -> commented_stmt("/* use of undefined inline " ++ n_ref.lexeme ++ " was here. */\n", 
-                            error_stmt( "Error use of undefined inline name " ++ n_ref.lexeme ))
-      end ;
+ a.pp = id.lexeme ;
+ a.basepp = id.lexeme ;
+ a.errors = [ ] ;
+ a.defs = valueBinding(id.lexeme, inline_arg_type()) ;
+ a.id_list = [ id ] ;
 }
+
+
 
 
 abstract production substitute

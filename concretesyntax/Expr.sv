@@ -25,9 +25,9 @@ nonterminal Expression_c with pp, ast<Expr> ;     -- same as in v4.2.9 and v6
 
 -- Expr in spin.y
 concrete production expr_probe_c
-exp::Expression_c ::= pr::Probe_c
-{ exp.pp = pr.pp;
--- exp.ast_Expr = exp_probe(pr.ast_Probe);
+e::Expression_c ::= pr::Probe_c
+{ e.pp = pr.pp;
+  e.ast = pr.ast ;
 }
 
 concrete production expression_paren_c
@@ -121,20 +121,20 @@ exp::Expr_c ::= lhs::Expr_c '%' rhs::Expr_c
 concrete production singleand_c
 exp::Expr_c ::= lhs::Expr_c '&' rhs::Expr_c
 { exp.pp = lhs.pp ++ " & " ++ rhs.pp;
--- exp.ast_Expr = singleand(lhs.ast_Expr,rhs.ast_Expr);
+  exp.ast = genericBinOp(lhs.ast, mkOp("&", boolTypeExpr()), rhs.ast) ;
 }
 
 concrete production xor_expr_c
 exp::Expr_c ::= lhs::Expr_c '^' rhs::Expr_c
 { exp.pp = lhs.pp ++ " ^ " ++ rhs.pp;
--- exp.ast_Expr = xor_expr(lhs.ast_Expr,rhs.ast_Expr);
+  exp.ast = genericBinOp(lhs.ast, mkOp("^", boolTypeExpr()), rhs.ast) ;
 }
 
 
 concrete production singleor_c
 exp::Expr_c ::= lhs::Expr_c '|' rhs::Expr_c
 { exp.pp = lhs.pp ++ " | " ++ rhs.pp;
--- exp.ast_Expr = singleor(lhs.ast_Expr,rhs.ast_Expr);
+  exp.ast = genericBinOp(lhs.ast, mkOp("|", boolTypeExpr()), rhs.ast) ;
 }
 
 concrete production gt_expr_c
@@ -152,7 +152,7 @@ exp::Expr_c ::= lhs::Expr_c '<' rhs::Expr_c
 concrete production ge_expr_c
 exp::Expr_c ::= lhs::Expr_c '>=' rhs::Expr_c
 { exp.pp = lhs.pp ++ " >= " ++ rhs.pp;
--- exp.ast_Expr = ge_expr(lhs.ast_Expr,rhs.ast_Expr);
+  exp.ast = genericBinOp(lhs.ast, mkOp(">=", boolTypeExpr()), rhs.ast) ;
 }
 
 concrete production le_expr_c
@@ -172,14 +172,12 @@ concrete production ne_expr_c
 exp::Expr_c ::= lhs::Expr_c '!=' rhs::Expr_c
 { exp.pp = lhs.pp ++ " != " ++ rhs.pp;
   exp.ast = genericBinOp(lhs.ast, mkOp("!=", boolTypeExpr()), rhs.ast) ;
--- exp.ast_Expr = ne_expr(lhs.ast_Expr,rhs.ast_Expr);
 }
 
 concrete production andexpr_c
 exp::Expr_c ::= lhs::Expr_c '&&' rhs::Expr_c
 { exp.pp = lhs.pp ++ " && " ++ rhs.pp;
   exp.ast = genericBinOp(lhs.ast, mkOp("&&", boolTypeExpr()), rhs.ast) ;
--- exp.ast_Expr = andexpr(lhs.ast_Expr,rhs.ast_Expr);
 }
 
 concrete production orexpr_c
@@ -192,20 +190,18 @@ concrete production lshift_expr_c
 exp::Expr_c ::= lhs::Expr_c op::'<<' rhs::Expr_c
 { exp.pp = lhs.pp ++ " << " ++ rhs.pp;
   exp.ast = genericBinOp(lhs.ast, mkOp(op.lexeme, boolTypeExpr()), rhs.ast) ;
--- exp.ast_Expr = lshift_expr(lhs.ast_Expr,rhs.ast_Expr);
 }
 
 concrete production rshift_expr_c
 exp::Expr_c ::= lhs::Expr_c op::'>>' rhs::Expr_c
 { exp.pp = lhs.pp ++ " >> " ++ rhs.pp;
   exp.ast = genericBinOp(lhs.ast, mkOp(op.lexeme, boolTypeExpr()), rhs.ast) ;
--- exp.ast_Expr = rshift_expr(lhs.ast_Expr,rhs.ast_Expr);
 }
 
 concrete production tild_expr_c
 exp::Expr_c ::= '~' lhs::Expr_c 
 { exp.pp = "~" ++ lhs.pp ;
--- exp.ast_Expr = tild_expr(lhs.ast_Expr);
+  exp.ast = tildeExpr(lhs.ast);
 }
 
 concrete production neg_expr_c
@@ -240,27 +236,26 @@ exp::Expr_c ::= r::RUN an::Aname_c '(' args::Args_c ')' p::OptPriority_c
 concrete production length_expr_c
 exp::Expr_c ::= l::LEN '(' vref::Varref_c ')'
 { exp.pp = "len" ++ "(" ++ vref.pp ++ ")";
--- exp.ast_Expr = length_expr(vref.ast_Expr);
+  exp.ast = lengthExpr( vref.ast );
 }
 
 concrete production enabled_expr_c
 exp::Expr_c ::= e::ENABLED '(' ex::Expr_c ')'
 { exp.pp = "enabled" ++ "(" ++ ex.pp ++ ")";
--- exp.ast_Expr = enabled_expr(ex.ast_Expr);
+  exp.ast = enabledExpr( ex.ast );
 }
 
 concrete production rcv_expr_c
 exp::Expr_c ::= vref::Varref_c r::RCV '[' ra::RArgs_c ']'
 { exp.pp = vref.pp ++ "?" ++ "[" ++ ra.pp ++ "]";
--- exp.ast_Expr = rcv_expr(vref.ast_Expr,ra.ast_RArgs);
+  exp.ast = rcvExpr( vref.ast, ra.ast );
 }
 
 concrete production rrcv_expr_c
 exp::Expr_c ::= vref::Varref_c rr::R_RCV '[' ra::RArgs_c ']'
 { exp.pp = vref.pp ++ "??" ++ "[" ++ ra.pp ++ "]";
--- exp.ast_Expr = rrcv_expr(vref.ast_Expr,ra.ast_RArgs);
+  exp.ast = rrcvExpr( vref.ast, ra.ast );
 }
-
 
 concrete production varref_expr_c
 exp::Expr_c ::= vref::Varref_c
@@ -275,84 +270,57 @@ exp::Expr_c ::= c::CONST
 }
 
 concrete production to_expr_c
-exp::Expr_c ::= tm::TIMEOUT
-{ exp.pp = "timeout";
--- exp.ast_Expr = to_expr();
+e::Expr_c ::= tm::TIMEOUT
+{ e.pp = "timeout";
+  e.ast = timeoutExpr();
 }
 
 concrete production np_expr_c
-exp::Expr_c ::= np::NONPROGRESS
-{ exp.pp = "nonprogress";
--- exp.ast_Expr = np_expr();
+e::Expr_c ::= np::NONPROGRESS
+{ e.pp = "nonprogress";
+  e.ast = noprogressExpr();
 }
 
 concrete production pcval_expr_c
-exp::Expr_c ::= pv::PC_VALUE '(' ex::Expr_c ')'
-{ exp.pp = "pc_value" ++ "(" ++ ex.pp ++ ")";
--- exp.ast_Expr = pcval_expr(ex.ast_Expr);
+e::Expr_c ::= pv::PC_VALUE '(' pc::Expr_c ')'
+{ e.pp = "pc_value" ++ "(" ++ pc.pp ++ ")";
+  e.ast = pcvalExpr(pc.ast);
 }
 
 concrete production pname_expr_c
-exp::Expr_c ::= pn::PNAME '[' ex::Expr_c ']' '@' n::ID
-{ exp.pp = pn.lexeme ++ "[" ++ ex.pp ++ "]"  ++ "@" ++ n.lexeme;
--- exp.ast_Expr = pname_expr(pn,ex.ast_Expr,n);
-}
-
-concrete production pfld_expr_c
-exp::Expr_c ::= pn::PNAME '[' ex::Expr_c ']' ':' pf::Pfld_c
-{ exp.pp = pn.lexeme ++ "[" ++ ex.pp ++ "]" ++ ":" ++ pf.pp;
+e::Expr_c ::= pn::PNAME '[' ex::Expr_c ']' '@' n::ID
+{ e.pp = pn.lexeme ++ "[" ++ ex.pp ++ "]"  ++ "@" ++ n.lexeme;
+  e.ast = pnameExprIdExpr( pn,ex.ast,n);
 }
 
 concrete production name_expr_c
-exp::Expr_c ::= pn::PNAME '@' n::ID
-{ exp.pp = pn.lexeme ++ "@" ++ n.lexeme;
--- exp.ast_Expr = name_expr(pn,n);
+e::Expr_c ::= pn::PNAME '@' n::ID
+{ e.pp = pn.lexeme ++ "@" ++ n.lexeme;
+  e.ast = pnameIdExpr(pn,n);
+}
+
+concrete production pfld_expr_c
+e::Expr_c ::= pn::PNAME '[' ex::Expr_c ']' ':' pf::Pfld_c
+{ e.pp = pn.lexeme ++ "[" ++ ex.pp ++ "]" ++ ":" ++ pf.pp;
+  pf.context = nothing() ;
+  e.ast = pnameExprExpr(pn, ex.ast, pf.ast) ;
 }
 
 concrete production fld_expr_c
-exp::Expr_c ::= pn::PNAME ':' pf::Pfld_c
-{ exp.pp = pn.lexeme ++ ":" ++ pf.pp;
+e::Expr_c ::= pn::PNAME ':' pf::Pfld_c
+{ e.pp = pn.lexeme ++ ":" ++ pf.pp;
+  pf.context = nothing() ;
+  e.ast = pnameExpr(pn, pf.ast) ;
 }
-
--- could combine CHARLIT into CONST to remove this to be like v4.2.9 and v6
-concrete production const_expr_charlit_c
-exp::Expr_c ::= c::CHARLIT
-{ exp.pp = c.lexeme ;
--- exp.ast_Expr = const_expr(terminal(CONST,c.lexeme,c.line,c.column));
-}
-
 
 
 
 
 -- Varref
 --------------------------------------------------
---attribute ast_Expr occurs on Varref_c;
 
-{-
--- These three are not as in v4.2.9 nor as in v6
-concrete production varref_name_only_c
-v::Varref_c ::= a::ID 
-{ v.pp = a.lexeme ;
--- v.ast_Expr = expr_name(a);
-}
-
-concrete production varref_array_c
-v::Varref_c ::= va::Varref_c ls::LSQUARE index::Expr_c  rs::RSQUARE
-{ v.pp = va.pp ++ "[" ++ index.pp ++ "]" ;
--- v.ast_Expr = arrayref( va.ast_Expr, ls, index.ast_Expr, rs) ;
-}
-
-concrete production varref_field_c
-v::Varref_c ::= vr::Varref_c d::STOP f::ID
-{ v.pp = vr.pp ++ "." ++ f.lexeme  ;
--- v.ast_Expr = expr_dot(vr.ast_Expr, d, f);
-}
--}
-
--- These are as in v4.2.9 and v6
--- So, varref, cmpnd, and sfld in spin.y are represented correctly here.
 nonterminal Varref_c with pp, ast<Expr> ;  -- same as in v4.2.9 and v6
+-- So, varref, cmpnd, and sfld in spin.y are represented correctly here.
 inherited attribute context::Maybe<Expr> ;
 
 concrete production varref_cmpnd_c
@@ -407,7 +375,7 @@ concrete production name_pfld_c
 pf::Pfld_c ::= id::ID
 { pf.pp = id.lexeme;
   pf.ast = case pf.context of
-             nothing() -> varRefExpr(id)
+             nothing() -> varRefExprAll(id)
            | just(e) -> dotAccess(e, id) 
            end ;
 }
@@ -415,7 +383,7 @@ concrete production expr_pfld_c
 pf::Pfld_c ::= id::ID '[' ex::Expr_c ']'
 { pf.pp = id.lexeme ++ "[" ++ ex.pp ++ "]";
   pf.ast = case pf.context of
-             nothing() -> arrayAccess(varRefExpr(id), ex.ast)
+             nothing() -> arrayAccess(varRefExprAll(id), ex.ast)
            | just(e) -> arrayAccess(dotAccess(e,id), ex.ast)
            end ;
 }
@@ -456,31 +424,31 @@ action
 
 
 
---
+
 --Probe
-nonterminal Probe_c with pp;   -- same as in v4.2.9 and v6
+nonterminal Probe_c with pp, ast<Expr> ;   -- same as in v4.2.9 and v6
 
 concrete production full_probe_c
 pr::Probe_c ::= fl::FULL '(' vref::Varref_c ')'
 { pr.pp = "full" ++ "(" ++ vref.pp ++ ")";
--- pr.ast_Probe = full_probe(vref.ast_Expr);
+  pr.ast = fullProbe(vref.ast);
 }
 
 concrete production nfull_probe_c
 pr::Probe_c ::= nfl::NFULL '(' vref::Varref_c ')'
 { pr.pp = "nfull" ++ "(" ++ vref.pp ++ ")";
--- pr.ast_Probe = nfull_probe(vref.ast_Expr);
+  pr.ast = nfullProbe(vref.ast);
 }
 
 concrete production empty_probe_c
 pr::Probe_c ::= et::EMPTY '(' vref::Varref_c ')' 
 { pr.pp = "empty" ++ "(" ++ vref.pp ++ ")";
--- pr.ast_Probe = empty_probe(vref.ast_Expr);
+  pr.ast = emptyProbe(vref.ast);
 }
 
 concrete production nempty_probe_c
 pr::Probe_c ::= net::NEMPTY '(' vref::Varref_c ')'
 { pr.pp = "nempty" ++ "(" ++ vref.pp ++ ")";
--- pr.ast_Probe = nempty_probe(vref.ast_Expr);
+  pr.ast = nemptyProbe(vref.ast);
 }
 

@@ -1,16 +1,18 @@
 grammar edu:umn:cs:melt:ableP:host:tests ;
 
 import lib:testing ;
---import lib:langproc:errors hiding msg ;
 import lib:extcore ;
 import edu:umn:cs:melt:ableP:abstractsyntax hiding msg ;
 import edu:umn:cs:melt:ableP:concretesyntax ;
 import edu:umn:cs:melt:ableP:host:hostParser ;
 
 
-function mkSemanticsOKTest
+-- Functions to make tests that check that there are no errors on the
+-- trees. It checks both the initial AST and the host AST.
+----------------------------------------------------------------------
+function mkNoErrorsTest
 IOVal<[Test]> ::= fn::String ioIn::IOVal<[Test]> 
-{ return
+{ return 
     ioval( ioIn.io,
            if   endsWith(".pml",fn)
            then [ postParsingTest(fn, promelaParser, semanticsOK_test) ] ++ 
@@ -19,7 +21,7 @@ IOVal<[Test]> ::= fn::String ioIn::IOVal<[Test]>
 }
 
 abstract production semanticsOK_test 
-t::Test ::= cst_tree::Program_c 
+t::Test ::= cst_tree::Program_c fn::String
             parseF::Function(ParseResult<Program_c> ::= String String)
 {
  -- a test to check that there are no warnings or errors on the
@@ -29,7 +31,8 @@ t::Test ::= cst_tree::Program_c
  local ast_tree::Program = cst_tree.ast ;
  local host_tree::Program = ast_tree.host ;
 
- t.msg = showErrors(ast_tree.errors) ++ showErrors(host_tree.errors) ;
+ t.msg = -- "Semantics errors on file \"" ++ fn ++ "\".\n" ++
+         showErrors(ast_tree.errors) ++ showErrors(host_tree.errors) ;
  t.pass = t.msg == "" ;
  t.ioOut = t.ioIn ;
 }
@@ -37,7 +40,7 @@ t::Test ::= cst_tree::Program_c
 
 abstract production postParsingTest
 t::Test ::= fn::String parseF::Function(ParseResult<a> ::= String String)
-            custom::Production(Test ::= a Function(ParseResult<a> ::= String String))
+            custom::Production(Test ::= a String Function(ParseResult<a> ::= String String))
 {
  local exists::IOVal<Boolean> = isFile(fn, t.ioIn);
  local text::IOVal<String> = readFile(fn, exists.io);
@@ -51,7 +54,7 @@ t::Test ::= fn::String parseF::Function(ParseResult<a> ::= String String)
     then just ("Parse errors on input file: " ++ pr1.parseErrors ++ "\n")
     else nothing();
 
- local pt::Test = custom (pr1.parseTree, parseF) ;
+ local pt::Test = custom (pr1.parseTree, fn, parseF) ;
  pt.ioIn = text.io ;
 
  t.msg = case result of
@@ -65,8 +68,47 @@ t::Test ::= fn::String parseF::Function(ParseResult<a> ::= String String)
          | just(_) -> exists.io end ;
  }
 
-abstract production ppOfAST_test 
-t::Test ::= tree::Program_c parseF::Function(ParseResult<Program_c> ::= String String)
+abstract production postCPPParsingTest
+t::Test ::= fn::String parseF::Function(ParseResult<a> ::= String String)
+            custom::Production(Test ::= a String Function(ParseResult<a> ::= String String))
+{
+ local exists::IOVal<Boolean> = isFile(fn, t.ioIn);
+
+ local cppCommand :: String
+   = "cpp -P " ++ fn ++ " | tail -n +3 > " ++ fn ++ ".cpp" ;
+   -- even the -P option to cpp leaves 2 blanks lines, so we also
+   -- use tail to remove these blank lines
+ local mkCPPfile::IOVal<Integer> = system (cppCommand, exists.io ) ;
+ local text::IOVal<String> = readFile(fn++".cpp", mkCPPfile.io);
+
+ local pr1::ParseResult<a> = parseF(text.iovalue, fn) ;
+
+ local result :: Maybe<String> 
+  = if   ! exists.iovalue
+    then just("File \"" ++ fn ++ "\" not found.\n")
+    else
+    if   ! pr1.parseSuccess
+    then just ("Parse errors on input file: " ++ pr1.parseErrors ++ "\n")
+    else nothing();
+
+ local pt::Test = custom (pr1.parseTree, fn, parseF) ;
+ pt.ioIn = text.io ;
+
+ t.msg = case result of
+           nothing() -> pt.msg
+         | just(m) -> m end ;
+ t.pass = case result of
+           nothing() -> pt.pass
+         | just(m) -> false end ;
+ t.ioOut = case result of
+           nothing() -> pt.ioOut
+         | just(_) -> exists.io end ;
+ }
+
+
+abstract production ppOfASTParsable_test 
+t::Test ::= tree::Program_c fn::String
+            parseF::Function(ParseResult<Program_c> ::= String String)
 {
  local p_ast1::Program = tree.ast ;
  local p_ast1_pp::String = p_ast1.pp ;
@@ -74,11 +116,7 @@ t::Test ::= tree::Program_c parseF::Function(ParseResult<Program_c> ::= String S
  local pr2::ParseResult<Program_c> = parseF(p_ast1_pp, "generated pp p_ast1" ) ;
  local p_ast2::Program = pr2.parseTree.ast ;
  local p_ast2_pp::String = p_ast2.pp ;
- 
- local wr1::IO = writeFile("d1", p_ast1_pp, t.ioIn) ;
- local wr2::IO = writeFile("d2", p_ast2_pp, wr1) ;
- local dff::IOVal<Integer> = system("rm -f diff_res; diff d1 d2 > diff_res", wr2) ;
- local rd::IOVal<String> = readFile("diff_res", dff.io);
+
 
  local result :: Maybe<String>
   = if   ! pr2.parseSuccess
@@ -86,21 +124,80 @@ t::Test ::= tree::Program_c parseF::Function(ParseResult<Program_c> ::= String S
                pr2.parseErrors ++ "\n.....\n" ++
                addLineNumbers(p_ast1_pp) ++ 
                "\n.....\n" )
+    else nothing() ;
+
+ t.msg = case result of
+           nothing() -> "" 
+         | just(m) -> "AST pretty-print errors on \"" ++ fn ++ "\".\n" ++ m
+         end ;
+ t.pass = ! result.isJust ;
+ t.ioOut = t.ioIn ;
+         --  if   ! exists.iovalue
+         --  then exists.io 
+         --  else text.io ;
+}
+
+abstract production ppOfAST_test 
+t::Test ::= tree::Program_c fn::String
+            parseF::Function(ParseResult<Program_c> ::= String String)
+{
+ -- compute 'unparse' of tree
+ local p1_ast::Program = tree.ast ;
+ local p1_ast_pp::String = p1_ast.pp ;
+ local pr1::ParseResult<Program_c> = parseF(p1_ast_pp,
+                                            "generated pp of p1_ast of file " ++ fn ) ;
+ local p1_ast_pp_cst::Program_c = pr1.parseTree ;
+ local p1_unparse::String = p1_ast_pp_cst.pp ;
+
+ -- compute 'unparse' of 'unparse' of tree
+ local pr2::ParseResult<Program_c> = parseF(p1_unparse,
+                                            "unparse of tree from file " ++ fn ) ;
+ local p2_ast::Program = pr2.parseTree.ast ;
+ local p2_ast_pp::String = p2_ast.pp ;
+ local pr3::ParseResult<Program_c> = parseF(p2_ast_pp,
+                                            "generated pp of p2_ast of file " ++ fn ) ;
+ local p2_ast_pp_cst::Program_c = pr3.parseTree ;
+ local p2_unparse::String = p2_ast_pp_cst.pp ;
+
+ local wr1::IO = writeFile("d1", p1_unparse, t.ioIn) ;
+ local wr2::IO = writeFile("d2", p2_unparse, wr1) ;
+ local dff::IOVal<Integer> = system("rm -f diff_res; diff d1 d2 > diff_res", wr2) ;
+ local rd::IOVal<String> = readFile("diff_res", dff.io);
+
+ local result :: Maybe<String>
+  = if   ! pr1.parseSuccess
+    then just ("Parse errors on generated pp of p1_ast of file " ++ fn ++ ":\n" ++
+               pr1.parseErrors ++ "\n.....\n" ++
+               addLineNumbers(p1_ast_pp) ++ 
+               "\n.....\n" )
     else 
-    if   p_ast1_pp != p_ast2_pp   -- dff.iovalue >= 1  --         
-    then just ("p_ast1_pp != p_ast2_pp \n\n" ++ 
-               "p_ast1_pp:\n" ++ p_ast1_pp ++ "\n.....\n\n" ++
-               "p_ast2_pp:\n" ++ p_ast2_pp ++ "\n.....\n\n" ++
+    if   ! pr2.parseSuccess
+    then just ("Parse errors on unparse of tree from file " ++ fn ++ ":\n" ++
+               pr2.parseErrors ++ "\n.....\n" ++
+               addLineNumbers(p1_unparse) ++ 
+               "\n.....\n" )
+    else 
+    if   ! pr3.parseSuccess
+    then just ("Parse errors on generated pp of p2_ast of file " ++ fn ++ ":\n" ++
+               pr3.parseErrors ++ "\n.....\n" ++
+               addLineNumbers(p2_ast_pp) ++ 
+               "\n.....\n" )
+    else 
+    if   p1_unparse != p2_unparse   -- dff.iovalue >= 1  --         
+    then just ("p1_unparse != p2_unparse \n\n" ++ 
+               "p1_unparse:\n" ++ p1_unparse ++ "\n.....\n\n" ++
+               "p2_unparse:\n" ++ p2_unparse ++ "\n.....\n\n" ++
                "diff is: \n" ++ rd.iovalue ++ "\n\n" ++
                "Hacky UnParse of trees:\n" ++
-               "p_ast1:\n" ++ hackUnparse(p_ast1) ++ "\n\n" ++
-               "p_ast2:\n" ++ hackUnparse(p_ast2) ++ "\n\n"
+               "p1_ast:\n" ++ hackUnparse(p1_ast) ++ "\n\n" ++
+               "p2_ast:\n" ++ hackUnparse(p2_ast) ++ "\n\n"
               )
     else nothing() ;
 
  t.msg = case result of
            nothing() -> "" 
-         | just(m) -> m end ;
+         | just(m) -> "AST pretty-print errors on \"" ++ fn ++ "\".\n" ++ m
+         end ;
  t.pass = ! result.isJust ;
  t.ioOut = t.ioIn ;
          --  if   ! exists.iovalue
@@ -109,7 +206,8 @@ t::Test ::= tree::Program_c parseF::Function(ParseResult<Program_c> ::= String S
 }
 
 abstract production parsePPofHost_test 
-t::Test ::= tree::Program_c parseF::Function(ParseResult<Program_c> ::= String String)
+t::Test ::= tree::Program_c fn::String 
+            parseF::Function(ParseResult<Program_c> ::= String String)
 {
  local f_ast::Program = tree.ast.host ;
  local f_ast_pp::String = f_ast.pp ;

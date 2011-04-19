@@ -86,8 +86,9 @@ terminal EMPTY        'empty'        lexer classes {promela,promela_kwd};
 terminal NFULL        'nfull'        lexer classes {promela,promela_kwd};
 terminal NEMPTY       'nempty'       lexer classes {promela,promela_kwd};
 
-terminal CONST        /(true)|(false)|[0-9]*/ 
+terminal CONST        /(true)|(false)|[0-9]*|([\']([^\']|[\\][\'])*[\'])/ 
                                      lexer classes {promela,promela_kwd};
+
 -- terminal TYPE /(bit)|(bool)|(byte)|(chan)|(int)|(mtype)|(pid)|(short)|(unsigned)/
 --                                       lexer classes {promela,promela_kwd};
 -- New terminals for declaring Type Expression
@@ -174,7 +175,8 @@ terminal STOP    '.'  lexer classes {promela},precedence = 50,association = left
 ---------------------------------------------------
 ---------------------------------------------------
 
-terminal CHARLIT /[\']([^\']|[\\][\'])*[\']/ lexer classes {promela};
+
+
 -- missing UMIN ?
 -- missing NEG
 
@@ -182,8 +184,6 @@ terminal CHARLIT /[\']([^\']|[\\][\'])*[\']/ lexer classes {promela};
 
 
 terminal SKIP         'skip'         lexer classes {promela,promela_kwd};
---terminal XR           'xr'           lexer precedence = 10 ;
---terminal XS           'xs'           lexer precedence = 10 ;
 
 
 

@@ -39,6 +39,7 @@ s::Stmt ::= f::FOR vr::Expr e::Expr body::Stmt
 
   s.errors := vr.errors ++ e.errors ++ body.errors ;
   s.host = forIn(f,vr.host, e.host,body.host) ;
+  s.inlined = forIn(f,vr.inlined, e.inlined,body.inlined) ;
 }
 
 

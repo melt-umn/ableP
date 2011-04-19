@@ -1,5 +1,20 @@
 grammar edu:umn:cs:melt:ableP:concretesyntax ;
 
+synthesized attribute cst_Program_c :: Program_c occurs on Program ;
+aspect production program  p ::= u 
+{ p.cst_Program_c = program_c( us_cst ) ; 
+  local us_cst::Units_c = 
+    if null(us) then error ("Empty list of Unit_c on program.")
+    else foldl_p ( units_snoc_c, units_one_c( head(us) ), tail(us) ) ;
+  local us::[Unit_c] = u.cst_Unit_c_asList ;
+}
+
+--synthesized attribute cst_Units_c :: Units_c occurs on Units ;
+--aspect production units_one  us ::= u
+--{ us.cst_Units_c = units_one_c(u.cst_Unit_c) ; }
+--aspect production units_snoc  us ::= us2 u
+--{ us.cst_Units_c = units_snoc_c(us2.cst_Units_c, u.cst_Unit_c) ; }
+
 -- Units --
 -----------
 synthesized attribute cst_Unit_c_asList :: [Unit_c] occurs on Unit ;
@@ -22,6 +37,7 @@ aspect production unitDecls   u::Unit ::= ds::Decls
   u.cst_Unit_c = unit_one_decl_c ( ds.cst_OneDecl_c ) ; 
 }
 
+synthesized attribute cst_Claim_c :: Claim_c occurs on Unit ;
 
 -- Declarations --
 ------------------
@@ -30,6 +46,9 @@ synthesized attribute cst_OneDecl_c_asList :: [ OneDecl_c ] occurs on Decls ;
 synthesized attribute cst_Decl_c::Decl_c occurs on Decls ;
 attribute cst_Unit_c_asList occurs on Decls ;
 attribute cst_Unit_c occurs on Decls ;
+
+synthesized attribute cst_DeclList_c::DeclList_c occurs on Decls ;
+synthesized attribute cst_OneDecl_c::OneDecl_c occurs on Decls ;
 
 -- Mapping abstract syntax back to concrete syntax --
 aspect production seqDecls  ds::Decls ::= ds1::Decls ds2::Decls
@@ -281,7 +300,7 @@ aspect production num_priority   p::Priority ::= ct::CONST
 
 -- OptEnabler --
 synthesized attribute cst_OptEnabler_c::OptEnabler_c occurs on Enabler ;
-aspect production none_enabler   e::Enabler ::= 
+aspect production noEnabler   e::Enabler ::= 
 { e.cst_OptEnabler_c = none_enabler_c() ; }
 
 

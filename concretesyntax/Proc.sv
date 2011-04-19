@@ -22,7 +22,7 @@ proc::Proc_c ::= i::Inst_c procty::ProcType_c nm::ID
             b.pp;
   b.ppi = proc.ppi ++ "  " ;
   proc.ast = procDecl(i.ast, procty.ast,nm, dcl.ast, 
-                      optpri.ast, optena.ast,b.ast);
+                      optpri.ast, optena.ast, b.ast);
 }
 action
 { local attribute getPname::String;
@@ -97,12 +97,12 @@ nonterminal OptEnabler_c with pp, ppi, ast<Enabler> ; -- same as in v4.2.9 and v
 concrete production none_enabler_c
 oe::OptEnabler_c ::= 
 { oe.pp = "";
-  oe.ast = none_enabler();
+  oe.ast = noEnabler();
 }
 concrete production expr_enabler_c
 oe::OptEnabler_c ::= p::PROVIDED lpr::LPAREN fe::FullExpr_c rpr::RPAREN 
 { oe.pp = "provided " ++ "(" ++ fe.pp ++ ")";
--- ToDo  oe.ast = expr_enabler(fe.ast_Expr);
+  oe.ast = optEnabler(fe.ast);
 }
 
 

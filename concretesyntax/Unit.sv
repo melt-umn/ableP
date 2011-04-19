@@ -15,14 +15,12 @@ nonterminal Unit_c with pp, ppi, ast<Unit> ; -- the same in v4.2.9 and v6
 
 concrete production unit_proc_c
 u::Unit_c ::= p::Proc_c
-{ u.pp = p.pp ;
-  u.ast = unitDecls(p.ast) ;
-}
+{ u.pp = p.pp ;    u.ast = unitDecls(p.ast) ;  }
 action { usedProcess = 0; }
 
 concrete production unit_init_c
 u::Unit_c ::= i::Init_c
-{ u.pp = i.pp;  u.ast = i.ast;   }
+{ u.pp = i.pp;    u.ast = i.ast;   }
 
 concrete production unit_claim_c
 u::Unit_c ::= c::Claim_c
@@ -37,8 +35,7 @@ u::Unit_c ::= e::Events_c
 
 concrete production unit_one_decl_c
 u::Unit_c ::= dec::OneDecl_c
-{ u.pp = dec.pp ;  u.ast = unitDecls(dec.ast) ;  
-}
+{ u.pp = dec.pp ;  u.ast = unitDecls(dec.ast) ;   }
 
 concrete production unit_utype_c
 u::Unit_c ::= ut::Utype_c
@@ -46,8 +43,7 @@ u::Unit_c ::= ut::Utype_c
 
 concrete production unit_c_fcts_c
 u::Unit_c ::= cf::C_Fcts_c
-{ u.pp = cf.pp ;  u.ast = cf.ast ;
-}
+{ u.pp = cf.pp ;  u.ast = cf.ast ;   } 
 
 concrete production unit_ns_c
 u::Unit_c ::= ns::NS_c
@@ -56,8 +52,7 @@ action { usedInline = 1; }
 
 concrete production unit_semi_c
 u::Unit_c ::= se::SEMI
-{ u.pp = ";\n"; 
-  u.ast = emptyUnit() ;  }
+{ u.pp = ";\n";      u.ast = emptyUnit() ;  }
 
 
 
@@ -74,19 +69,13 @@ i::Init_c ::= it::INIT op::OptPriority_c body::Body_c
 
 --Claim  
 nonterminal Claim_c with pp, ast<Unit> ; -- same in v4.2.9, new prod added to get to v6
-synthesized attribute cst_Claim_c :: Claim_c occurs on Unit ;
-
---synthesized attribute ast_Body::Body occurs on Body_c;
---synthesized attribute ast_OptPriority::OptPriority occurs on OptPriority_c;
---synthesized attribute ast_Args::Args occurs on Args_c;
---attribute ast_Stmt occurs on Statement_c;
 
 -- in v6 this rhs is CLAIM optname body - s v6.sv for the new stuff
 concrete production claim_c
 c::Claim_c ::= ck::CLAIM body::Body_c
 { c.pp = "never " ++ body.ppi ++ body.pp ;
   body.ppi = "  ";
---  c.ast_Unit = claim(body.ast_Body);
+  c.ast = claim(body.ast);
 }
 
 --Events 
@@ -95,9 +84,9 @@ synthesized attribute cst_Events_c :: Events_c occurs on Unit ;
 
 concrete production events_c
 e::Events_c ::= tr::TRACE body::Body_c
-{ e.pp = "\n trace " ++ body.pp;
+{ e.pp = "trace " ++ body.pp;
   body.ppi = "  ";
--- e.ast_Unit = events(body.ast_Body);
+  e.ast = events(body.ast);
 }
 
 
@@ -110,7 +99,7 @@ concrete production utype_dcllist_c
 u::Utype_c ::= td::TYPEDEF id::ID '{' dl::DeclList_c '}'
 { u.pp = " typedef " ++ id.lexeme ++ " \n{ " ++ dl.pp ++ " \n} ";
   dl.ppi = "  ";
--- u.ast_Unit = utype_dcllist(id,dl.ast_Decls);
+  u.ast = unitDecls(typedefDecls( id, dl.ast )) ;
 }
 action
 {
@@ -165,12 +154,12 @@ synthesized attribute cst_NS_c::NS_c occurs on Unit ;
 
 
 concrete production inline_dcl_iname_c
-ns::NS_c ::= il::INLINE ina::INAME '(' args::Args_c ')' stmt::Statement_c
+ns::NS_c ::= il::INLINE ina::INAME '(' args::InlineArgs_c ')' stmt::Statement_c
 { ns.pp = "\n inline " ++ ina.lexeme ++ "(" ++ args.pp ++ ")\n" ++  stmt.pp;
   stmt.ppi = "  ";
 
--- ns.ast_Unit = inline_dcl(terminal(ID,ina.lexeme, ina.line, ina.column), 
---                          args.ast_Inline_Args, stmt.ast_Stmt);
+  ns.ast = unitDecls( inlineDecl( terminal(ID,ina.lexeme, ina.line, ina.column), 
+                                  args.ast, stmt.ast ) );
 }
 action
 { -- Add the name of this inline (ina.lexeme) to the list of inline names (inames)
@@ -185,10 +174,11 @@ action
 
 
 concrete production inline_dcl_id_c
-ns::NS_c ::= il::INLINE id::ID '(' args::Args_c ')' stmt::Statement_c
+ns::NS_c ::= il::INLINE id::ID '(' args::InlineArgs_c ')' stmt::Statement_c
 { ns.pp = "\ninline " ++ id.lexeme ++ "(" ++ args.pp ++ ")\n" ++  stmt.pp;
   stmt.ppi = " ";
--- ns.ast_Unit = inline_dcl(id, args.ast_Inline_Args, stmt.ast_Stmt);
+
+  ns.ast = unitDecls( inlineDecl( id, args.ast, stmt.ast ) );
 }
 action
 { -- Add the name of this inline (ina.lexeme) to the list of inline names (inames)
@@ -201,28 +191,26 @@ action
            else inames;
 }
 
-{- ToDo   -- Why did we treat these differently before?
-nonterminal Inline_Args_c with pp ;
--- synthesized attribute ast_Inline_Args :: Inline_Args occurs on Inline_Args_c ;
-
-concrete production inline_args_one_c
-a::Inline_Args_c ::= id::ID
-{ a.pp = id.lexeme ;
--- a.ast_Inline_Args = inline_args_one(id) ;
-}
+nonterminal InlineArgs_c with pp, ast<InlineArgs> ;
 
 concrete production inline_args_none_c
-a::Inline_Args_c ::=
+a::InlineArgs_c ::=
 { a.pp = "" ;
--- a.ast_Inline_Args = inline_args_none() ;
+  a.ast = noneInlineArgs() ;
+}
+
+concrete production inline_args_one_c
+a::InlineArgs_c ::= id::ID
+{ a.pp = id.lexeme ;
+  a.ast = consInlineArgs(id, noneInlineArgs()) ;
 }
 
 concrete production inline_args_cons_c
-a::Inline_Args_c ::= id::ID ',' rest::Inline_Args_c
+a::InlineArgs_c ::= id::ID ',' rest::InlineArgs_c
 { a.pp = id.lexeme ++ ", " ++ rest.pp ;
--- a.ast_Inline_Args = inline_args_cons(id, rest.ast_Inline_Args);
+ a.ast = consInlineArgs(id, rest.ast);
 }
--}
+
 
 
 

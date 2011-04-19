@@ -5,13 +5,10 @@ import edu:umn:cs:melt:ableC:terminals
 
 import edu:umn:cs:melt:ableC:concretesyntax 
  only Expr_c, DeclarationList_c, StmtList_c, Root_c, CompoundStatement_c 
--- leaving a NT out of the only clause but having it in the with clause
--- fails with inappropriate errors message
  with Expr_c as Ansi_C_Expr,
       DeclarationList_c as Ansi_C_DeclarationList,
       StmtList_c as Ansi_C_StmtList,
       Root_c as Ansi_C_Root ;
---      CompoundStatement_c as Ansi_C_CompoundStatement_c ;
 
 -- Productions the embed C code into Promela, the 
 -- following have promela nonterminals on the LHS 
@@ -45,14 +42,19 @@ cs::Cstate_c ::= ct::C_TRACK str1::STRING str2::STRING str3::STRING
 
 
 -- Ccode_c, (ccode in spin.y)
-nonterminal Ccode_c with pp, ast<Unit> ;    -- same as in v4.2.9 and v6
-synthesized attribute cst_Ccode_c::Ccode_c occurs on Unit ;
+nonterminal Ccode_c with pp, ast<Unit>, ast_Stmt ;    -- same as in v4.2.9 and v6
+synthesized attribute ast_Stmt :: Stmt ;
 
 concrete productions
 c::Ccode_c ::= cmpd::C_CODE_nt_c  
-  { c.pp = cmpd.pp;  c.ast = unitCcmpd(cmpd.ast); }
+  { c.pp = cmpd.pp; 
+    c.ast = unitCcmpd(cmpd.ast); 
+    c.ast_Stmt = stmtCode(cmpd.ast);
+  }
 c::Ccode_c ::= dcls::C_DECL_nt_c  
-  { c.pp = dcls.pp;  c.ast = unitCdcls(dcls.ast); }
+  { c.pp = dcls.pp;  
+    c.ast = unitCdcls(dcls.ast); 
+  }
 
 -- Embedded C code                              --
 --------------------------------------------------

@@ -150,7 +150,7 @@ t::TypeRep ::=
 
 -- TODO - complete the following types.
 abstract production userType
-t::TypeRep ::= fields::Env
+t::TypeRep ::= fields::[ Pair<String TypeRep> ]
 { t.tag = "user";
   t.pp = "user";
   t.isCompatible = false;

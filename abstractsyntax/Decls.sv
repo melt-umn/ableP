@@ -1,6 +1,6 @@
 grammar edu:umn:cs:melt:ableP:abstractsyntax;
 
-nonterminal Decls with pp, ppi, ppsep, errors, host<Decls> ; 
+nonterminal Decls with pp, ppi, ppsep, errors, host<Decls>, inlined<Decls> ; 
 
 abstract production seqDecls
 ds::Decls ::= ds1::Decls ds2::Decls
@@ -9,6 +9,7 @@ ds::Decls ::= ds1::Decls ds2::Decls
           ds2.pp ;
   ds.errors := ds1.errors ++ ds2.errors ;
   ds.host = seqDecls(ds1.host, ds2.host);
+  ds.inlined = seqDecls(ds1.inlined, ds2.inlined);
 
   ds.defs = mergeDefs(ds1.defs, ds2.defs);
   ds1.env = ds.env ;
@@ -23,6 +24,7 @@ ds::Decls ::=
 { ds.pp = "" ;
   ds.errors := [ ] ;
   ds.host = emptyDecl();
+  ds.inlined = emptyDecl();
 
   ds.defs = emptyDefs();
   ds.uses = [ ] ;
@@ -49,6 +51,7 @@ ds::Decls ::= vis::Vis t::TypeExpr v::Declarator
  ds.pp = ds.ppi ++ vis.pp ++ t.pp ++ " " ++ v.pp ; 
  ds.errors := t.errors ++ v.errors ;
  ds.host = varDecl(vis.host,  t.host, v.host);
+ ds.inlined = varDecl(vis.inlined,  t.inlined, v.inlined);
 
  ds.defs = valueBinding(v.name, ds) ;
  ds.uses = [ ] ;
@@ -68,6 +71,7 @@ ds::Decls ::= vis::Vis t::TypeExpr v::Declarator e::Expr
  ds.pp = ds.ppi ++ vis.pp ++ t.pp ++ " " ++ v.pp ++ " = " ++ e.pp ;
  ds.errors := t.errors ++ v.errors ++ e.errors ;
  ds.host = varAssignDecl(vis.host, t.host, v.host, e.host) ;
+ ds.inlined = varAssignDecl(vis.inlined, t.inlined, v.inlined, e.inlined) ;
 
  ds.defs = valueBinding(v.name, ds) ;
  ds.uses = e.uses ;
@@ -75,13 +79,14 @@ ds::Decls ::= vis::Vis t::TypeExpr v::Declarator e::Expr
 -- ds.defs = valueBinding(v.name, v.typerep) ;
 }
 
-nonterminal Declarator  with pp, errors, host<Declarator>, name; 
+nonterminal Declarator  with pp, errors, host<Declarator>, inlined<Declarator>, name; 
 
 abstract production vd_id
 vd::Declarator ::= id::ID
 { vd.pp = id.lexeme;
   vd.errors := [ ];
   vd.host = vd_id(id);
+  vd.inlined = vd_id(id);
   vd.name = id.lexeme ;
 }
 
@@ -90,6 +95,7 @@ vd::Declarator ::= id::ID cnt::CONST
 { vd.pp = id.lexeme ++ ":" ++ cnt.lexeme;
   vd.errors := [ ];
   vd.host = vd_idconst(id,cnt);
+  vd.inlined = vd_idconst(id,cnt);
   vd.name = id.lexeme ;
 }
 
@@ -98,31 +104,36 @@ vd::Declarator ::= id::ID cnt::CONST
 { vd.pp = id.lexeme ++ "[" ++ cnt.lexeme ++ "]";
   vd.errors := [ ];
   vd.host = vd_array(id,cnt);
+  vd.inlined = vd_array(id,cnt);
   vd.name = id.lexeme ;
 }
 
 
 -- Visibility --
-nonterminal Vis with pp, host<Vis> ;
+nonterminal Vis with pp, host<Vis>, inlined<Vis> ;
 abstract production vis_empty
 v::Vis ::=
 { v.pp = "";   
   v.host = vis_empty(); 
+  v.inlined = vis_empty(); 
 }
 abstract production vis_hidden
 v::Vis ::=
 { v.pp = "hidden "; 
   v.host = vis_hidden() ;
+  v.inlined = vis_hidden() ;
 }
 abstract production vis_show
 v::Vis ::=
 { v.pp = "show "; 
   v.host = vis_show();
+  v.inlined = vis_show();
 }
 abstract production vis_islocal
 v::Vis ::=
 { v.pp = "local "; 
   v.host = vis_islocal();
+  v.inlined = vis_islocal();
 }
 
 
@@ -136,12 +147,13 @@ ds::Decls ::= v::Vis t::TypeExpr names::IDList
                                 "mtype-style declration.\n" ) ] end ;
 
  ds.host = mtypeDecls(v.host, t.host, names.host) ;
+ ds.inlined = mtypeDecls(v.inlined, t.inlined, names.inlined) ;
 
  forwards to names.decls ;
  names.inVis = v ;
 }
 
-nonterminal IDList with pp, errors, host<IDList> ;
+nonterminal IDList with pp, errors, host<IDList>, inlined<IDList> ;
 autocopy attribute inVis :: Vis occurs on IDList ;
 synthesized attribute decls :: Decls occurs on IDList ;
 
@@ -150,6 +162,7 @@ abstract production singleName
 names::IDList ::= name::ID
 { names.pp = name.lexeme;
   names.host = singleName(name);
+  names.inlined = singleName(name);
   names.decls = mtypeDecl(names.inVis, name) ;
 }
 
@@ -157,6 +170,7 @@ abstract production snocNames
 names::IDList ::= some::IDList name::ID
 { names.pp = some.pp ++ ", " ++  name.lexeme;
   names.host = snocNames(some.host, name);
+  names.inlined = snocNames(some.inlined, name);
   names.decls = seqDecls( some.decls, mtypeDecl(names.inVis, name) ) ;
 }
 

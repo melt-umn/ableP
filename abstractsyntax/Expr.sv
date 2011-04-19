@@ -1,7 +1,7 @@
 grammar edu:umn:cs:melt:ableP:abstractsyntax ;
 
-nonterminal Expr with pp, errors, host<Expr> ;
-nonterminal Exprs with pp, errors, host<Exprs> ;
+nonterminal Expr with pp, errors, host<Expr>, inlined<Expr> ;
+nonterminal Exprs with pp, errors, asList<Expr>, host<Exprs>, inlined<Exprs> ;
 
 abstract production noneExprs
 es::Exprs ::=
@@ -9,6 +9,8 @@ es::Exprs ::=
   es.errors := [ ] ;
   es.uses = [ ] ;
   es.host = noneExprs() ;
+  es.inlined = noneExprs();
+  es.asList = [ ] ;
 }
 abstract production oneExprs
 es::Exprs ::= e::Expr
@@ -26,6 +28,43 @@ es::Exprs ::= e::Expr rest::Exprs
   es.errors := e.errors ++ rest.errors ;
   es.uses = e.uses ++ rest.uses ;
   es.host = consExprs(e.host, rest.host);
+  es.asList = [e] ++ rest.asList ;
+  es.inlined = consExprs(e.inlined, rest.inlined);
+}
+
+abstract production varRefExprAll
+e::Expr ::= id::ID
+{ production attribute overloads::[Expr] with ++ ;
+  overloads := [ ] ;
+  forwards to if   null(overloads)
+              then varRefExpr(id)
+              else head(overloads) ;
+  e.errors := if   length(overloads) > 1
+              then [ mkError ("Internal error.  More than one overloading productions for " ++
+                              "identifier \"" ++ id.lexeme ++ "\", line " ++ 
+                              toString(id.line) ) ]
+              else forward.errors ;
+{- Does pattern matching now work on Strings?
+  overloads <- case id.lexeme of
+                 "_"      -> [ varRefExpr__(id) ]
+               | "_last"  -> [ varRefExpr__last(id) ]
+               | "_pid"   -> [ varRefExpr__pid(id) ]
+               | "_nr_pr" -> [ varRefExpr__nr_pr(id) ]
+               | "_np_"   -> [ varRefExpr_np_(id) ]
+               | _        -> [ ] 
+               end ;
+ -}
+  overloads <- if id.lexeme == "_"      then [ varRefExpr__(id) ]
+          else if id.lexeme == "_last"  then [ varRefExpr__last(id) ]
+          else if id.lexeme == "_pid"   then [ varRefExpr__pid(id) ]
+          else if id.lexeme == "_nr_pr" then [ varRefExpr__nr_pr(id) ]
+          else if id.lexeme == "_np_"   then [ varRefExpr_np_(id) ]
+          else [ ] ;
+
+  {- It would certainly be more efficient to create a separate
+     terminal symbol for each of these predefined names.  The SPIN
+     grammar does not do that.  And thus we've chosen to stick as
+     closely to the SPIN grammar as possible.  -} 
 }
 
 abstract production varRefExpr
@@ -38,30 +77,71 @@ e::Expr ::= id::ID
   production eres::EnvResult = lookup_name(id.lexeme, e.env) ;
   e.uses = [ mkUse(eres.dcl.idNum, e) ];
   e.host = varRefExpr(id) ;
+  -- e.inlined = ... see Inline.sv ...
 }
+
+abstract production varRefExpr__   --  "_"
+e::Expr ::= id::ID
+{ e.pp = id.lexeme ; 
+  e.errors := [ ];
+  e.host = varRefExpr__(id) ;
+  e.inlined = varRefExpr__(id) ;
+}
+abstract production varRefExpr__last  -- "_last"
+e::Expr ::= id::ID
+{ e.pp = id.lexeme ; 
+  e.errors := [ ];
+  e.host = varRefExpr__last(id) ;
+  e.inlined = varRefExpr__last(id) ;
+}
+abstract production varRefExpr__pid    -- "_pid"
+e::Expr ::= id::ID
+{ e.pp = id.lexeme ; 
+  e.errors := [ ];
+  e.host = varRefExpr__pid(id) ;
+  e.inlined = varRefExpr__pid(id) ;
+}
+abstract production varRefExpr__nr_pr   -- "_nr_pr"
+e::Expr ::= id::ID
+{ e.pp = id.lexeme ; 
+  e.errors := [ ];
+  e.host = varRefExpr__nr_pr(id) ;
+  e.inlined = varRefExpr__nr_pr(id) ;
+}
+abstract production varRefExpr_np_    -- "np_"
+e::Expr ::= id::ID
+{ e.pp = id.lexeme ; 
+  e.errors := [ ];
+  e.host = varRefExpr_np_(id) ;
+  e.inlined = varRefExpr_np_(id) ;
+}
+
 
 abstract production constExpr
 e::Expr ::= c::CONST
 { e.pp = c.lexeme ;
   e.errors := [ ] ;
   e.host = constExpr(c);
+  e.inlined = constExpr(c);
   e.uses = [ ];
 }
 
 abstract production dotAccess
 e::Expr ::= r::Expr f::ID
-{ e.pp = "(" ++ r.pp ++ "." ++ f.lexeme ++ ")" ; 
+{ e.pp = r.pp ++ "." ++ f.lexeme ;
   e.errors := [ ] ;
   e.uses = r.uses ;
   e.host = dotAccess(r.host, f);
+  e.inlined = dotAccess(r.inlined, f);
 }
 
 abstract production arrayAccess
 e::Expr ::= a::Expr i::Expr
-{ e.pp = "(" ++ a.pp ++ "[" ++ i.pp ++ "]" ++ ")" ; 
+{ e.pp = a.pp ++ "[" ++ i.pp ++ "]" ; 
   e.errors := [ ] ;
   e.uses = a.uses ++ i.uses ;
   e.host = arrayAccess(a.host, i.host);
+  e.inlined = arrayAccess(a.inlined, i.inlined);
 }
 
 
@@ -75,13 +155,15 @@ e::Expr ::= lhs::Expr op::Op rhs::Expr
   e.errors := lhs.errors ++ rhs.errors;
   e.uses = lhs.uses ++ rhs.uses ;
   e.host = genericBinOp(lhs.host, op.host, rhs.host);
+  e.inlined = genericBinOp(lhs.inlined, op.inlined, rhs.inlined);
 }
 
-nonterminal Op with pp, host<Op> ; 
+nonterminal Op with pp, host<Op>, inlined<Op> ; 
 abstract production mkOp
 op::Op ::= n::String te::TypeExpr
 { op.pp = n;   
   op.host = mkOp(n, te.host) ;
+  op.inlined = mkOp(n, te.inlined) ;
 }
 
 
@@ -114,6 +196,7 @@ e::Expr ::= c::CONST
   e.errors := [ ] ;
   e.uses = [ ] ;
   e.host = trueExpr(c);
+  e.inlined = trueExpr(c);
 }
 
 abstract production condExpr
@@ -122,6 +205,7 @@ e::Expr ::= c::Expr thenexp::Expr elseexp::Expr
   e.errors := c.errors ++ thenexp.errors ++ elseexp.errors;
   e.uses = c.uses ++ thenexp.uses ++ elseexp.uses ;
   e.host = condExpr(c.host, thenexp.host, elseexp.host) ; 
+  e.inlined = condExpr(c.inlined, thenexp.inlined, elseexp.inlined) ; 
 --  exp.is_var_ref = false;
 }
 
@@ -132,6 +216,7 @@ exp::Expr ::= kwd::C_EXPR ce::String
   exp.errors := [ ];
   exp.uses = [ ] ; 
   exp.host = exprCExpr(kwd, ce);
+  exp.inlined = exprCExpr(kwd, ce);
 }
 
 abstract production exprCCmpd
@@ -140,6 +225,7 @@ exp::Expr ::= kwd::C_EXPR ce::String
   exp.errors := [ ] ;
   exp.uses = [ ] ; 
   exp.host = exprCCmpd(kwd, ce);
+  exp.inlined = exprCCmpd(kwd, ce);
 }
 
 abstract production exprCExprCmpd
@@ -148,6 +234,7 @@ exp::Expr ::= kwd::C_EXPR ce::String cp::String
   exp.errors := [ ] ;
   exp.uses = [ ] ; 
   exp.host = exprCExprCmpd(kwd, ce, cp);
+  exp.inlined = exprCExprCmpd(kwd, ce, cp);
 }
 
 -- Send or Not
@@ -156,6 +243,7 @@ exp::Expr ::= lhs::Expr
 { exp.pp = "(!" ++ lhs.pp ++")" ;
   exp.errors := lhs.errors;
   exp.host = sndNotExpr(lhs.host);
+  exp.inlined = sndNotExpr(lhs.inlined);
 }
 
 abstract production negExpr
@@ -165,6 +253,23 @@ exp::Expr ::= lhs::Expr
 
   exp.uses = lhs.uses ; 
   exp.host = negExpr(lhs.host);
+  exp.inlined = negExpr(lhs.inlined);
+}
+
+abstract production rcvExpr
+exp::Expr ::= vref::Expr ra::RArgs
+{ exp.pp = vref.pp ++ "?" ++ "[" ++ ra.pp ++ "]";
+  exp.errors := vref.errors ++ ra.errors;
+  exp.host = rcvExpr(vref.host, ra.host) ;
+  exp.inlined = rcvExpr(vref.inlined, ra.inlined) ;
+}
+
+abstract production rrcvExpr
+exp::Expr ::= vref::Expr ra::RArgs
+{ exp.pp = vref.pp ++ "??" ++ "[" ++ ra.pp ++ "]";
+  exp.errors := vref.errors ++ ra.errors;
+  exp.host = rrcvExpr(vref.host, ra.host);
+  exp.inlined = rrcvExpr(vref.inlined, ra.inlined);
 }
 
 abstract production run
@@ -180,6 +285,7 @@ exp::Expr ::= pn::ID args::Exprs p::Priority
   exp.uses = [ mkUse(eres.dcl.idNum, exp) ] ++ args.uses ;
 
   exp.host = run(pn, args.host, p.host);
+  exp.inlined = run(pn, args.inlined, p.inlined);
 }
 
 
@@ -188,40 +294,133 @@ exp::Expr ::= ci::ChInit
 { exp.pp = ci.pp;
   exp.errors := ci.errors;
   exp.host = exprChInit(ci.host) ;
+  exp.inlined = exprChInit(ci.inlined) ;
   exp.uses = [ ] ;
 }
 
-nonterminal ChInit with pp, errors, host<ChInit> ;
+nonterminal ChInit with pp, errors, host<ChInit>, inlined<ChInit> ;
 
 abstract production chInit
 ch::ChInit ::= c::CONST tl::TypeExprs
 { ch.pp = "[ " ++ c.lexeme ++ " ] of { " ++ tl.pp ++ " }";
   ch.errors := tl.errors;
   ch.host = chInit(c,tl.host);
+  ch.inlined = chInit(c,tl.inlined);
+}
+
+-- Built in function --
+abstract production lengthExpr
+e::Expr ::= vref::Expr
+{ e.pp = "len" ++ "(" ++ vref.pp ++ ")";
+  e.errors := vref.errors;
+  e.host = lengthExpr(vref.host);
+  e.inlined = lengthExpr(vref.inlined);
+}
+
+abstract production enabledExpr
+e::Expr ::= en::Expr
+{ e.pp = "enabled" ++ "(" ++ en.pp ++ ")";
+  e.errors := en.errors;
+  e.host = enabledExpr(en.host) ;
+  e.inlined = enabledExpr(en.inlined) ;
+}
+
+abstract production tildeExpr
+e::Expr ::= lhs::Expr
+{ e.pp = "(~" ++ lhs.pp ++ ")" ;
+  e.errors := lhs.errors;
+  e.host = tildeExpr(lhs.host);
+  e.inlined = tildeExpr(lhs.inlined);
+}
+
+abstract production timeoutExpr
+e::Expr ::=
+{ e.pp = "timeout";
+  e.errors := [];
+  e.host = timeoutExpr() ;
+  e.inlined = timeoutExpr() ;
+}
+
+abstract production noprogressExpr
+e::Expr ::=
+{ e.pp = "nonprogress";
+  e.errors := [];
+  e.host = noprogressExpr() ;
+  e.inlined = noprogressExpr() ;
+}
+abstract production pcvalExpr
+e::Expr ::= pc::Expr
+{ e.pp = "pc_value" ++ "(" ++ pc.pp ++ ")";
+  e.errors := pc.errors;
+  e.host = pcvalExpr(pc.host);
+  e.inlined = pcvalExpr(pc.inlined);
+}
+
+abstract production pnameExprIdExpr
+e::Expr ::= pn::PNAME ex::Expr n::ID
+{ e.pp = pn.lexeme ++ "[" ++ ex.pp ++ "]" ++ "@" ++ n.lexeme; 
+  e.errors := ex.errors;
+  e.host = pnameExprIdExpr(pn, ex.host, n) ;
+  e.inlined = pnameExprIdExpr(pn, ex.inlined, n) ;
+}
+abstract production pnameIdExpr
+e::Expr ::= pn::PNAME id::ID
+{ e.pp = pn.lexeme ++ "@" ++ id.lexeme ;
+  e.errors := [];
+  e.host = pnameIdExpr(pn, id);
+  e.inlined = pnameIdExpr(pn, id);
+}
+abstract production pnameExprExpr
+e::Expr ::= pn::PNAME ex::Expr pf::Expr
+{ e.pp = pn.lexeme ++ "[" ++ ex.pp ++ "]" ++ ":" ++ pf.pp;
+  e.errors := ex.errors ++ pf.errors ;
+  e.host = pnameExprExpr(pn, ex.host, pf.host);
+  e.inlined = pnameExprExpr(pn, ex.inlined, pf.inlined);
+}
+abstract production pnameExpr
+e::Expr ::= pn::PNAME pf::Expr
+{ e.pp = pn.lexeme ++ ":" ++ pf.pp;
+  e.errors := pf.errors ;
+  e.host = pnameExpr(pn, pf.host);
+  e.inlined = pnameExpr(pn, pf.inlined);
+}
+
+
+abstract production fullProbe
+pr::Expr ::= vref::Expr
+{ pr.pp = "full" ++ "(" ++ vref.pp ++ ")";
+  pr.errors := vref.errors;
+  pr.host = fullProbe(vref.host);
+  pr.inlined = fullProbe(vref.inlined);
+}
+
+abstract production nfullProbe
+pr::Expr ::= vref::Expr
+{ pr.pp = "nfull" ++ "(" ++ vref.pp ++ ")";
+  pr.errors := vref.errors;
+  pr.host = nfullProbe(vref.host);
+  pr.inlined = nfullProbe(vref.inlined);
+}
+
+abstract production emptyProbe
+pr::Expr ::= vref::Expr
+{ pr.pp = "empty" ++ "(" ++ vref.pp ++ ")";
+  pr.errors := vref.errors;
+  pr.host = emptyProbe(vref.host);
+  pr.inlined = emptyProbe(vref.inlined);
+}
+
+abstract production nemptyProbe
+pr::Expr ::= vref::Expr
+{ pr.pp = "nempty" ++ "(" ++ vref.pp ++ ")";
+  pr.errors := vref.errors;
+  pr.host = nemptyProbe(vref.host);
+  pr.inlined = nemptyProbe(vref.inlined);
 }
 
 {-
 ------------------
 
-nonterminal Expr with basepp,pp;
-
-nonterminal Aname with basepp,pp;
-nonterminal Probe with basepp,pp;
-
-
-attribute typerep occurs on Expr,Probe;
-
-synthesized attribute is_var_ref :: Boolean occurs on Expr ;
-
-abstract production exp_probe
-exp::Expr ::= pr::Probe
-{
- exp.basepp = pr.basepp;
- exp.pp = pr.pp;
- exp.errors = pr.errors;
- exp.typerep = pr.typerep;
- exp.is_var_ref = false ; 
-}
 
 
 abstract production paren_expr
@@ -285,304 +484,6 @@ e1::Expr ::= e2::Expr errs::[String]
 }
 
 
-abstract production minus_expr
-exp::Expr ::= lhs::Expr rhs::Expr
-{
-  exp.basepp = lhs.basepp ++ " - " ++ rhs.basepp;
-  exp.pp = lhs.pp ++ " - " ++ rhs.pp;
-
-  exp.errors = if(lhs.typerep.isCompatible && rhs.typerep.isCompatible)
-               then lhs.errors ++ rhs.errors
-               else ["Error : lhs and rhs are not compatible"] ++ lhs.errors ++ rhs.errors;
-  exp.typerep = if lhs.typerep.isCompatible && rhs.typerep.isCompatible
-                then lhs.typerep
-                else error_type();
-  exp.is_var_ref = false;
- exp.host = genericBinOp(lhs.host,mkOp("-",boolean_TypeRep()),rhs.host);
- 
-}
-
-
--- Two new prods - maybe not needed...
-abstract production add_int
-exp::Expr ::= lhs::Expr rhs::Expr
-{ exp.pp = "(" ++ lhs.pp ++ " + " ++ rhs.pp ++ ")" ;
-  exp.errors := lhs.errors ++ rhs.errors;
---  exp.typerep = int_type();
-}
-
-abstract production mult_int
-exp::Expr ::= lhs::Expr rhs::Expr
-{ exp.pp = "(" ++ lhs.pp ++ " * " ++ rhs.pp ++ ")" ;
-  exp.errors := lhs.errors ++ rhs.errors;
---  exp.typerep = int_type();
-}
-
-abstract production mult_expr
-exp::Expr ::= lhs::Expr rhs::Expr
-{
-  exp.basepp = lhs.basepp ++ " * " ++ rhs.basepp;
-  exp.pp = lhs.pp ++ " * " ++ rhs.pp;
-
-
- exp.errors = if(lhs.typerep.isCompatible && rhs.typerep.isCompatible)
-              then lhs.errors ++ rhs.errors
-              else ["Error : lhs and rhs are not compatible"] ++ lhs.errors ++ rhs.errors;
-
-  exp.typerep = if lhs.typerep.isCompatible && rhs.typerep.isCompatible
-                then lhs.typerep
-                else error_type();
-
-  exp.is_var_ref = false;
- exp.host = genericBinOp(lhs.host,mkOp("*",boolean_TypeRep()),rhs.host);
-}
-
-abstract production div_expr
-exp::Expr ::= lhs::Expr rhs::Expr
-{
-  exp.basepp = lhs.basepp ++ " / " ++ rhs.basepp;
-  exp.pp = lhs.pp ++ " / " ++ rhs.pp;
-
-  exp.errors = if(lhs.typerep.isCompatible && rhs.typerep.isCompatible)
-               then lhs.errors ++ rhs.errors
-               else ["Error : lhs and rhs are not compatible"] ++ lhs.errors ++ rhs.errors;
-
- 
-  exp.typerep = if lhs.typerep.isCompatible && rhs.typerep.isCompatible
-                then lhs.typerep
-                else error_type();
-
-  exp.is_var_ref = false;
- exp.host = genericBinOp(lhs.host,mkOp(" / ",booleanTypeRep()), rhs.host);
-}
-
-abstract production mod_expr
-exp::Expr ::= lhs::Expr rhs::Expr
-{
- exp.basepp = lhs.basepp ++ " % " ++ rhs.basepp;
- exp.pp = lhs.pp ++ " % " ++ rhs.pp;
-
- exp.errors = if(lhs.typerep.isCompatible && rhs.typerep.isCompatible)
-               then lhs.errors ++ rhs.errors
-               else ["Error : lhs and rhs are not compatible"] ++ lhs.errors ++ rhs.errors;
-
- exp.typerep = if lhs.typerep.isCompatible && rhs.typerep.isCompatible
-                then lhs.typerep
-                else error_type();
-
- exp.is_var_ref = false;
- exp.host = genericBinOp(lhs.host, mkOp(" % ",boolean_TypeRep()), rhs.host);
-}
-
-
-abstract production singleand
-exp::Expr ::= lhs::Expr rhs::Expr
-{
-  exp.basepp = lhs.basepp ++ " & " ++ rhs.basepp;
-  exp.pp = lhs.pp ++ " & " ++ rhs.pp;
-  exp.errors = lhs.errors ++ rhs.errors;
-  exp.typerep = boolean_type();
-  
-  exp.is_var_ref = false;
-  exp.host = genericBinOp(lhs.host, mkOp(" & ",boolean_TypeRep()), rhs.host);
-}
-
-abstract production xor_expr
-exp::Expr ::= lhs::Expr rhs::Expr
-{
-  exp.basepp = lhs.basepp ++ " ^ " ++ rhs.basepp;
-  exp.pp = lhs.pp ++ " ^ " ++ rhs.pp;
-
-  exp.errors = lhs.errors ++ rhs.errors;
-  exp.typerep = boolean_type();
-  exp.is_var_ref = false;
- exp.host = genericBinOp(lhs.host,mkOp("^",boolean_TypeRep()),rhs.host);
-}
-
-abstract production singleor
-exp::Expr ::= lhs::Expr rhs::Expr
-{
-  exp.basepp = lhs.basepp ++ " | " ++ rhs.basepp;
-  exp.pp = lhs.pp ++ " | " ++ rhs.pp;
-
-  exp.errors = lhs.errors ++ rhs.errors;
-  exp.typerep = boolean_type();
-
-  exp.is_var_ref = false;
- exp.host = geneicBinOp(lhs.host,mkOp(" | ",boolean_TypeRep()),rhs.host);
-}
-
-
-
-abstract production gt_expr
-exp::Expr ::= lhs::Expr rhs::Expr
-{
-  exp.basepp = lhs.basepp ++ " > " ++ rhs.basepp;
-  exp.pp = lhs.pp ++ " > " ++ rhs.pp;
-  exp.errors = lhs.errors ++ rhs.errors;
-  exp.typerep = boolean_type();
- exp.host = genericBinOp(lhs.host,mkOp(">",boolean_TypeRep()),rhs.host);
-  exp.is_var_ref = false;
-}
-
-abstract production lt_expr
-exp::Expr ::= lhs::Expr rhs::Expr
-{
-  exp.basepp = lhs.basepp ++ " < " ++ rhs.basepp;
-  exp.pp = lhs.pp ++ " < " ++ rhs.pp;
-  exp.errors = lhs.errors ++ rhs.errors;
-  exp.typerep = boolean_type(); 
-  exp.host = genericBinOp(lhs.host,mkOp("<",boolean_TypeRep()),rhs.host);
-  exp.is_var_ref = false;
-}
-
-abstract production ge_expr
-exp::Expr ::= lhs::Expr rhs::Expr
-{
-  exp.basepp = lhs.basepp ++ " >= " ++ rhs.basepp;
-  exp.pp = lhs.pp ++ " >= " ++ rhs.pp;
-  exp.errors = lhs.errors ++ rhs.errors;
-  exp.typerep = boolean_type(); 
-  exp.host = genericBinOp(lhs.host,mkOp(">=",boolean_TypeRep()),rhs.host);
-  exp.is_var_ref = false;
-}
-
-abstract production le_expr
-exp::Expr ::= lhs::Expr rhs::Expr
-{
-  exp.basepp = lhs.basepp ++ " <= " ++ rhs.basepp;
-  exp.pp = lhs.pp ++ " <= " ++ rhs.pp;
-  exp.errors = lhs.errors ++ rhs.errors;
-  exp.typerep = boolean_type(); 
-  exp.host = genericBinOp(lhs.host,mkOp(">=",boolean_TypeRep()),rhs.host);
-  exp.is_var_ref = false;
-}
-
-
-abstract production ne_expr
-exp::Expr ::= lhs::Expr rhs::Expr
-{
-  exp.basepp = lhs.basepp ++ " != " ++ rhs.basepp;
-  exp.pp = lhs.pp ++ " != " ++ rhs.pp;
-  exp.errors = lhs.errors ++ rhs.errors;
-  exp.typerep = boolean_type();
-  exp.host = genericBinOp(lhs.host,mkOp("!=",boolean_TypeRep()),rhs.host);
-}
-
-abstract production andexpr
-exp::Expr ::= lhs::Expr rhs::Expr
-{
-  exp.basepp = lhs.basepp ++ " && " ++ rhs.basepp;
-  exp.pp = lhs.pp ++ " && " ++ rhs.pp;
-  exp.errors = lhs.errors ++ rhs.errors;
-  exp.typerep = boolean_type(); 
- exp.host = genericBinOp(lhs.host,mkOp("&&",boolean_TypeRep()),rhs.host);
-  exp.is_var_ref = false;
-}
-abstract production orexpr
-exp::Expr ::= lhs::Expr rhs::Expr
-{
-  exp.basepp = lhs.basepp ++ " || " ++ rhs.basepp;
-  exp.pp = lhs.pp ++ " || " ++ rhs.pp;
-  exp.errors = lhs.errors ++ rhs.errors;
-  exp.typerep = boolean_type(); 
-  exp.host = genericBinOp(lhs.host,mkOp("||",boolean_TypeRep()),rhs.host);
-  exp.is_var_ref = false;
-}
-
-abstract production lshift_expr
-exp::Expr ::= lhs::Expr rhs::Expr
-{
-  exp.basepp = lhs.basepp ++ " << " ++ rhs.basepp;
-  exp.pp = lhs.pp ++ " << " ++ rhs.pp;
-  exp.errors = lhs.errors ++ rhs.errors;
-
-  exp.typerep = lhs.typerep ; 
-  exp.host = genericBinOp(lhs.host,mkOp("<<",boolean_TypeRep()),rhs.host);
-  exp.is_var_ref = false;
-}
-
-abstract production rshift_expr
-exp::Expr ::= lhs::Expr rhs::Expr
-{
-  exp.basepp = lhs.basepp ++ " >> " ++ rhs.basepp;
-  exp.pp = lhs.pp ++ " >> " ++ rhs.pp;
-  exp.errors = lhs.errors ++ rhs.errors;
-  exp.typerep = lhs.typerep ; 
-  exp.host = genericBinOp(lhs.host,mkOp(">>",boolean_TypeRep()),rhs.host);
-  exp.is_var_ref = false;
-}
-abstract production tild_expr
-exp::Expr ::= lhs::Expr
-{
-  exp.basepp = "~" ++ lhs.basepp;
-  exp.pp = "~" ++ lhs.pp;
-  exp.errors = lhs.errors;
-  exp.typerep = lhs.typerep;
-  
-  exp.is_var_ref = false;
-}
-
-
-abstract production neg_expr
-exp::Expr ::= lhs::Expr
-{
-  exp.basepp = "-" ++ lhs.basepp ;
-  exp.pp = "-" ++ lhs.pp ;
-  exp.errors = lhs.errors;
-  exp.typerep = lhs.typerep;
-
-  exp.is_var_ref = false;
-}
-
-
-
-
-abstract production length_expr
-exp::Expr ::= vref::Expr
-{
-  exp.basepp = "len" ++ "(" ++ vref.basepp ++ ")";
-  exp.pp = "len" ++ "(" ++ vref.pp ++ ")";
-  exp.errors = vref.errors;
-  exp.typerep = int_type();
-
-  exp.is_var_ref = false;
-}
-
-abstract production enabled_expr
-exp::Expr ::= ex::Expr
-{
-  exp.basepp = "enabled" ++ "(" ++ ex.basepp ++ ")";
-  exp.pp = "enabled" ++ "(" ++ ex.pp ++ ")";
-  exp.errors = ex.errors;
-  exp.typerep = boolean_type();
-
-  exp.is_var_ref = false;
-}
-
-
-abstract production rcv_expr
-exp::Expr ::= vref::Expr ra::RArgs
-{
-  exp.basepp = vref.basepp ++ "?" ++ "[" ++ ra.basepp ++ "]";
-  exp.pp = vref.pp ++ "?" ++ "[" ++ ra.pp ++ "]";
-  exp.errors = vref.errors ++ ra.errors;
-  exp.typerep = boolean_type();
-
-  exp.is_var_ref = false;
-  
-}
-
-abstract production rrcv_expr
-exp::Expr ::= vref::Expr ra::RArgs
-{
-  exp.basepp = vref.basepp ++ "??" ++ "[" ++ ra.basepp ++ "]";
-  exp.pp = vref.pp ++ "??" ++ "[" ++ ra.pp ++ "]";
-  exp.errors = vref.errors ++ ra.errors;
-  exp.typerep = boolean_type();
-
-  exp.is_var_ref = false;
-}
 
 abstract production varref_expr
 exp::Expr ::= vref::Expr
@@ -608,54 +509,7 @@ exp::Expr ::= c::CONST
   exp.is_var_ref = false;
 }
 
-abstract production to_expr
-exp::Expr ::=
-{
-  exp.basepp = "timeout";
-  exp.pp = "timeout";
-  exp.errors = [];
-  exp.typerep = boolean_type();
-  exp.is_var_ref = false;
-}
 
-abstract production np_expr
-exp::Expr ::=
-{
-  exp.basepp = "nonprogress";
-  exp.pp = "nonprogress";
-  exp.errors = [];
-  exp.typerep = unsigned_type();
-  exp.is_var_ref = false;
-}
-
-abstract production pcval_expr
-exp::Expr ::= ex::Expr
-{
-  exp.basepp = "pc_value" ++ "(" ++ ex.basepp ++ ")";
-  exp.pp = "pc_value" ++ "(" ++ ex.pp ++ ")";
-  exp.errors = ex.errors;
-  exp.typerep = ex.typerep;
-  exp.is_var_ref = false;
-}
-abstract production pname_expr
-exp::Expr ::= pn::PNAME ex::Expr n::ID
-{
-  exp.basepp = pn.lexeme ++ "[" ++ ex.basepp ++ "]" ++ "@" ++ n.lexeme; 
-  exp.pp = pn.lexeme ++ "[" ++ ex.pp ++ "]" ++ "@" ++ n.lexeme; 
-  exp.errors = ex.errors;
-  exp.typerep = ex.typerep;
-  exp.is_var_ref = false;
-}
-
-
-abstract production name_expr
-exp::Expr ::= pn::PNAME id::ID
-{
-  exp.basepp = pn.lexeme ++ "@" ++ id.lexeme ;
-  exp.pp = pn.lexeme ++ "@" ++ id.lexeme ;
-  exp.errors = [];
-  exp.is_var_ref = false;
-}
 
 abstract production aname_name
 an::Aname ::= id::ID
@@ -669,41 +523,6 @@ an::Aname ::= pn::PNAME
 {
  an.basepp = pn.lexeme;
  an.pp = pn.lexeme;
-}
-abstract production full_probe
-pr::Probe ::= vref::Expr
-{
-  pr.basepp = "full" ++ "(" ++ vref.basepp ++ ")";
-  pr.pp = "full" ++ "(" ++ vref.pp ++ ")";
-  pr.errors = vref.errors;
-  pr.typerep = boolean_type();
-}
-
-abstract production nfull_probe
-pr::Probe ::= vref::Expr
-{
-  pr.basepp = "nfull" ++ "(" ++ vref.basepp ++ ")";
-  pr.pp = "nfull" ++ "(" ++ vref.pp ++ ")";
-  pr.errors = vref.errors;
-  pr.typerep = boolean_type();
-}
-
-abstract production empty_probe
-pr::Probe ::= vref::Expr
-{
-  pr.basepp = "empty" ++ "(" ++ vref.basepp ++ ")";
-  pr.pp = "empty" ++ "(" ++ vref.pp ++ ")";
-  pr.errors = vref.errors;
-  pr.typerep = boolean_type();
-}
-
-abstract production nempty_probe
-pr::Probe ::= vref::Expr
-{
-  pr.basepp = "nempty" ++ "(" ++ vref.basepp ++ ")";
-  pr.pp = "nempty" ++ "(" ++ vref.pp ++ ")";
-  pr.errors = vref.errors;
-  pr.typerep = boolean_type();
 }
 
 

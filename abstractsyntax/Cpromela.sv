@@ -7,6 +7,7 @@ u::Unit ::= cc::Ccmpd
   u.defs = emptyDefs() ;
   u.uses = [ ] ;
   u.host = unitCcmpd(cc) ;
+  u.inlined = unitCcmpd(cc) ;
 }
 
 abstract production unitCdcls
@@ -16,6 +17,7 @@ u::Unit ::= cc::Cdcls
   u.defs = emptyDefs() ;
   u.uses = [ ] ;
   u.host = unitCdcls(cc) ;
+  u.inlined = unitCdcls(cc) ;
 }
 
 abstract production cStateTrack
@@ -25,16 +27,18 @@ u::Unit ::= kwd::String str1::String str2::String str3::String
   u.defs = emptyDefs() ;
   u.uses = [ ] ;
   u.host = cStateTrack(kwd, str1, str2, str3) ;
+  u.inlined = cStateTrack(kwd, str1, str2, str3) ;
 }
 
-nonterminal Ccmpd with pp, errors, host<Ccmpd> ;
-nonterminal Cdcls with pp, errors, host<Cdcls> ;
+nonterminal Ccmpd with pp, errors, host<Ccmpd>, inlined<Ccmpd> ;
+nonterminal Cdcls with pp, errors, host<Cdcls>, inlined<Cdcls> ;
 
 abstract production cCmpd
 cc::Ccmpd ::= kwd::C_CODE cmpd::String
 { cc.pp = kwd.lexeme ++ "{ " ++  cmpd ++ " }";
   cc.errors := [];
   cc.host = cCmpd(kwd,cmpd);
+  cc.inlined = cCmpd(kwd,cmpd);
 }
 
 abstract production cExprCmpd
@@ -42,6 +46,7 @@ cc::Ccmpd ::= kwd::C_CODE expr::String cmpd::String
 { cc.pp = kwd.lexeme ++ " [ " ++ expr ++ " ] { " ++ cmpd ++ " } " ;
   cc.errors := [];
   cc.host = cExprCmpd(kwd,expr,cmpd);
+  cc.inlined = cExprCmpd(kwd,expr,cmpd);
 }
 
 abstract production cDcls
@@ -49,7 +54,27 @@ c::Cdcls ::= kwd::C_DECL dcl::String
 { c.pp = kwd.lexeme ++ " { " ++ dcl ++ " } " ;
   c.errors := [] ;
   c.host = cDcls(kwd,dcl);
+  c.inlined = cDcls(kwd,dcl);
 }
+
+abstract production stmtCode
+s::Stmt ::= cc::Ccmpd
+{ s.pp = cc.pp ;
+  s.errors := [] ;
+  s.defs = emptyDefs(); 
+  s.host = stmtCode(cc) ;
+  s.inlined = stmtCode(cc) ;
+}
+
+{-
+abstract production stmtCcode
+st::Stmt ::= cc::Ccode
+{ st.pp = cc.pp;
+  st.errors := [ ] ;
+  st.defs = emptyDefs(); 
+  st.host = stmtCcode(cc) ;
+}
+-}
 
 {-
 
@@ -71,24 +96,6 @@ import edu:umn:cs:melt:ableC:concretesyntax;
 -- of the production.
 --------------------------------------------------
 
-
-abstract production stmt_ccode
-st::Stmt ::= cc::Ccode
-{
- st.basepp = cc.basepp;
- st.pp = cc.pp;
- st.errors = cc.errors;
- st.defs = emptyDefs(); 
-}
-  
-abstract production expr_ccode
-e::Expr ::= cs::Cexpr
-{
- e.pp = "\n" ++ cs.pp;
- e.basepp = "\n" ++ cs.basepp;
- e.errors = cs.errors;
-
-}
 
 -- Embedded C code                              --
 --------------------------------------------------

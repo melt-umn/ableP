@@ -15,6 +15,7 @@ autocopy attribute ppterm::String;
 
 synthesized attribute errors::[ Error ] with ++ ;
 
+synthesized attribute asList<a>::[a] ;
 
 function mkLoc
 String ::= l::Integer c::Integer

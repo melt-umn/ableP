@@ -1,8 +1,7 @@
 active proctype main()
 {
- int i, j, k ;
+ int i, j, k ; 
  printf("hello world\n") ;
-
  i = 0 ;
  j = 2 ;
  do 
@@ -15,6 +14,5 @@ active proctype main()
  od;
 
  stop:  printf("The value of for j is: %d\n", j);
-
 }
 

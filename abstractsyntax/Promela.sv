@@ -2,7 +2,7 @@ grammar edu:umn:cs:melt:ableP:abstractsyntax;
 
 import edu:umn:cs:melt:ableP:terminals;
 
-nonterminal Program with pp, errors, host<Program> ;
+nonterminal Program with pp, errors, host<Program>, inlined<Program> ;
 
 abstract production program
 p::Program ::= u::Unit
@@ -19,6 +19,7 @@ p::Program ::= u::Unit
   u.ppterm = "; \n" ;
   p.errors := u.errors;
   p.host = programWithNewUnits(u.host);
+  p.inlined = programWithNewUnits(u.inlined) ;
 
   u.env = emptyDefs();
   --p.defs = u.defs;

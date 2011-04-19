@@ -33,6 +33,10 @@ IOVal<Integer> ::= args::[String]
   local r_host_cst::Program_c = parseHOSTpp.parseTree ;
                            -- = r_hst.cst_Program_c ;
 
+  local parsedInlined::ParseResult<Program_c> = ext_parser(r_ast.inlined.pp, "parseInlinedpp") ;
+  local r_inlined_cst::Program_c = parsedInlined.parseTree ;
+                          -- = r_ast.cst_Program_c ;
+   
   local attribute print_success :: IO ;
   print_success = 
     print( "\n" ++
@@ -78,7 +82,9 @@ IOVal<Integer> ::= args::[String]
            ) ++
            "\n\n"
            , text.io ) ;
- 
+
+  local splitFileName::Pair<String String> = splitFileNameAndExtension(filename) ;
+
   local host_filenameOld::String 
     = substring(0, length(filename)-5, filename) ++ "_HOST_Old.pml" ;
   local host_filename::String 
@@ -97,6 +103,14 @@ IOVal<Integer> ::= args::[String]
                              writeHostIOOld ) )
       else writeHostIOOld ;
 
+  local writeInlinedIO::IO 
+    = writeFile ( inlineFileName, r_inlined_cst.pp, writeHostIO ) ;
+                    -- "SOME INLINING\n", writeHostIO ) ;
+  local inlineFileName::String 
+    = splitFileName.fst ++ "_inlined." ++ splitFileName.snd ;
+
+  local writeFilesIO::IO = writeInlinedIO ;
+
   local attribute print_failure :: IOVal<Integer>;
   print_failure =
    ioval (
@@ -107,7 +121,7 @@ IOVal<Integer> ::= args::[String]
          then error ("\n\nFile \"" ++ filename ++ "\" not found.\n")
          else
          if   result.parseSuccess 
-         then ioval(writeHostIO, 0)
+         then ioval(writeFilesIO, 0)
          else print_failure;
 }
 

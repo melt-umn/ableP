@@ -4,7 +4,9 @@ nonterminal BaseType_c with pp, ppi, ast<TypeExpr> ;   -- same as v4.2.9 and v6
 
 concrete production bt_uname_c
 bt::BaseType_c ::= un::UNAME   -- was Type_c on lhs
-{ } -- bt.ast = named_type(un); }
+{ 
+
+} -- bt.ast = named_type(un); }
 
 concrete production bt_type_c
 bt::BaseType_c ::= t::Type_c   -- new 
