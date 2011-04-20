@@ -65,11 +65,11 @@ exp::Expr ::= lhs::Expr
 }
 aspect production rcvExpr
 exp::Expr ::= vref::Expr ra::RArgs
-{ exp.typerep = booleanTypeRep();
+{ exp.typerep = boolTypeRep();
 }
 aspect production rrcvExpr
 exp::Expr ::= vref::Expr ra::RArgs
-{ exp.typerep = booleanTypeRep();
+{ exp.typerep = boolTypeRep();
 }
 aspect production run
 exp::Expr ::= pn::ID args::Exprs p::Priority
@@ -86,11 +86,11 @@ exp::Expr ::= ci::ChInit
 
 aspect production lengthExpr
 exp::Expr ::= vref::Expr
-{ exp.typerep = intType();
+{ exp.typerep = intTypeRep();
 }
 aspect production enabledExpr
 exp::Expr ::= ex::Expr
-{ exp.typerep = boolean_type();
+{ exp.typerep = boolTypeRep();
 }
 aspect production tildeExpr
 exp::Expr ::= lhs::Expr
@@ -98,7 +98,7 @@ exp::Expr ::= lhs::Expr
 }
 aspect production timeoutExpr
 e::Expr ::=
-{ e.typerep = booleanTypeRep();
+{ e.typerep = boolTypeRep();
 }
 aspect production noprogressExpr
 e::Expr ::=
@@ -111,35 +111,35 @@ e::Expr ::= pc::Expr
 -- ToDo: Fix types on pname expressions
 aspect production pnameExprIdExpr
 e::Expr ::= pn::PNAME ex::Expr n::ID
-{ e.typerep = integerTypeRep();
+{ e.typerep = intTypeRep();
 }
 aspect production pnameIdExpr
 e::Expr ::= pn::PNAME id::ID
-{ e.typerep = integerTypeRep();
+{ e.typerep = intTypeRep();
 }
 aspect production pnameExprExpr
 e::Expr ::= pn::PNAME ex::Expr pf::Expr
-{ e.typerep = integerTypeRep() ;
+{ e.typerep = intTypeRep() ;
 }
 aspect production pnameExpr
-e::Expr_c ::= pn::PNAME pf::Expr
-{ e.typerep = integerTypeRep() ;
+e::Expr ::= pn::PNAME pf::Expr
+{ e.typerep = intTypeRep() ;
 }
 aspect production fullProbe
 pr::Expr ::= vref::Expr
-{ pr.typerep = booleanTypeRep();
+{ pr.typerep = boolTypeRep();
 }
 aspect production nfullProbe
 pr::Expr ::= vref::Expr
-{ pr.typerep = booleanTypeRep();
+{ pr.typerep = boolTypeRep();
 }
 aspect production emptyProbe
 pr::Expr ::= vref::Expr
-{ pr.typerep = booleanTypeRep();
+{ pr.typerep = boolTypeRep();
 }
 aspect production nemptyProbe
 pr::Expr ::= vref::Expr
-{ pr.typerep = booleanTypeRep();
+{ pr.typerep = boolTypeRep();
 }
 
 
