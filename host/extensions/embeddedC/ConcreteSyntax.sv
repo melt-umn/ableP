@@ -1,14 +1,15 @@
-grammar edu:umn:cs:melt:ableP:host:core:concretesyntax;
+grammar edu:umn:cs:melt:ableP:host:extensions:embeddedC;
 
-import edu:umn:cs:melt:ableC:terminals 
- only pp with pp as ansi_c_pp ;
+concrete production unit_c_fcts_c
+u::Unit_c ::= cf::C_Fcts_c
+{ u.pp = cf.pp ;  u.ast = cf.ast ;   } 
 
-import edu:umn:cs:melt:ableC:concretesyntax 
- only Expr_c, DeclarationList_c, StmtList_c, Root_c, CompoundStatement_c 
- with Expr_c as Ansi_C_Expr,
-      DeclarationList_c as Ansi_C_DeclarationList,
-      StmtList_c as Ansi_C_StmtList,
-      Root_c as Ansi_C_Root ;
+concrete production ccode_stmt_c
+st::Statement_c ::= cc::Ccode_c
+{ st.pp = cc.pp ;
+  st.ast = cc.ast_Stmt ;
+}
+
 
 -- Productions the embed C code into Promela, the 
 -- following have promela nonterminals on the LHS 

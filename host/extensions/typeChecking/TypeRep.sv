@@ -1,4 +1,4 @@
-grammar edu:umn:cs:melt:ableP:extensions:typeChecking ;
+grammar edu:umn:cs:melt:ableP:host:extensions:typeChecking ;
 
 synthesized attribute typerep::TypeRep;
 synthesized attribute typereps::[TypeRep] ;

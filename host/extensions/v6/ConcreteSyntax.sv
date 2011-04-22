@@ -1,4 +1,4 @@
-grammar edu:umn:cs:melt:ableP:host:core:concretesyntax ;
+grammar edu:umn:cs:melt:ableP:host:extensions:v6 ;
 
 {- 12/leader.pml, 14/v14_16.pml
    

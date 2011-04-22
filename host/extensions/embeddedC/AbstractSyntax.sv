@@ -1,4 +1,4 @@
-grammar edu:umn:cs:melt:ableP:host:core:abstractsyntax;
+grammar edu:umn:cs:melt:ableP:host:extensions:embeddedC ;
 
 abstract production unitCcmpd
 u::Unit ::= cc::Ccmpd

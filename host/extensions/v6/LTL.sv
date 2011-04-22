@@ -1,4 +1,5 @@
-grammar edu:umn:cs:melt:ableP:host:core:concretesyntax ;
+grammar edu:umn:cs:melt:ableP:host:extensions:v6 ;
+
 
 concrete production unit_ltl_c
 u::Unit_c ::= l::LTL_c

@@ -41,10 +41,6 @@ concrete production unit_utype_c
 u::Unit_c ::= ut::Utype_c
 { u.pp = ut.pp ;  u.ast = ut.ast;  }
 
-concrete production unit_c_fcts_c
-u::Unit_c ::= cf::C_Fcts_c
-{ u.pp = cf.pp ;  u.ast = cf.ast ;   } 
-
 concrete production unit_ns_c
 u::Unit_c ::= ns::NS_c
 { u.pp = ns.pp ; u.ast = ns.ast;   }

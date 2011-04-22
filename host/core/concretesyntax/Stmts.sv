@@ -115,12 +115,6 @@ st::Statement_c ::= ast::ASSERT fe::FullExpr_c
   st.ast = assertStmt(fe.ast);
 }
 
-concrete production ccode_stmt_c
-st::Statement_c ::= cc::Ccode_c
-{ st.pp = cc.pp ;
-  st.ast = cc.ast_Stmt ;
-}
-
 concrete production rrcv_stmt_c
 st::Statement_c ::= vref::Varref_c r::R_RCV ra::RArgs_c
 { st.pp = vref.pp ++ "??" ++ ra.pp;
