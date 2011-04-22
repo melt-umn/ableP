@@ -1,4 +1,4 @@
-grammar edu:umn:cs:melt:ableP:concretesyntax;
+grammar edu:umn:cs:melt:ableP:host:core:concretesyntax;
 
 --Stmt is stmnt in the given promela grammar
 --Stmt 

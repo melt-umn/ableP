@@ -1,4 +1,4 @@
-grammar edu:umn:cs:melt:ableP:abstractsyntax;
+grammar edu:umn:cs:melt:ableP:host:core:abstractsyntax;
 
 synthesized attribute inlined<a> :: a ;
 

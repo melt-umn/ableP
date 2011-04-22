@@ -1,4 +1,4 @@
-grammar edu:umn:cs:melt:ableP:concretesyntax ;
+grammar edu:umn:cs:melt:ableP:host:core:concretesyntax ;
 
 synthesized attribute cst_Program_c :: Program_c occurs on Program ;
 aspect production program  p ::= u 

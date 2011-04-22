@@ -2,8 +2,8 @@ grammar edu:umn:cs:melt:ableP:host:tests ;
 
 import lib:testing ;
 import lib:extcore ;
-import edu:umn:cs:melt:ableP:abstractsyntax hiding msg ;
-import edu:umn:cs:melt:ableP:concretesyntax ;
+import edu:umn:cs:melt:ableP:host:core:abstractsyntax hiding msg ;
+import edu:umn:cs:melt:ableP:host:core:concretesyntax ;
 import edu:umn:cs:melt:ableP:host:hostParser ;
 
 

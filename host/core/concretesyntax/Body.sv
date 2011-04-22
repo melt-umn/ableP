@@ -1,4 +1,4 @@
-grammar edu:umn:cs:melt:ableP:concretesyntax ;
+grammar edu:umn:cs:melt:ableP:host:core:concretesyntax ;
 
 -- Body
 nonterminal Body_c with pp, ppi, ast<Stmt> ; -- same as in v4.2.9 and v6

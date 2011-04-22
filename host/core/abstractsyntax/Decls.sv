@@ -1,4 +1,4 @@
-grammar edu:umn:cs:melt:ableP:abstractsyntax;
+grammar edu:umn:cs:melt:ableP:host:core:abstractsyntax;
 
 nonterminal Decls with pp, ppi, ppsep, errors, host<Decls>, inlined<Decls> ; 
 

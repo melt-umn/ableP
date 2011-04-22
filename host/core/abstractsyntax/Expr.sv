@@ -1,4 +1,4 @@
-grammar edu:umn:cs:melt:ableP:abstractsyntax ;
+grammar edu:umn:cs:melt:ableP:host:core:abstractsyntax ;
 
 nonterminal Expr with pp, errors, host<Expr>, inlined<Expr> ;
 nonterminal Exprs with pp, errors, asList<Expr>, host<Exprs>, inlined<Exprs> ;

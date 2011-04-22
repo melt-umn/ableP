@@ -1,9 +1,9 @@
-grammar edu:umn:cs:melt:ableP:abstractsyntax ;
+grammar edu:umn:cs:melt:ableP:host:core:abstractsyntax ;
 
 imports lib:langproc:errors ;
 exports lib:langproc:errors ;
 
-imports edu:umn:cs:melt:ableP:terminals;
+imports edu:umn:cs:melt:ableP:host:core:terminals;
 
 -- Attibutes used by most nonterminals.
 synthesized attribute pp::String ;

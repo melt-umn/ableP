@@ -1,6 +1,6 @@
-grammar edu:umn:cs:melt:ableP:concretesyntax ;
+grammar edu:umn:cs:melt:ableP:host:core:concretesyntax ;
 
-import edu:umn:cs:melt:ableP:terminals ;
+import edu:umn:cs:melt:ableP:host:core:terminals ;
 
 {-
 nonterminal Root_c with pp ;

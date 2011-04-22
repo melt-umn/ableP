@@ -1,8 +1,8 @@
 grammar edu:umn:cs:melt:ableP:host:driver;
 
-import edu:umn:cs:melt:ableP:terminals;
-import edu:umn:cs:melt:ableP:concretesyntax only Program_c, ast, cst_Program_c ;
-import edu:umn:cs:melt:ableP:abstractsyntax ; -- only Program, pp, host, errors ;
+import edu:umn:cs:melt:ableP:host:core:terminals;
+import edu:umn:cs:melt:ableP:host:core:concretesyntax only Program_c, ast, cst_Program_c ;
+import edu:umn:cs:melt:ableP:host:core:abstractsyntax ; -- only Program, pp, host, errors ;
 import edu:umn:cs:melt:ableP:host:hostParser only promelaParser ;
 
 import lib:extcore ;

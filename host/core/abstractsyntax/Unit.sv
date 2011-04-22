@@ -1,4 +1,4 @@
-grammar edu:umn:cs:melt:ableP:abstractsyntax;
+grammar edu:umn:cs:melt:ableP:host:core:abstractsyntax;
 
 nonterminal Unit with pp, ppi, ppterm, errors, host<Unit>, inlined<Unit> ;
 

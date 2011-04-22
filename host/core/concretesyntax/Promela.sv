@@ -1,7 +1,7 @@
-grammar edu:umn:cs:melt:ableP:concretesyntax ;
+grammar edu:umn:cs:melt:ableP:host:core:concretesyntax ;
 
-imports edu:umn:cs:melt:ableP:terminals ;
-imports edu:umn:cs:melt:ableP:abstractsyntax ; 
+imports edu:umn:cs:melt:ableP:host:core:terminals ;
+imports edu:umn:cs:melt:ableP:host:core:abstractsyntax ; 
 
 synthesized attribute ast<a>::a ;
 

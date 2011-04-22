@@ -1,4 +1,4 @@
-grammar edu:umn:cs:melt:ableP:concretesyntax;
+grammar edu:umn:cs:melt:ableP:host:core:concretesyntax;
 
 --Args
 nonterminal Args_c with pp, ast<Exprs> ;  -- same as in v4.2.9 and v6

@@ -1,6 +1,6 @@
-grammar edu:umn:cs:melt:ableP:abstractsyntax;
+grammar edu:umn:cs:melt:ableP:host:core:abstractsyntax;
 
-import edu:umn:cs:melt:ableP:terminals;
+import edu:umn:cs:melt:ableP:host:core:terminals;
 
 nonterminal Program with pp, errors, host<Program>, inlined<Program> ;
 

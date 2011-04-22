@@ -1,4 +1,4 @@
-grammar edu:umn:cs:melt:ableP:abstractsyntax;
+grammar edu:umn:cs:melt:ableP:host:core:abstractsyntax;
 
 -- Message arguments for sending
 nonterminal MArgs with pp, errors, host<MArgs>, inlined<MArgs> ;

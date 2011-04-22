@@ -1,4 +1,4 @@
-grammar edu:umn:cs:melt:ableP:abstractsyntax ;
+grammar edu:umn:cs:melt:ableP:host:core:abstractsyntax ;
 
 -- The new for loop and select constructs for Version 6 of Promela.
 -- We may move these into an extension directory later on.

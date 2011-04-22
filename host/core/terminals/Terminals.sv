@@ -1,4 +1,4 @@
-grammar edu:umn:cs:melt:ableP:terminals ;
+grammar edu:umn:cs:melt:ableP:host:core:terminals ;
 
 import edu:umn:cs:melt:ableC:terminals ;
 

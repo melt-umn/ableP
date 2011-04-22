@@ -1,4 +1,4 @@
-grammar edu:umn:cs:melt:ableP:concretesyntax ;
+grammar edu:umn:cs:melt:ableP:host:core:concretesyntax ;
 
 nonterminal Unit_c with pp, ppi, ast<Unit> ; -- the same in v4.2.9 and v6
 ----------------------------------------
