@@ -15,7 +15,6 @@ ds::Decls ::= ds1::Decls ds2::Decls
   ds1.env = ds.env ;
   ds2.env = mergeDefs(ds.env, ds1.defs);
   ds.uses = ds1.uses ++ ds2.uses ;
--- ds.inlined_Decls = seqDecls(ds1.inlined_Decls, ds2.inlined_Decls);
 }
 
 abstract production emptyDecl
@@ -28,7 +27,6 @@ ds::Decls ::=
 
   ds.defs = emptyDefs();
   ds.uses = [ ] ;
--- ds.inlined_Decls = empty_Decl();
 }
 
 -- Declarations, binding names to values or types.
@@ -56,9 +54,6 @@ ds::Decls ::= vis::Vis t::TypeExpr v::Declarator
  ds.defs = valueBinding(v.name, ds) ;
  ds.uses = [ ] ;
  ds.idNum = genInt();
--- ds.defs = valueBinding(v.name, v.typerep) ; 
--- ds.inlined_Decls = varDecl(vis, t, v);
--- t.env = ds.env ;
 }
 
 abstract production varAssignDecl
@@ -76,7 +71,6 @@ ds::Decls ::= vis::Vis t::TypeExpr v::Declarator e::Expr
  ds.defs = valueBinding(v.name, ds) ;
  ds.uses = e.uses ;
  ds.idNum = genInt();
--- ds.defs = valueBinding(v.name, v.typerep) ;
 }
 
 nonterminal Declarator  with pp, errors, host<Declarator>, inlined<Declarator>, name; 
@@ -181,15 +175,3 @@ ds::Decls ::= v::Vis name::ID
  ds.errors := [ ] ; 
  ds.defs = valueBinding(name.lexeme, ds);
 }
-
-{-
-
------
-abstract production abs_varlist2dcl
-vl::VarList ::= vd::Declarator
-{
- vl.basepp = vd.basepp;
- vl.pp = vd.pp;
-}
-
--}

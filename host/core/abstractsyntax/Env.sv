@@ -64,17 +64,17 @@ e::EnvResult ::= f::Boolean d::Decorated Decls
 synthesized attribute uses::[Use]
   occurs on Unit, Stmt, Options, Expr, Exprs,
             Decls, Declarator, 
-            Args, MArgs, RArgs, RArg ;
+            MArgs, RArgs, RArg ;
 
 autocopy attribute alluses::[Use]
   occurs on Unit, Stmt, Options, Expr, Exprs,
             Decls, Declarator, 
-            Args, MArgs, RArgs, RArg ;
+            MArgs, RArgs, RArg ;
 
 attribute env
   occurs on Unit, Stmt, Options, Expr, Exprs,
             Decls, Declarator, IDList,
-            Args, MArgs, RArgs, RArg ;
+            MArgs, RArgs, RArg ;
 
 attribute defs
   occurs on Unit, Stmt, Options,
@@ -85,16 +85,3 @@ abstract production mkUse
 u::Use ::= did::Integer e::Decorated Expr
 { }
 
-{-
-function mkError
-[ String] ::= l::Integer c::Integer msg::String
-{
- return [ "Error (line " ++ toString(l) ++ " col " ++ toString(c) ++ "): " ++ msg ] ;
-}
-
-function mkError_no_lc
-[ String] ::= msg::String
-{
- return [ "Error: " ++ msg ] ;
-}
--}

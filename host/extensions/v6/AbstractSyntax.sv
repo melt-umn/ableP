@@ -1,7 +1,10 @@
 grammar edu:umn:cs:melt:ableP:host:extensions:v6 ;
 
--- The new for loop and select constructs for Version 6 of Promela.
--- We may move these into an extension directory later on.
+-- This files contains the abstract syntax for the new for-loop and
+-- select-statement constructs for Version 6 of Promela.  If also
+-- contains the abstract syntax for the named claim constructed
+-- introducted in version 5.3.
+
 
 abstract production forRange
 s::Stmt ::= f::FOR vr::Expr lower::Expr upper::Expr body::Stmt
@@ -77,3 +80,11 @@ s::Stmt ::= sk::SELECT v::Expr lower::Expr upper::Expr
   local label::ID = terminal(ID,"l"++toString(sk.line), sk.line, sk.column) ;
 }
 
+abstract production namedClaim
+c::Unit ::= id::ID body::Stmt
+{ c.pp = "never " ++ id.lexeme ++ " " ++ body.pp ;
+  c.errors := body.errors;
+  c.defs = body.defs;
+  c.host = claim(body.host);
+  c.inlined = claim(body.inlined);
+}

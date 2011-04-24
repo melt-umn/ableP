@@ -6,14 +6,13 @@ import edu:umn:cs:melt:ableC:terminals ;
 lexer class promela_kwd;
 lexer class promela;
 
-
-
                         
 -- White space and comments --
 ------------------------------
 lexer class p_WS_Comments ;
+
 ignore terminal WhiteSpace_P /[\t\n\ ]+/ 
- lexer classes {promela, p_WS_Comments} , dominates { Ccomment } ;
+ lexer classes {promela, p_WS_Comments}, dominates { Ccomment } ;
 
 ignore terminal BlockComment_P /[\/][\*]([^\*]|[\r\n]|([\*]+([^\*\/]|[\r\n])))*[\*]+[\/]/ 
  lexer classes {promela, p_WS_Comments} , dominates { Ccomment };
@@ -21,8 +20,8 @@ ignore terminal BlockComment_P /[\/][\*]([^\*]|[\r\n]|([\*]+([^\*\/]|[\r\n])))*[
 ignore terminal LineComment_P  /[\/][\/].*/ 
  lexer classes {promela, p_WS_Comments} , dominates { Ccomment } ;
 
--- ignore terminal CPPDirectiveLayout_P /[#].*/ 
--- dominates { p_WS_Comments, CPPDirectiveLayout_P, WhiteSpace }   ;
+ignore terminal CPPDirectiveLayout_P /[#].*/ 
+ lexer classes {promela, p_WS_Comments} , dominates { Ccomment } ;
 
 
 terminal ASSERT       'assert'       lexer classes {promela,promela_kwd};
@@ -56,14 +55,9 @@ terminal IF           'if'           lexer classes {promela,promela_kwd};
 terminal FI           'fi'           lexer classes {promela,promela_kwd};
 terminal DO           'do'           lexer classes {promela,promela_kwd};
 terminal OD           'od'           lexer classes {promela,promela_kwd};
--- missing FOR - v6
--- missing SELECT - v6
--- missing IN - v6
 terminal SEP          '::'           lexer classes {promela};
--- missing DOTDOT
 
 terminal ATOMIC       'atomic'       lexer classes {promela,promela_kwd};
--- missing NON_ATOMIC
 terminal D_STEP       'd_step'       lexer classes {promela,promela_kwd};
 terminal UNLESS       'unless'       lexer classes {promela,promela_kwd};
 
@@ -97,11 +91,10 @@ terminal BOOL         'bool'         lexer classes {promela,promela_kwd};
 terminal BYTE         'byte'         lexer classes {promela,promela_kwd};
 terminal CHAN         'chan'         lexer classes {promela,promela_kwd};
 terminal INT          'int'          lexer classes {promela,promela_kwd};
--- MTYPE ???
 terminal PID          'pid'          lexer classes {promela,promela_kwd};
 terminal SHORT        'short'        lexer classes {promela,promela_kwd};
 terminal UNSIGNED     'unsigned'     lexer classes {promela,promela_kwd};
---
+
 terminal XU           /(xr)|(xs)/    lexer classes {promela_kwd};
 
 terminal ID           /[a-zA-Z\_][a-zA-Z\_0-9]*/
@@ -119,7 +112,6 @@ terminal CLAIM        'never'        lexer classes {promela,promela_kwd};
 terminal TRACE        /(trace)|(notrace)/  
                                      lexer classes {promela,promela_kwd};
 terminal INIT         'init'         lexer classes {promela,promela_kwd};
--- missing LTL - v6
 
 terminal ASGN         '='            lexer classes {promela},
                                      precedence = 1, association = right;
@@ -129,24 +121,13 @@ terminal RCV     '?'  lexer classes {promela},precedence = 2,association = left;
 terminal O_SND   '!!' lexer classes {promela},precedence = 2,association = left;
 terminal SND     '!'  lexer classes {promela},precedence = 2,association = left;
 
--- missing IMPLIES
--- missing EQUIV
-
 terminal OR      '||' lexer classes {promela},precedence = 5,association = left;
-
 terminal AND     '&&' lexer classes {promela},precedence = 6,association = left;
-
--- missing ALWAYS
--- missing EVENTUALLY
-
--- missing UNTIL WEAK_UNTIL RELEASE
--- missing NEXT
 
 terminal OR_T    '|'  lexer classes {promela},precedence = 11,association = left;
 terminal XOR     '^'  lexer classes {promela},precedence = 12,association = left;
 terminal AND_T   '&'  lexer classes {promela},precedence = 13,association = left;
 
--- EE maybe should be EQ
 terminal EE      '==' lexer classes {promela},precedence = 15,association = left;
 terminal NE      '!=' lexer classes {promela},precedence = 15,association = left;
 
@@ -171,25 +152,8 @@ terminal DECR    '--' lexer classes {promela},precedence = 40,association = righ
 terminal TILD    '~'  lexer classes {promela},precedence = 45,association = right;
 
 terminal STOP    '.'  lexer classes {promela},precedence = 50,association = left;
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
-
-
-
--- missing UMIN ?
--- missing NEG
-
--- missing DOT
-
 
 terminal SKIP         'skip'         lexer classes {promela,promela_kwd};
-
-
-
--- note that one option clashes with MTYPE above --
-
-
 
 
 -- Punctuation symbols not defines with named terminals
@@ -206,25 +170,6 @@ terminal COMMA  ',' lexer classes {promela};
 terminal ATRATE  '@' lexer classes {promela};
 terminal SCOLON  ':' lexer classes {promela},precedence = 2,association = right;
 
-
-
--- Keywords:
---	active		assert		atomic		bit
---	bool		break		byte		chan
---	d_step		D_proctype	do		else
---	empty		enabled		fi		full
---	goto		hidden		if		init
---	int		len		mtype		nempty
---	never		nfull		od		of
---	pc_value	printf		priority	proctype
---	provided	run		short		skip
---	timeout		typedef		unless		unsigned
---	xr		xs
-
--- Promela classifies identifiers as either:
---  - process type names 
---  - inline names
---  - others 
 
 
 parser attribute usedProcess :: Integer
@@ -293,5 +238,11 @@ Boolean ::= element::String l::[String]
               else listContains(element,tail(l));
 }
 
+function addToList
+[String] ::= element::String l::[String]
+{ return if listContains(element, l)
+         then l
+         else [element] ++ l ;
+}
 
 terminal Bogus_t '@@' ;

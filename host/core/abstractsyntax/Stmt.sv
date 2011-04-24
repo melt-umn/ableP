@@ -89,7 +89,6 @@ s::Stmt ::= op::Options
   s.inlined = ifStmt(op.inlined);
   s.defs = emptyDefs();
   s.uses = op.uses ;
---  op.env = sc.env;
 }
 
 abstract production doStmt
@@ -119,10 +118,9 @@ s::Stmt ::= id::ID
 { s.pp = s.ppi ++ "goto " ++ id.lexeme ++ " ;\n" ;
   s.errors := [ ];
   s.defs = emptyDefs();
-  s.uses = [ ] ; --TODO check that ID is valid, etc.
+  s.uses = [ ] ; --ToDo check that ID is valid, etc.
   s.host = gotoStmt(id);
   s.inlined = gotoStmt(id);
---  s.defs = emptyDefs();
 }
 
 abstract production labeledStmt
@@ -130,12 +128,10 @@ s::Stmt ::= id::ID st::Stmt
 { s.pp = s.ppi ++ id.lexeme ++ ": " ++ st.pp;
   st.ppi = s.ppi;
   s.errors := st.errors;
-  s.defs = emptyDefs();  --TODO add ID to defs - but this has different scope than normal variables...
+  s.defs = emptyDefs();  --ToDo add ID to defs - but this has different scope than normal variables...
   s.uses = st.uses ;
   s.inlined = labeledStmt(id, st.inlined);
   s.host = labeledStmt(id, st.host);
---  s.defs = st.defs;
---  st.env = s.env;
 }
 
 abstract production elseStmt
@@ -157,8 +153,6 @@ s::Stmt ::=
   -- hear using forwarding, but the transformation takes place on the syntax tree
   -- after parsing instead.
   forwards to exprStmt( constExpr (terminal(CONST,"1")) ) ;
-
---  s.defs = emptyDefs();
 }
 
 -- Options --
@@ -172,7 +166,6 @@ ops::Options ::= s::Stmt
   ops.uses = s.uses ;
   ops.host = oneOption(s.host);
   ops.inlined = oneOption(s.inlined);
---  st.env = ops.env;
 }
 
 abstract production consOption
@@ -190,8 +183,6 @@ ops::Options ::= s::Stmt rest::Options
 
   ops.host = consOption(s.host, rest.host);
   ops.inlined = consOption(s.inlined, rest.inlined);
---  st.env = ops.env;
---  rest.env = ops.env;
 }
 
 
@@ -246,7 +237,7 @@ s::Stmt ::= b::Stmt
 --------------------------------------------------
 abstract production assign
 s::Stmt ::= lhs::Expr rhs::Expr 
-{ s.pp = s.ppi ++ lhs.pp ++ " = " ++ rhs.pp ; --  ++ " ;\n" ; 
+{ s.pp = s.ppi ++ lhs.pp ++ " = " ++ rhs.pp ;
   production attribute overloads :: [Stmt] with ++ ;
   overloads := [ ] ;
 
@@ -306,7 +297,7 @@ abstract production unlessStmt
 st::Stmt ::= st1::Stmt st2::Stmt
 { st.pp = st1.pp ++ " unless " ++ st2.pp ++ "\n" ;
   st.errors := st1.errors ++ st2.errors;
-  st.defs = emptyDefs(); -- mergeDefs(st1.defs,st2.defs);
+  st.defs = emptyDefs();
   st.host = unlessStmt(st1.host, st2.host);
   st.inlined = unlessStmt(st1.inlined, st2.inlined);
 }
@@ -340,132 +331,3 @@ st::Stmt ::= id::ID d::Decls
   st.host = namedDecl(id, d.host) ;
   st.inlined = namedDecl(id, d.inlined) ;
 }
-
-{-
-
--- Message sends and receives                   --
---------------------------------------------------
-
-abstract production rcv_special
-sc::Stmt ::= vref::Expr ra::RArgs
-{
- sc.basepp = vref.basepp ++ "?" ++ ra.basepp ;
-
- sc.pp = vref.pp ++ "?" ++ ra.pp ;
- sc.errors = vref.errors ++ ra.errors;
- sc.defs = emptyDefs();
- vref.env = sc.env;
- ra.env = sc.env; 
-}
-
-
-abstract production rrcv_stmt
-st::Stmt ::= vref::Expr ra::RArgs
-{
-  st.basepp = vref.basepp ++ "??" ++ ra.basepp ;
-  st.pp = vref.pp ++ "??" ++ ra.pp ;
-  st.errors = vref.errors ++ ra.errors;
-  st.defs = emptyDefs();
-  vref.env = st.env;
-  ra.env = st.env;
-}
-abstract production rcv_stmt
-st::Stmt ::= vref::Expr ra::RArgs
-{
-  st.basepp = vref.basepp ++ "? < " ++ ra.basepp ++ ">";
-  st.pp = vref.pp ++ "? < " ++ ra.pp ++ ">";
-  st.errors = vref.errors ++ ra.errors;
-  st.defs = emptyDefs();
-  vref.env = st.env;
-  ra.env = st.env;
-}
-
-abstract production rrcv_poll
-st::Stmt ::= vref::Expr ra::RArgs
-{
-  st.basepp = vref.basepp ++ "?? <" ++ ra.basepp ++ ">";
-  st.pp = vref.pp ++ "?? <" ++ ra.pp ++ ">";
-  st.errors = vref.errors ++ ra.errors;
-  st.defs = emptyDefs();
-  vref.env = st.env;
-  ra.env = st.env;
-}
-
-abstract production snd_stmt
-st::Stmt ::= vref::Expr ma::MArgs
-{
-  st.basepp = vref.basepp ++ "!!" ++ ma.basepp ;
-  st.pp = vref.pp ++ "!!" ++ ma.pp ;
-  st.errors = vref.errors ++ ma.errors;
-  st.defs = emptyDefs();
-  vref.env = st.env;
-  ma.env = st.env;
-}
-
-
-abstract production assign_stmt
-st::Stmt ::= vref::Expr a1::ASGN exp::Expr
-{
- st.pp = vref.pp ++ "=" ++ exp.pp ++ "" ;
- st.basepp = vref.basepp ++ "=" ++ exp.basepp ++ "" ;
- st.errors = vref.errors ++ exp.errors;
- st.defs = emptyDefs();
- vref.env = st.env;
- exp.env = st.env;
-}
-
-
-abstract production print_stmt
-st::Stmt ::= str::STRING par::Args
-{
-  st.basepp = if (par.pp == "") 
-              then "printf" ++ "(" ++ str.lexeme ++ ")"
-              else "printf" ++ "(" ++ str.lexeme ++ "," ++ par.basepp ++ ")";
-
-
-  st.pp = if (par.pp == "")
-          then "printf" ++ "(" ++ str.lexeme ++ ")"
-          else "printf" ++ "(" ++ str.lexeme ++ "," ++ par.basepp ++ ")";
-
-
-  st.errors = par.errors;
-  st.defs = emptyDefs();
-  par.env = st.env;
-}
-
-
-
-abstract production empty_stmt
-st::Stmt ::= 
-{
- st.pp = "" ;
- st.basepp = "" ;
-
- st.defs = emptyDefs();
- st.errors = [ ];
-}
-
-abstract production commented_stmt
-st::Stmt ::= comm::String s2::Stmt
-{
- st.pp = st.ppi ++ comm ++ s2.pp ;
- s2.ppi = st.ppi ;
- st.basepp = st.ppi ++ comm ++ s2.basepp ;
-
- st.errors = s2.errors ;
- st.defs = s2.defs; 
-
-}
-
-abstract production error_stmt
-st::Stmt ::= er::String
-{
- st.pp = "\n" ;
- st.basepp = "\n" ;
-
- st.defs = emptyDefs();
- st.errors = [ er ];
-}
-
-
--}

@@ -11,7 +11,6 @@ ma::MArgs ::= es::Exprs
   ma.uses = es.uses ;
   ma.host = margsSeq(es.host) ;
   ma.inlined = margsSeq(es.inlined) ;
- -- ma.arg_list = a.arg_list ;
 }
 
 abstract production margsPattern
@@ -21,7 +20,6 @@ ma::MArgs ::= es::Exprs
   ma.uses = es.uses ;
   ma.host = margsPattern(es.host) ;
   ma.inlined = margsPattern(es.inlined) ;
- -- ma.arg_list = a.arg_list ;
 }
 
 -- Message arguments for receiving
@@ -86,56 +84,3 @@ ra::RArg ::= cst::CONST
   ra.host = negConstRArg(cst) ; 
   ra.inlined = negConstRArg(cst) ; 
 }
-
-nonterminal Args with pp;
--- Args_c maps to Exprs.
--- So the following and the above nonterminal are probably not needed.
-{-
-nonterminal Arg with pp, errors, ;
-
-
-synthesized attribute arg_list :: [ Expr ] occurs on Arg, Args, MArgs ;
-
-abstract production empty_args
-a::Args ::=
-{
- a.basepp = "";
- a.pp = "";
- a.arg_list = [ ] ;
-}
-
-abstract production one_args
-a::Args ::= a1::Arg
-{
- a.basepp = a1.basepp;
- a.pp = a1.pp;
- a.arg_list = a1.arg_list ;
-}
-
-
-abstract production expr_margs
-ma::MArgs ::= exp::Expr a::Arg
-{
- ma.basepp = exp.basepp ++ "(" ++ a.basepp ++ ")";
- ma.pp = exp.pp ++ "(" ++ a.pp ++ ")";
- ma.arg_list = [ exp ] ++ a.arg_list ;
-}
-
-abstract production arg_expr
-a1::Arg ::= exp::Expr
-{
- a1.basepp = exp.basepp;
- a1.pp = exp.pp;
- a1.arg_list = [ exp'' ] ;
-}
-
-abstract production expr_args
-a1::Arg ::= exp::Expr a2::Arg
-{
- a1.basepp = exp.basepp ++ " , " ++ a2.basepp;
- a1.pp = exp.pp ++ " , " ++ a2.pp;
- a1.arg_list = [ exp''] ++ a2.arg_list ;
-}
-
-
--}

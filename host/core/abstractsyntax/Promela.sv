@@ -22,56 +22,6 @@ p::Program ::= u::Unit
   p.inlined = programWithNewUnits(u.inlined) ;
 
   u.env = emptyDefs();
-  --p.defs = u.defs;
   u.alluses = u.uses ;
--- p.inlined_Program = program(u.inlined_Units);
-
-  
 }
 
-
--- Units --
------------
--- nonterminal Units with pp, ppi, ppterm, errors, host<Units> ;
-{-
-abstract production units_one
-us::Units ::= u::Unit
-{ us.pp = u.pp ;
-  u.ppi = "";
-  u.ppterm = "; \n" ;
-  us.errors := u.errors ;
-  us.host = units_one(u.host);
-  us.defs = u.defs;
-  u.env = us.env ;
---  us.inlined_Units = units_one(u.inlined_Unit);
-}
-
-abstract production unit_snoc
-us::Units ::= some::Units u::Unit
-{ us.pp = some.pp ++ u.pp;
-  u.ppi = "";
-  u.ppterm = "; \n" ; some.ppterm = "; \n" ;
-  us.errors := some.errors ++ u.errors ;
-  us.host = units_snoc(some.host, u.host);
-  us.defs = mergeDefs(some.defs,u.defs);  
-  some.env = us.env ;
-  u.env = mergeDefs(some.defs,us.env);
---  us.inlined_Units = units_snoc(some.inlined_Units, u.inlined_Unit);
-}
--}
-
-
-{- Not sure that we need this anymore.  It is not used anywhere but in
-its own definition of inlined_Program.
- 
-abstract production empty_program
-p::Program ::=
-{
- p.basepp = "";
- p.pp = "";
- p.inlined_Program = empty_program();
- p.errors = [];
- p.defs = emptyDefs();
-} 
-   
--}

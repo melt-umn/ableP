@@ -13,7 +13,6 @@ u::Unit ::= u1::Unit u2::Unit
   u.defs = mergeDefs(u1.defs,u2.defs);  
   u1.env = u.env ;
   u2.env = mergeDefs(u1.defs,u.env);
---  us.inlined_Units = units_snoc(some.inlined_Units, u.inlined_Unit);
 }
 
 abstract production emptyUnit
@@ -48,7 +47,6 @@ i::Unit ::= op::Priority body::Stmt
   i.uses = body.uses ;
   i.host = init(op.host, body.host) ;
   i.inlined = init(op.inlined, body.inlined) ;
--- i.inlined_Unit = init(op.inlined_OptPriority, body.inlined_Body);
 }
 
 abstract production commentedUnit
@@ -90,21 +88,7 @@ e::Unit ::= body::Stmt
   e.host = events(body.host);
   e.inlined = events(body.inlined);
 }
-{-
-abstract production unitTypedefDecls
-u::Unit ::= d::Decls
-{ u.pp = d.pp ;
-  d.ppsep = "; " ;
-  u.errors := case d of
-                typedefDecls(_,_) -> d.errors
-              | _ -> d.errors ++
-                     [ mkError ("Internal grammatical error.  " ++
-                                "Using non-typedef declarations " ++
-                                "in unitTypedefDecls constructs." ) ] 
-              end ;
-  u.host = unitTypedefDecls(d.host) ;
-}
--}
+
 abstract production typedefDecls
 d::Decls ::= id::ID dl::Decls
 { d.pp = "typedef " ++ id.lexeme ++ "  {" ++ dl.pp ++ " } \n";
@@ -113,6 +97,5 @@ d::Decls ::= id::ID dl::Decls
   d.inlined = typedefDecls(id, dl.inlined) ;
 
   d.defs = valueBinding(id.lexeme, d) ;
-  -- an attribute here to get the defs off of dl...
 }
 

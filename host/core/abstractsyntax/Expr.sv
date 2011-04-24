@@ -40,11 +40,13 @@ e::Expr ::= id::ID
               then varRefExpr(id)
               else head(overloads) ;
   e.errors := if   length(overloads) > 1
-              then [ mkError ("Internal error.  More than one overloading productions for " ++
-                              "identifier \"" ++ id.lexeme ++ "\", line " ++ 
+              then [ mkError ("Internal error.  More than one overloading " ++
+                              "productions for identifier \"" ++ 
+                              id.lexeme ++ "\", line " ++ 
                               toString(id.line) ) ]
               else forward.errors ;
-{- Does pattern matching now work on Strings?
+
+{- Does pattern matching not work on Strings?
   overloads <- case id.lexeme of
                  "_"      -> [ varRefExpr__(id) ]
                | "_last"  -> [ varRefExpr__last(id) ]
@@ -54,6 +56,7 @@ e::Expr ::= id::ID
                | _        -> [ ] 
                end ;
  -}
+
   overloads <- if id.lexeme == "_"      then [ varRefExpr__(id) ]
           else if id.lexeme == "_last"  then [ varRefExpr__last(id) ]
           else if id.lexeme == "_pid"   then [ varRefExpr__pid(id) ]
@@ -206,7 +209,6 @@ e::Expr ::= c::Expr thenexp::Expr elseexp::Expr
   e.uses = c.uses ++ thenexp.uses ++ elseexp.uses ;
   e.host = condExpr(c.host, thenexp.host, elseexp.host) ; 
   e.inlined = condExpr(c.inlined, thenexp.inlined, elseexp.inlined) ; 
---  exp.is_var_ref = false;
 }
 
 -- 3 forms for including C expressions in Promela expressions.
@@ -418,174 +420,4 @@ pr::Expr ::= vref::Expr
   pr.inlined = nemptyProbe(vref.inlined);
 }
 
-{-
-------------------
 
-
-
-abstract production paren_expr
-exp1::Expr ::= exp2::Expr
-{
- exp1.basepp = "( " ++ exp2.basepp ++ " )";
- exp1.pp = "( " ++ exp2.pp ++ " )";
- exp1.errors = exp2.errors;
- exp1.typerep = exp2.typerep;
-}
-
-abstract production plus_expr
-exp::Expr ::= lhs::Expr rhs::Expr
-{
- exp.basepp = lhs.basepp ++ " + " ++ rhs.basepp;
- exp.pp = lhs.pp ++ " + " ++ rhs.pp;
--- exp.errors = if (lhs.typerep.isCompatible && rhs.typerep.isCompatible)
---              then lhs.errors ++ rhs.errors
---              else ["Error : lhs and rhs are not compatible"] ++ lhs.errors ++ rhs.errors ;
--- exp.typerep = if lhs.typerep.isCompatible && rhs.typerep.isCompatible
---                then lhs.typerep
---                else error_type();
- exp.is_var_ref = false;
-
-
- production attribute transforms :: [Expr] with ++;
-
- transforms := [];
- 
- forwards to if length(transforms) == 1
-             then head(transforms)
-             else if !null(lhs.errors ++ rhs.errors)
-                  then exprWithErrors(exp,lhs.errors ++ rhs.errors)
-                  else if length(transforms) > 1
-                       then exprWithErrors(exp,["Internal Compiler Error:\n Types " ++ lhs.typerep.pp ++ " and " ++
-                                                rhs.typerep.pp ++ " compatible on addition(+) on multiple ways "])
-                       else exprWithErrors(exp,[" Incompatible types: " ++ lhs.typerep.pp ++ " and " ++ rhs.typerep.pp 
-                                                ++ " on addition " ]);
-
-
-}
-
-aspect production plus_expr
-exp::Expr ::= lhs::Expr rhs::Expr
-{
-  transforms <- if match(lhs.typerep,int_type()) && match(rhs.typerep,int_type())
-                then [add_int(lhs,rhs)]
-                else [];
-
-
-}
-
-abstract production exprWithErrors
-e1::Expr ::= e2::Expr errs::[String]
-{ 
-  e1.pp = "/* Erroneous Expression */" ++ e2.pp;
-  e1.errors = errs;
-  e1.typerep = error_type();
-
-
-}
-
-
-
-abstract production varref_expr
-exp::Expr ::= vref::Expr
-{
-  exp.basepp = vref.basepp;
-  exp.pp = vref.pp;
-  exp.errors = vref.errors;
-  exp.typerep = vref.typerep;
-  exp.is_var_ref = vref.is_var_ref;
-}
-
-
-abstract production const_expr
-exp::Expr ::= c::CONST
-{
-  exp.basepp = c.lexeme;
-  exp.pp = c.lexeme;
-  exp.errors = [];
-  exp.typerep = if (c.lexeme == "true" || c.lexeme == "false")
-                then boolean_type()
-                else int_type();
-
-  exp.is_var_ref = false;
-}
-
-
-
-abstract production aname_name
-an::Aname ::= id::ID
-{
- an.basepp = id.lexeme;
- an.pp = id.lexeme;
-}
-
-abstract production aname_pname
-an::Aname ::= pn::PNAME
-{
- an.basepp = pn.lexeme;
- an.pp = pn.lexeme;
-}
-
-
-abstract production expr_dot
-exp::Expr ::= rec::Expr dot::STOP id::ID
-{
- exp.pp = rec.pp ++ "." ++ id.lexeme;
- exp.basepp = rec.basepp ++ "." ++ id.lexeme ;
- exp.is_var_ref = true ;
-
- exp.typerep = field_res.typerep ;
- exp.errors = rec.errors  ++
-              case rec.typerep of
-                user_type(_) -> field_not_found_errors
-              | _ -> mkError (id.line, id.column, "expression to left of '.' is not a record.")
-              end ;
-
- local attribute field_not_found_errors :: [ String ] ;
- field_not_found_errors = if field_res.found then [ ]
-                          else mkError(id.line, id.column, "field \"" ++ id.lexeme ++ "\" not defined.") ;
-
- local attribute field_res :: EnvResult ;
- field_res = lookup_name(id.lexeme, field_defs) ;
-
- local attribute field_defs :: Env ;
- field_defs = case rec.typerep of
-                user_type(f) -> f.type
-              | _ -> emptyDefs() 
-              end ;
-}
-
-abstract production arrayref
-exp::Expr ::= arr::Expr ls::LSQUARE  index::Expr  rs::RSQUARE
-{
- exp.pp = arr.pp ++ "[" ++ index.pp ++ "]";
- exp.basepp = arr.basepp ++ "[" ++ index.basepp ++ "]";
- exp.is_var_ref = true ;
-
- exp.typerep = case arr.typerep of
-                 array_type(ct) -> ct.type
-               | _ -> error_type() 
-               end ;
-
- 
- exp.errors = arr.errors ++ index.errors ++ 
-              case arr.typerep of
-                array_type(_) -> [ ] 
-              | _ -> mkError (ls.line, ls.column, "expression to left of '[' is not an array.")  
-              end ;
-}
-
-
-
-abstract production abs_blank_expr
-exp::Expr ::=
-{
- exp.basepp = "";
- exp.pp = "";
- exp.errors = [];
- exp.is_var_ref = false;
-
-
-}
-
-
--}

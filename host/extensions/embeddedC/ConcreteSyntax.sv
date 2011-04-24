@@ -1,154 +1,67 @@
+{- 
+The concrete syntax grammar for Promela in ableP is derived from the
+Yacc grammar in the SPIN distribution.  Since SPIN is copyrighted by
+Lucent Technologies and Bell Laboratories we do not distribute these
+derivations under the GNU LGPL.  These files retain the original
+licensing and copyright designations, given below:
+
+/* Copyright (c) 1989-2003 by Lucent Technologies, Bell Laboratories.     */
+/* All Rights Reserved.  This software is for educational purposes only.  */
+/* No guarantee whatsoever is expressed or implied by the distribution of */
+/* this code.  Permission is given to distribute this code provided that  */
+/* this introductory message is not removed and no monies are exchanged.  */
+/* Software written by Gerard J. Holzmann.  For tool documentation see:   */
+/*             http://spinroot.com/                                       */
+-}
+
 grammar edu:umn:cs:melt:ableP:host:extensions:embeddedC;
 
 concrete production unit_c_fcts_c
 u::Unit_c ::= cf::C_Fcts_c
-{ u.pp = cf.pp ;  u.ast = cf.ast ;   } 
-
+{ }
 concrete production ccode_stmt_c
 st::Statement_c ::= cc::Ccode_c
-{ st.pp = cc.pp ;
-  st.ast = cc.ast_Stmt ;
-}
-
+{ } 
 
 -- Productions the embed C code into Promela, the 
 -- following have promela nonterminals on the LHS 
 -- of the production.
 --------------------------------------------------
-nonterminal C_Fcts_c with pp, ast<Unit> ;    -- same in v4.2.9 and v6
-synthesized attribute cst_C_Fcts_c::C_Fcts_c occurs on Unit ;
+nonterminal C_Fcts_c  ;    -- same in v4.2.9 and v6
 
 concrete productions
-st::C_Fcts_c ::= cc::Ccode_c   { st.pp = cc.pp; st.ast = cc.ast ; }
-st::C_Fcts_c ::= cc::Cstate_c  { st.pp = cc.pp; st.ast = cc.ast ; }
+st::C_Fcts_c ::= cc::Ccode_c  ( p_Ccode_c )  { }
+st::C_Fcts_c ::= cc::Cstate_c ( p_CState_c ) { } 
 
 -- Cstate_c (cstate in spin.y)
-nonterminal Cstate_c with pp, ast<Unit> ;   -- same as in v4.2.9 and v6
-synthesized attribute cst_Cstate_c::Cstate_c occurs on Unit ;
+nonterminal Cstate_c ;   -- same as in v4.2.9 and v6
 
--- ToDo, add proper abstract syntax for these.
 concrete productions
-cs::Cstate_c ::= ca::C_STATE str1::STRING str2::STRING
- { cs.pp  = ca.lexeme ++ " " ++ str1.lexeme ++ " " ++ str2.lexeme ;
-   cs.ast = cStateTrack( ca.lexeme, str1.lexeme, str2.lexeme, "" ) ;  }
-cs::Cstate_c ::= ct::C_TRACK str1::STRING str2::STRING
- { cs.pp  = ct.lexeme ++ " " ++ str1.lexeme ++ " " ++ str2.lexeme ;
-   cs.ast = cStateTrack( ct.lexeme, str1.lexeme, str2.lexeme, "" ) ;  }
-cs::Cstate_c ::= ca::C_STATE str1::STRING str2::STRING str3::STRING
- { cs.pp  = ca.lexeme ++ " " ++ str1.lexeme ++ " " ++ str2.lexeme ++ " " ++ str3.lexeme ;
-   cs.ast = cStateTrack( ca.lexeme, str1.lexeme, str2.lexeme, str3.lexeme ) ;  }
-cs::Cstate_c ::= ct::C_TRACK str1::STRING str2::STRING str3::STRING
- { cs.pp  = ct.lexeme ++ " " ++ str1.lexeme ++ " " ++ str2.lexeme ++ " " ++ str3.lexeme ;
-   cs.ast = cStateTrack( ct.lexeme, str1.lexeme, str2.lexeme, str3.lexeme ) ;  }
+cs::Cstate_c ::= ca::C_STATE str1::STRING str2::STRING  ( p_C_STATE_2 )
+ { }
+cs::Cstate_c ::= ct::C_TRACK str1::STRING str2::STRING  ( p_C_TRACK_2 )
+ { }
+cs::Cstate_c ::= ca::C_STATE str1::STRING str2::STRING str3::STRING  ( p_C_STATE_3 )
+ { }
+cs::Cstate_c ::= ct::C_TRACK str1::STRING str2::STRING str3::STRING  ( p_C_TRACK_3 )
+ { }
 
 
 -- Ccode_c, (ccode in spin.y)
-nonterminal Ccode_c with pp, ast<Unit>, ast_Stmt ;    -- same as in v4.2.9 and v6
-synthesized attribute ast_Stmt :: Stmt ;
-
-concrete productions
-c::Ccode_c ::= cmpd::C_CODE_nt_c  
-  { c.pp = cmpd.pp; 
-    c.ast = unitCcmpd(cmpd.ast); 
-    c.ast_Stmt = stmtCode(cmpd.ast);
-  }
-c::Ccode_c ::= dcls::C_DECL_nt_c  
-  { c.pp = dcls.pp;  
-    c.ast = unitCdcls(dcls.ast); 
-  }
-
--- Embedded C code                              --
---------------------------------------------------
--- Since we parse the embedded C code, we introduce new nonterminals
--- and terminals not found in the spin.y specification.  The new
--- nonterminals are named to keep this specifiation somewhat similar
--- to the original in spin.y.
-
--- In spin.y, C_CODE, C_DECL, and C_EXPR are terminals.  Here,
--- we create a terminal and nonterminal for each of these
--- For C_CODE, we create 
---   the terminal    C_CODE, which matches /c_code/
---   the nonterminal C_CODE_nt_c which derives strings such as
---       "c_code { int *x; int *y; }"
--- Similar terminals and nonterminals are created for C_DECL and C_EXPR.
-
-nonterminal C_CODE_nt_c with pp, ast<Ccmpd> ;
-nonterminal C_DECL_nt_c with pp, ast<Cdcls> ;
-nonterminal C_EXPR_nt_c with pp, ast<Expr> ;
-
-synthesized attribute cst_C_CODE_nt_c::C_CODE_nt_c occurs on Ccmpd ;
-synthesized attribute cst_C_DECL_nt_c::C_DECL_nt_c occurs on Cdcls ;
-synthesized attribute cst_C_EXPR_nt_c::C_EXPR_nt_c occurs on Expr ;
-
--- The following are introduced because the above two rules in spin.y
--- use the same prep_inline function that the inlining productions use
--- to read the code by some hand-coded method.  We can do better.
-
-concrete productions
-st::C_CODE_nt_c ::= kwd::C_CODE '{' cmpd::C_CmpdStmt '}'
- { st.pp  = kwd.lexeme ++ " { " ++ cmpd.pp ++ " } " ; 
-   st.ast = cCmpd(kwd, cmpd.pp ) ; }
-st::C_CODE_nt_c ::= kwd::C_CODE '[' ce::Ansi_C_Expr ']' '{' cmpd::C_CmpdStmt '}'
- { st.pp  = kwd.lexeme ++ " [ " ++ ce.ansi_c_pp ++ " ] { " ++ cmpd.pp ++ " } " ;
-   st.ast = cExprCmpd(kwd, ce.ansi_c_pp, cmpd.pp) ;  }
-st::C_DECL_nt_c ::= kwd::C_DECL '{' cd::Ansi_C_DeclarationList '}' 
- { st.pp  = kwd.lexeme ++ " { " ++ cd.ansi_c_pp ++ " } " ;
-   st.ast = cDcls(kwd, cd.ansi_c_pp);  }
-
-
--- C ~almost~ compound statment                 --
---------------------------------------------------
--- This is CompoundStatement_c in ableC without the curly brackets.
-nonterminal C_CmpdStmt with pp ; 
-
-concrete productions
-c::C_CmpdStmt ::= dcls::Ansi_C_DeclarationList stmt::Ansi_C_StmtList
- { c.pp = dcls.ansi_c_pp  ++ " " ++ stmt.ansi_c_pp ;  }
-c::C_CmpdStmt ::= dcls::Ansi_C_DeclarationList
- { c.pp = dcls.ansi_c_pp ; }
-c::C_CmpdStmt ::= stmt::Ansi_C_StmtList
- { c.pp = stmt.ansi_c_pp ; }
-c::C_CmpdStmt ::=
- { c.pp = "" ; }
+nonterminal Ccode_c ;    -- modified to parse embedded C
+                         -- new productions in MappingConcreteToAbstract.sv
 
 
 -- C code in Promela expressions --
 -----------------------------------
-
 concrete production c_expr_c
 e::Expr_c ::= ce::Cexpr_c
-{ e.pp = ce.pp;   e.ast = ce.ast ; }
+{ }
 
 -- Cexpr_c, (cexpr  in spin.y)
-nonterminal Cexpr_c with pp, ast<Expr> ;    -- same as in v4.2.9 and v6
+nonterminal Cexpr_c ;    -- same as in v4.2.9 and v6
 
 concrete production cexpr_expr_unit_c 
 st::Cexpr_c ::= cc::C_EXPR_nt_c
-{ st.pp = cc.pp;   st.ast = cc.ast ;  }
-
--- as above, the previous productions in spin.y use the prep_inline
--- function to read the C code using hand written code, so it is not
--- in the rules.  We have the following rules to do a better job.
-concrete productions
-ce::C_EXPR_nt_c ::= kwd::C_EXPR '{' e::Ansi_C_Expr  '}'
-{ ce.pp  = kwd.lexeme ++ " { " ++ e.ansi_c_pp ++ " } " ;
-  ce.ast = exprCExpr (kwd, e.ansi_c_pp) ;   }
-
-ce::C_EXPR_nt_c ::= kwd::C_EXPR '{' cmpd::C_CmpdStmt  '}'
-{ ce.pp  = kwd.lexeme ++ " { " ++ cmpd.pp ++ " } " ;
-  ce.ast = exprCCmpd (kwd, cmpd.pp ) ;   }
-
-ce::C_EXPR_nt_c ::= kwd::C_EXPR '[' e::Ansi_C_Expr ']' '{' cmpd::C_CmpdStmt '}'
-{ ce.pp  = kwd.lexeme ++ " [ " ++ e.ansi_c_pp ++ " ] { " ++ cmpd.pp ++ " } " ;
-  ce.ast = exprCExprCmpd (kwd, e.ansi_c_pp, cmpd.pp ) ;   }
-
-
-
-
---- To avoid useless production errors!         --
---------------------------------------------------
-terminal BOGUS_C_ROOT_t '!!!!!!BOGUSCROOT' ;
-concrete production bogus_C_Root
-p::Program_c ::= t::BOGUS_C_ROOT_t cr::Ansi_C_Root
-{ } -- p.pp = "BOGUS C ROOT" ; }
+{ }
 

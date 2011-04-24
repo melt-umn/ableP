@@ -85,11 +85,6 @@ t::TypeExpr ::= un::UNAME
 
  t.host = unameTypeExpr(un) ;
  t.inlined = unameTypeExpr(un) ;
---  t.typerep = case res.typerep of
---                error_type() ->  error ("ERROR In Type Lookup " ++ un.lexeme ++
---                                        " env is " ++ envDisplay(t.env.bindings) )
---             |  _ -> res.typerep
---            end ;
 }
 
 nonterminal TypeExprs with pp, errors, host<TypeExprs>, inlined<TypeExprs> ;
@@ -109,42 +104,3 @@ tes::TypeExprs ::= te::TypeExpr rest::TypeExprs
   tes.host = consTypeExpr(te.host, rest.host);
   tes.inlined = consTypeExpr(te.inlined, rest.inlined);
 }
-
-{-
-nonterminal Type with pp, basepp, defs, env, errors, typerep ;
-nonterminal TypList with pp, basepp, defs, env, errors  ;
-
-abstract production promela_typeexpr
-t::Type ::= str::String
-{
-  t.pp = str;
-  t.basepp = str;
-  t.typerep = tr;
-  t.errors = [];
-
-  local attribute tr :: TypeRep;
-  tr =     if str == "bit"  then bit_type()
-      else if str == "bool" then boolean_type()
-      else if str == "byte" then byte_type()
-      else if str == "int"  then int_type()
-      else if str == "chan" then chan_type()
-      else if str == "short" then short_type()
-      else if str == "mtype" then mtype_type()
-      else if str == "pid"   then pid_type()
-      else if str == "unsigned" then unsigned_type()
-      else error_type();
-
-}
-
-
-abstract production abs_bt_error
-t::Type ::= er::Error
-{
- t.basepp = er.basepp;
- t.pp = er.basepp;
- t.errors = [] ;  
-}
-
-
-
--}

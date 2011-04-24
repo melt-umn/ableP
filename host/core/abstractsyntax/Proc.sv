@@ -1,7 +1,5 @@
 grammar edu:umn:cs:melt:ableP:host:core:abstractsyntax;
 
---nonterminal Proc with pp, ppi, errors ;
-
 abstract production procDecl
 proc::Decls ::= i::Inst procty::ProcType nm::ID dcl::Decls
                 pri::Priority ena::Enabler 
@@ -26,7 +24,6 @@ proc::Decls ::= i::Inst procty::ProcType nm::ID dcl::Decls
   b.env = mergeDefs(dcl.defs, dcl.env) ;
 
   proc.uses = dcl.uses ++ b.uses;
--- optena.env = proc.env;
 }
 
 --ProcType
