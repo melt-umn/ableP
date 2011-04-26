@@ -27,15 +27,13 @@ st::Statement_c ::= cc::Ccode_c
 -- following have promela nonterminals on the LHS 
 -- of the production.
 --------------------------------------------------
-nonterminal C_Fcts_c  ;    -- same in v4.2.9 and v6
+nonterminal C_Fcts_c  ;    -- c_fcts
 
 concrete productions
 st::C_Fcts_c ::= cc::Ccode_c  ( p_Ccode_c )  { }
 st::C_Fcts_c ::= cc::Cstate_c ( p_CState_c ) { } 
 
--- Cstate_c (cstate in spin.y)
-nonterminal Cstate_c ;   -- same as in v4.2.9 and v6
-
+nonterminal Cstate_c ;   -- cstate
 concrete productions
 cs::Cstate_c ::= ca::C_STATE str1::STRING str2::STRING  ( p_C_STATE_2 )
  { }
@@ -47,9 +45,9 @@ cs::Cstate_c ::= ct::C_TRACK str1::STRING str2::STRING str3::STRING  ( p_C_TRACK
  { }
 
 
--- Ccode_c, (ccode in spin.y)
-nonterminal Ccode_c ;    -- modified to parse embedded C
-                         -- new productions in MappingConcreteToAbstract.sv
+nonterminal Ccode_c ;    -- ccode
+ -- modified to parse embedded C
+ -- new productions in MappingConcreteToAbstract.sv
 
 
 -- C code in Promela expressions --
@@ -58,9 +56,7 @@ concrete production c_expr_c
 e::Expr_c ::= ce::Cexpr_c
 { }
 
--- Cexpr_c, (cexpr  in spin.y)
-nonterminal Cexpr_c ;    -- same as in v4.2.9 and v6
-
+nonterminal Cexpr_c ;    -- cexpr
 concrete production cexpr_expr_unit_c 
 st::Cexpr_c ::= cc::C_EXPR_nt_c
 { }

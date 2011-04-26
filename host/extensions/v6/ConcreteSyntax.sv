@@ -47,7 +47,7 @@ s::Special_c ::= sl::'select' '(' v::Varref_c ':' lower::Expr_c '..' upper::Expr
 ------------------
 
 concrete productions
-u::Unit_c ::= l::LTL_c (unit_ltl_c) { }
+u::Unit_c ::= l::LTL_c (unitLTL_c) { }
 
 nonterminal LTL_c ;
 
@@ -78,7 +78,8 @@ l::LTL_Kwd ::= 'ltl' { } action { ltlMode = true ; }
 nonterminal OptName2_c ;
 concrete productions
 op::OptName2_c ::= id::ID (with_OptName2_c) { }
-op::OptName2_c ::=        (without_OptName2_c) { }
+--op::OptName2_c ::=        (without_OptName2_c) { }
+without_OptName2_c: op::OptName2_c ::=         { }
 
 concrete production expr_ltl_c
 e::Expr_c ::= l::LTL_expr_c

@@ -12,7 +12,8 @@ IOVal<Integer> ::= args::[String]
                    ext_parser::Function(ParseResult<Program_c>::=String String) 
                    driverIO::IO 
 {
-  local filename::String = head(args) ;
+  local debugMode::Boolean = head(args) == "--debug" ;
+  local filename::String = if debugMode then head(tail(args)) else head(args) ;
   production fileExists :: IOVal<Boolean>  = isFile(filename, driverIO);
   production text::IOVal<String> = readFile(filename, fileExists.io);
 
@@ -23,7 +24,6 @@ IOVal<Integer> ::= args::[String]
 
   local parseASTpp::ParseResult<Program_c> = ext_parser(r_ast.pp, "parseASTpp") ;
   local r_ast_cst::Program_c = parseASTpp.parseTree ;
-                          -- = r_ast.cst_Program_c ;
 
   local ast_warnings::[Error] = getWarnings(r_ast.errors) ;
   local ast_errors::[Error] = getErrors(r_ast.errors) ;
@@ -31,16 +31,16 @@ IOVal<Integer> ::= args::[String]
   local r_hst::Program = r_ast.host ;
   local parseHOSTpp::ParseResult<Program_c> = promelaParser(r_hst.pp, "parseHOSTpp") ;
   local r_host_cst::Program_c = parseHOSTpp.parseTree ;
-                           -- = r_hst.cst_Program_c ;
 
   local parsedInlined::ParseResult<Program_c> = ext_parser(r_ast.inlined.pp, "parseInlinedpp") ;
   local r_inlined_cst::Program_c = parsedInlined.parseTree ;
-                          -- = r_ast.cst_Program_c ;
    
-  local attribute print_success :: IO ;
-  print_success = 
+  local attribute print_debug :: IO ;
+  print_debug = 
+    if ! debugMode && parseHOSTpp.parseSuccess then text.io 
+    else
     print( "\n" ++
-           "Command line arguments: " ++ head(args) ++
+           "Command line arguments: " ++ implode (" ", args) ++
            "\n\n" ++
            "CST pretty print: \n================= \n" ++ r_cst.pp ++
            "\n\n" ++ 
@@ -71,8 +71,12 @@ IOVal<Integer> ::= args::[String]
                  "=============================================== \n" ++
                  addLineNumbers(r_hst.pp) ++ "\n\n"
            )
-           ++
-           "Warnings: " ++
+           ++ "\n\n"
+           , text.io ) ;
+
+  local attribute print_success :: IO ;
+  print_success = 
+    print( "Warnings: " ++
            (if null(ast_warnings)  then " No warnings.\n" 
             else "\n" ++ showErrors(ast_warnings) ++ "\n"
            ) ++
@@ -81,33 +85,25 @@ IOVal<Integer> ::= args::[String]
             else "\n" ++ showErrors(ast_errors) ++ "\n"
            ) ++
            "\n\n"
-           , text.io ) ;
+           , print_debug ) ;
 
   local splitFileName::Pair<String String> = splitFileNameAndExtension(filename) ;
 
-  local host_filenameOld::String 
-    = substring(0, length(filename)-5, filename) ++ "_HOST_Old.pml" ;
-  local host_filename::String 
-    = substring(0, length(filename)-5, filename) ++ "_HOST.pml" ;
-
-  local writeHostIOOld::IO
-    = if   endsWith(".xpml", filename)
-      then writeFile( host_filenameOld , r_hst.pp,
-                      print ("writing host as " ++ host_filenameOld ++ "\n",
+  local writeHostIO::IO
+    = if   splitFileName.snd == "xpml" && parseHOSTpp.parseSuccess
+      then writeFile( splitFileName.fst ++ "_HOST.pml", r_host_cst.pp,
+                      print ("writing host from CST as \"" ++ 
+                             splitFileName.fst ++ "_HOST.pml\" \n",
                              print_success ) )
       else print_success ;
-  local writeHostIO::IO
-    = if   endsWith(".xpml", filename) && parseHOSTpp.parseSuccess
-      then writeFile( host_filename , r_host_cst.pp,
-                      print ("writing host from CST as " ++ host_filename ++ "\n",
-                             writeHostIOOld ) )
-      else writeHostIOOld ;
 
   local writeInlinedIO::IO 
-    = writeFile ( inlineFileName, r_inlined_cst.pp, writeHostIO ) ;
-                    -- "SOME INLINING\n", writeHostIO ) ;
-  local inlineFileName::String 
-    = splitFileName.fst ++ "_inlined." ++ splitFileName.snd ;
+    = if   parseHOSTpp.parseSuccess
+      then writeFile ( splitFileName.fst ++ "_inlined." ++ splitFileName.snd, 
+                  r_inlined_cst.pp, writeHostIO ) 
+      else writeHostIO ;
+      -- Write the inlined version of a .xpml or .pml file with the same 
+      -- extension.
 
   local writeFilesIO::IO = writeInlinedIO ;
 
@@ -118,16 +114,13 @@ IOVal<Integer> ::= args::[String]
           text.io) , 1 ) ;
 
   return if   ! fileExists.iovalue 
-         then error ("\n\nFile \"" ++ filename ++ "\" not found.\n")
+         then ioval(print ("\n\nFile \"" ++ filename ++ "\" not found.\n" ++
+                           "usage:  java -jar <nameOfAblePjar>.jar " ++
+                           " [ --debug ] <filename>\n\n", fileExists.io ),
+                    -1 )
          else
          if   result.parseSuccess 
          then ioval(writeFilesIO, 0)
          else print_failure;
 }
 
-
-{-
-function header
-String ::= str::String
-{ return 
--}

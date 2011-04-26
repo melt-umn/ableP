@@ -1,13 +1,18 @@
 grammar edu:umn:cs:melt:ableP:extensions:discreteTime ;
 
-imports edu:umn:cs:melt:ableP:concretesyntax ;
-imports edu:umn:cs:melt:ableP:abstractsyntax ;
-imports edu:umn:cs:melt:ableP:terminals ;
+imports edu:umn:cs:melt:ableP:host:core ;
+imports edu:umn:cs:melt:ableP:host:extensions ;
 
-imports edu:umn:cs:melt:ableP:extensions:typeChecking ;
+{- ToDo: 
+   - add appropriate type checking
+   - add the udelay statement
+ -}
 
-terminal TIMER 'timer'  lexer classes { promela,promela_kwd};
-terminal DELAY 'delay'  lexer classes { promela,promela_kwd};
+terminal TIMER  'timer'   lexer classes { promela,promela_kwd};
+terminal TICK   'tick'    lexer classes { promela,promela_kwd};
+terminal DELAY  'delay'   lexer classes { promela,promela_kwd};
+terminal SET    'set'     lexer classes { promela,promela_kwd};
+terminal EXPIRE 'expire'  lexer classes { promela,promela_kwd};
 
 -- timer type
 -- #define timer int 
@@ -32,7 +37,8 @@ t::TypeRep ::=
 }
 
 
--- delay statement
+-- delay statement --
+---------------------
 concrete production delay_c
 st::Statement_c ::= 'delay' '(' t::Varref_c ',' e::Expr_c ')' 
 { st.pp = "delay (" ++ t.pp ++ ", " ++ e.pp ++ ")" ;
@@ -58,6 +64,11 @@ st::Stmt ::= tmr::Expr val::Expr
 }
 
 -- #define set(tmr,val) (tmr=val) 
+concrete production set_c
+st::Statement_c ::= 'set' '(' t::Varref_c ',' e::Expr_c ')' 
+{ st.pp = "set (" ++ t.pp ++ ", " ++ e.pp ++ ")" ;
+  st.ast = set(t.ast, e.ast) ;
+}
 abstract production set
 st::Stmt ::= t::Expr e::Expr
 { st.pp = "set (" ++ t.pp ++ ", " ++ e.pp ++ ")" ;
@@ -65,6 +76,11 @@ st::Stmt ::= t::Expr e::Expr
 }
 
 -- #define expire(tmr) (tmr==0) 
+concrete production expire_c
+st::Statement_c ::= 'expire' '(' e::Expr_c ')' 
+{ st.pp = "expire (" ++ e.pp ++ ")" ;
+  st.ast = expire(e.ast) ;
+}
 abstract production expire
 st::Stmt ::= t::Expr
 { st.pp = "expire (" ++ t.pp ++ ")" ;
@@ -72,6 +88,11 @@ st::Stmt ::= t::Expr
 }
 
 -- #define tick(tmr) if :: tmr>=0 -> tmr=tmr-1 :: else fi
+concrete production tick_c
+st::Statement_c ::= 'tick' '(' e::Expr_c ')' 
+{ st.pp = "tick (" ++ e.pp ++ ")" ;
+  st.ast = tick(e.ast) ;
+}
 abstract production tick
 st::Stmt ::= tmr::Expr
 { st.pp = "tick (" ++ tmr.pp ++ ")" ;
@@ -100,10 +121,30 @@ u::Unit ::=
   forwards to 
     if   null(declaredTimers)
     then emptyUnit() 
-    else ppUnit ("proctype Timers() { \n" ++
-                 "{ do :: timeout -> atomic{ " ++
-                 mkTickStmts( declaredTimers ) ++
-                 " } od } \n" ) ;
+    else --ppUnit ("proctype Timers() { \n" ++
+         --        "{ do :: timeout -> atomic{ " ++
+         --        mkTickStmts( declaredTimers ) ++
+         --        " } od } \n} \n" ) ;
+
+	 unitDecls ( procDecl(
+	   empty_inst(), just_procType(),
+	   terminal(ID, "Timers"), emptyDecl(),
+	   none_priority(), noEnabler(),
+	   blockStmt(
+	     doStmt(
+	       oneOption (
+		 seqStmt(
+		   exprStmt( timeoutExpr() ),
+		   atomicStmt ( mkTickStmts( declaredTimers ) 
+		   )
+		 )
+	       )
+	     )
+	   )
+	  )
+	 ) ;
+
+
 }
 
 function allTimerDecls
@@ -116,10 +157,20 @@ function allTimerDecls
               ++ allTimerDecls(tail(bs))  ;
 }
 
-function mkTickStmts
+function mkTickStmtsStr
 String ::= timers::[String]
 { return if   null(timers)
          then ""
          else "tick(" ++ head(timers) ++ "); "
-              ++ mkTickStmts(tail(timers))  ;
+              ++ mkTickStmtsStr(tail(timers))  ;
+}
+
+function mkTickStmts
+Stmt ::= timers::[String]
+{ return if   null(timers)
+         then skipStmt()
+         else seqStmt (
+                tick( varRefExpr( terminal(ID,head(timers)))) ,
+                mkTickStmts( tail(timers) )
+              ) ;
 }

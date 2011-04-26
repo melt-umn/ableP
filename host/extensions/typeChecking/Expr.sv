@@ -47,18 +47,6 @@ aspect production condExpr
 e::Expr ::= c::Expr thenexp::Expr elseexp::Expr
 { e.typerep = thenexp.typerep; 
 }
-aspect production exprCExpr
-exp::Expr ::= kwd::C_EXPR ce::String
-{
-}
-aspect production exprCCmpd
-exp::Expr ::= kwd::C_EXPR ce::String
-{
-}
-aspect production exprCExprCmpd
-exp::Expr ::= kwd::C_EXPR ce::String cp::String
-{
-}
 aspect production negExpr
 exp::Expr ::= lhs::Expr
 { exp.typerep = boolTypeRep(); 

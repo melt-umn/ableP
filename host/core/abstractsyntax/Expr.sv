@@ -211,34 +211,6 @@ e::Expr ::= c::Expr thenexp::Expr elseexp::Expr
   e.inlined = condExpr(c.inlined, thenexp.inlined, elseexp.inlined) ; 
 }
 
--- 3 forms for including C expressions in Promela expressions.
-abstract production exprCExpr
-exp::Expr ::= kwd::C_EXPR ce::String
-{ exp.pp =  kwd.lexeme ++ "{" ++ ce ++ "}" ;
-  exp.errors := [ ];
-  exp.uses = [ ] ; 
-  exp.host = exprCExpr(kwd, ce);
-  exp.inlined = exprCExpr(kwd, ce);
-}
-
-abstract production exprCCmpd
-exp::Expr ::= kwd::C_EXPR ce::String
-{ exp.pp = kwd.lexeme ++ "{" ++ ce ++ "}" ;
-  exp.errors := [ ] ;
-  exp.uses = [ ] ; 
-  exp.host = exprCCmpd(kwd, ce);
-  exp.inlined = exprCCmpd(kwd, ce);
-}
-
-abstract production exprCExprCmpd
-exp::Expr ::= kwd::C_EXPR ce::String cp::String
-{ exp.pp = kwd.lexeme ++ "[" ++ ce ++ "] {" ++ cp ++ "}" ;
-  exp.errors := [ ] ;
-  exp.uses = [ ] ; 
-  exp.host = exprCExprCmpd(kwd, ce, cp);
-  exp.inlined = exprCExprCmpd(kwd, ce, cp);
-}
-
 -- Send or Not
 abstract production sndNotExpr
 exp::Expr ::= lhs::Expr

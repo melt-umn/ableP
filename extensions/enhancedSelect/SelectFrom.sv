@@ -1,16 +1,13 @@
 grammar edu:umn:cs:melt:ableP:extensions:enhancedSelect ;
 
-imports edu:umn:cs:melt:ableP:concretesyntax ;
-imports edu:umn:cs:melt:ableP:abstractsyntax ;
-imports edu:umn:cs:melt:ableP:terminals ;
-
-imports edu:umn:cs:melt:ableP:extensions:typeChecking ;
+imports edu:umn:cs:melt:ableP:host:core ;
+imports edu:umn:cs:melt:ableP:host:extensions ;
 
 -- Concrete Syntax --
 
 -- select ( quality : Low, Medium, High )
 concrete production selectFrom_c
-s::Special_c ::= sl::'select' '(' v::Varref_c ':' exprs::Exprs_c ')'
+s::Special_c ::= sl::'select' '(' v::Varref_c ':' exprs::Arg_c ')'
 { s.pp = "select ( " ++ v.pp ++ " : " ++ exprs.pp ++ " ) " ;
   s.ast = selectFrom (sl, v.ast, exprs.ast) ; 
 }

@@ -6,6 +6,10 @@ chan monitor = [0] of {mtype, mtype} ;
 
 timer trouble_t, above_t ;   /* expands to "int trouble_t = -1;" */
 
+proctype monitorStatus( ) {
+
+}
+
 active proctype determineStatus () 
 {
  int altitude, threshold, hyst ;
@@ -42,5 +46,4 @@ active proctype determineStatus ()
    trouble_t = 1; expire(trouble_t);   /* what delay expands to */
    goto check ;
 }
-
 

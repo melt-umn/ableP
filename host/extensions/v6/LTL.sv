@@ -9,7 +9,7 @@ abstract production unitLTL
 u::Unit ::= l::LTL_c
 { u.pp = l.pp ;
   u.errors := [ ] ;
-  u.defs = emptyDefs ;
+  u.defs = emptyDefs() ;
   u.host = unitLTL(l) ;
   u.inlined = unitLTL(l) ;
 }

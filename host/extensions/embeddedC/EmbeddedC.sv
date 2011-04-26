@@ -13,3 +13,5 @@ imports edu:umn:cs:melt:ableC:concretesyntax
       DeclarationList_c as Ansi_C_DeclarationList,
       StmtList_c as Ansi_C_StmtList,
       Root_c as Ansi_C_Root ;
+
+imports edu:umn:cs:melt:ableP:host:extensions:typeChecking ;

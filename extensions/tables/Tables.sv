@@ -1,11 +1,7 @@
 grammar edu:umn:cs:melt:ableP:extensions:tables;
 
--- import edu:umn:cs:melt:ableP:host ;
-import edu:umn:cs:melt:ableP:concretesyntax ;
-import edu:umn:cs:melt:ableP:abstractsyntax ;
-import edu:umn:cs:melt:ableP:terminals ;
-
---import lib:errors ;
+imports edu:umn:cs:melt:ableP:host:core ;
+imports edu:umn:cs:melt:ableP:host:extensions ;
 
 --Sample Table
 --  c4 = table

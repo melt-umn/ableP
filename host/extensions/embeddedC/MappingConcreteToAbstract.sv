@@ -24,7 +24,7 @@ st::C_Fcts_c ::= cc::Ccode_c   { st.pp = cc.pp; st.ast = cc.ast ; }
 aspect production p_CState_c
 st::C_Fcts_c ::= cc::Cstate_c  { st.pp = cc.pp; st.ast = cc.ast ; }
 
--- Cstate_c (cstate in spin.y)
+
 attribute pp occurs on Cstate_c ;
 attribute ast<Unit> occurs on Cstate_c ;
 
@@ -49,7 +49,7 @@ cs::Cstate_c ::= ct::C_TRACK str1::STRING str2::STRING str3::STRING
    cs.ast = cStateTrack( ct.lexeme, str1.lexeme, str2.lexeme, str3.lexeme ) ;  }
 
 
--- Ccode_c, (ccode in spin.y)
+
 synthesized attribute ast_Stmt :: Stmt ;
 attribute pp occurs on Ccode_c ;
 attribute ast<Unit> occurs on Ccode_c ;
@@ -117,8 +117,6 @@ st::C_DECL_nt_c ::= kwd::C_DECL '{' cd::Ansi_C_DeclarationList '}'
    st.ast = cDcls(kwd, cd.ansi_c_pp);  }
 
 
--- C ~almost~ compound statment                 --
---------------------------------------------------
 -- This is CompoundStatement_c in ableC without the curly brackets.
 nonterminal C_CmpdStmt with pp ; 
 
@@ -134,13 +132,11 @@ c::C_CmpdStmt ::=
 
 
 -- C code in Promela expressions --
------------------------------------
-
 aspect production c_expr_c
 e::Expr_c ::= ce::Cexpr_c
 { e.pp = ce.pp;   e.ast = ce.ast ; }
 
--- Cexpr_c, (cexpr  in spin.y)
+
 attribute pp occurs on Cexpr_c ;
 attribute ast<Expr> occurs on Cexpr_c ;
 
@@ -166,7 +162,10 @@ ce::C_EXPR_nt_c ::= kwd::C_EXPR '[' e::Ansi_C_Expr ']' '{' cmpd::C_CmpdStmt '}'
   ce.ast = exprCExprCmpd (kwd, e.ansi_c_pp, cmpd.pp ) ;   }
 
 
---- To avoid useless production errors!         --
+{-- This production is used to make all productions and nonterminals
+    in the ableC grammar not be useless - thus avoiding an error
+    message from Copper to this effect.
+-}
 --------------------------------------------------
 terminal BOGUS_C_ROOT_t '!!!!!!BOGUSCROOT' ;
 concrete production bogus_C_Root
