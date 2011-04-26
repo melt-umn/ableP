@@ -1,0 +1,19 @@
+
+------------------------------------------------------------
+ableP - alpha release 1
+- major reworking and reorganization of previous unreleased version
+- covered Promela from SPIN version 6.0.1
+- uses new style scope rules
+- embedded C code and new version 6 features implemented as extensions
+  to the host:core language
+- type checking functionality implemented as an extension.  This
+  demostrates how ETCH-like analysis could be done this way.  Minimal
+  checking is currently done however.
+
+------------------------------------------------------------
+
+ableP - previous unreleased version.
+- covered Promela from SPIN version 4.2.9
+- handled inlining in a more traditional manner
+- parses embedded C code using the ableC grammar
+- basic syntax and 4.2.9 style scope rules
