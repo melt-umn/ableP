@@ -1,0 +1,10 @@
+mtype = {High, Med, Low} ;           /* quality of instrument readings */
+
+active proctype main() {
+  mtype altQuality ;
+
+  select (altQuality: High, Med, Low) ;
+
+  printf("Chosen Quality is: ") ;
+  printm(altQuality) ;
+}

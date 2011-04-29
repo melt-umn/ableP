@@ -1,0 +1,15 @@
+timer t ;
+timer t4; 
+
+active proctype hello() 
+{ printf ("---------------------------- Hello World.\n") ;
+  run more(1) ;
+  run more(2) ;
+}
+
+proctype more(int i)
+{ timer t2 ;
+  int j = i * i ;
+  printf ("---------------------------- More ... %d\n", j) ; 
+/*  timer t3 = -1 ; */
+}
