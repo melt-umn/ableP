@@ -35,7 +35,7 @@ procty::ProcType_c ::= dpt::D_PROCTYPE
 attribute pp, ppi, ast<Inst> occurs on Inst_c ;
 
 aspect production empty_inst_c
-i::Inst_c ::= 
+i::Inst_c ::= {-empty-}
 { i.pp = "";
   i.ast = empty_inst(); 
 }

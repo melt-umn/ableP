@@ -29,14 +29,14 @@ ds::Decls ::= vis::Vis t::TypeExpr v::Declarator
 
 -- assignment --
 aspect production assign
-s::Stmt ::= lhs::Expr rhs::Expr 
+s::Stmt ::= lhs::Expr op::'=' rhs::Expr 
 { overloads <- case lhs.typerep of
-                 timerTypeRep() -> [ timerAssign(lhs, rhs) ] 
+                 timerTypeRep() -> [ timerAssign(lhs, op, rhs) ] 
                | _ -> [ ] end ;
 }
 abstract production timerAssign
-s::Stmt ::= lhs::Expr rhs::Expr 
-{
- -- TODO - add type checking on timerAssign
- forwards to defaultAssign(lhs.host,rhs.host) ;
+s::Stmt ::= lhs::Expr op::'=' rhs::Expr 
+{ -- This is just syntactic sugar for the set operation.
+  s.pp = lhs.pp ++ " = " ++ rhs.pp ;
+  forwards to set(terminal(SET, "set", op.line, op.column), lhs, rhs) ;
 }

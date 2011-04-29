@@ -27,9 +27,9 @@ function mkOptionsExprs
 Options ::= v::Expr exprs::Exprs
 { return case exprs of
            noneExprs() -> oneOption(skipStmt())
-         | oneExprs(e) -> oneOption(assign(v,e))
+         | oneExprs(e) -> oneOption(assign(v,'=',e))
          | consExprs(e,es) -> consOption (
-                                assign(v,e) ,
+                                assign(v,'=',e) ,
                                 mkOptionsExprs(v, es) )
          end ;
 }
@@ -41,7 +41,8 @@ s::Stmt ::= sl::'select' v::Expr exprs::Exprs
               then [ mkError ("Error: select statement on line " ++ 
                               toString(sl.line) ++ " requires all choices to " ++
                               "have the same \ntype as variable assigned to, " ++ 
-                              " which is \"" ++ v.typerep.pp ++ "\"." ) ] ++
+                              " which is \"" ++ v.typerep.pp ++ "\".",
+                              mkLoc(sl.line, sl.column) ) ] ++
                    exprs.selectErrors 
               else [ ] ;
  exprs.vrefTypeRep = v.typerep ;
@@ -58,8 +59,8 @@ aspect production noneExprs  es::Exprs ::=
 aspect production consExprs  es::Exprs ::= e::Expr rest::Exprs
 { es.selectErrors := 
    ( if areCompatible( es.vrefTypeRep, e.typerep )  then [ ]
-     else [ mkError ("Error: Expression has type \"" ++ e.typerep.pp ++
-                     " but it should be \"" ++ es.vrefTypeRep.pp ++ "\"." ) ] 
+     else [ mkErrorNoLoc ("Error: Expression has type \"" ++ e.typerep.pp ++
+                     " but it should be \"" ++ es.vrefTypeRep.pp ++ "\"." ) ]
    ) ++ rest.selectErrors ; 
    rest.vrefTypeRep = es.vrefTypeRep ;
 }

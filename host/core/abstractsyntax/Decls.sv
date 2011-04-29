@@ -137,7 +137,7 @@ ds::Decls ::= v::Vis t::TypeExpr names::IDList
  ds.pp =  v.pp ++ t.pp ++ " = { " ++ names.pp ++ " } ";
  ds.errors := case t of
                 mtypeTypeExpr() -> [ ] 
-              | _ -> [ mkError ("Type \"" ++ t.pp ++ "\" cannot be used in " ++
+              | _ -> [ mkErrorNoLoc ("Type \"" ++ t.pp ++ "\" cannot be used in " ++
                                 "mtype-style declration.\n" ) ] end ;
 
  ds.host = mtypeDecls(v.host, t.host, names.host) ;

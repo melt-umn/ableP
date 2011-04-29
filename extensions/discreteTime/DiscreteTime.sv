@@ -40,15 +40,15 @@ t::TypeRep ::=
 -- delay statement --
 ---------------------
 concrete production delay_c
-st::Statement_c ::= 'delay' '(' t::Varref_c ',' e::Expr_c ')' 
+st::Statement_c ::= d::'delay' '(' t::Varref_c ',' e::Expr_c ')' 
 { st.pp = "delay (" ++ t.pp ++ ", " ++ e.pp ++ ")" ;
-  st.ast = delay(t.ast, e.ast) ;
+  st.ast = delay(d, t.ast, e.ast) ;
 }
 
 -- #define delay(tmr,val) set(tmr,val); expire(tmr) 
 -- #define udelay(tmr) do :: delay(tmr,1) :: break od
 abstract production delay
-st::Stmt ::= tmr::Expr val::Expr
+st::Stmt ::= d::DELAY tmr::Expr val::Expr
 { st.pp = "delay (" ++ tmr.pp ++ ", " ++ val.pp ++ ")" ;
   st.errors := 
 {-             case tmr.typerep of
@@ -60,19 +60,27 @@ st::Stmt ::= tmr::Expr val::Expr
                | _ -> [ mkError("\"" ++ val.pp ++ "\" must be of type \"timer\".") ]
                end ++ -}
                tmr.errors ++ val.errors ;
-  forwards to seqStmt( set(tmr,val), expire(tmr) ) ;
+  forwards to seqStmt( set( terminal(SET,"set", d.line, d.column), tmr, val),
+                       expire(tmr) ) ;
 }
 
 -- #define set(tmr,val) (tmr=val) 
 concrete production set_c
-st::Statement_c ::= 'set' '(' t::Varref_c ',' e::Expr_c ')' 
+st::Statement_c ::= s::'set' '(' t::Varref_c ',' e::Expr_c ')' 
 { st.pp = "set (" ++ t.pp ++ ", " ++ e.pp ++ ")" ;
-  st.ast = set(t.ast, e.ast) ;
+  st.ast = set(s, t.ast, e.ast) ;
 }
 abstract production set
-st::Stmt ::= t::Expr e::Expr
+st::Stmt ::= s::'set' t::Expr e::Expr
 { st.pp = "set (" ++ t.pp ++ ", " ++ e.pp ++ ")" ;
-  forwards to assign(t.host, e.host) ;
+  st.errors
+   := if   e.typerep.isArithmetic
+      then [ ]
+      else [ mkError ( "Incompatible value assigned into timer variable",
+                       mkLoc(s.line, s.column) ) ] ;
+  st.defs = emptyDefs();
+
+  forwards to defaultAssign(t.host, terminal(ASGN, "=", s.line, s.column), e.host) ;
 }
 
 -- #define expire(tmr) (tmr==0) 
@@ -84,6 +92,11 @@ st::Statement_c ::= 'expire' '(' e::Expr_c ')'
 abstract production expire
 st::Stmt ::= t::Expr
 { st.pp = "expire (" ++ t.pp ++ ")" ;
+  st.errors := case t.typerep of
+                 timerTypeRep() -> [ ]
+               | _ -> [ mkErrorNoLoc ("on expire; expression \"" ++ t.pp ++
+                                      " must be a \"timer\" type" ) ]
+               end ;
   forwards to exprStmt(eqExpr(t, constExpr(terminal(CONST, "0")))) ;
 }
 
@@ -98,7 +111,7 @@ st::Stmt ::= tmr::Expr
 { st.pp = "tick (" ++ tmr.pp ++ ")" ;
   forwards to ifStmt ( consOption ( -- tmr>=0 -> tmr=tmr-1
                              seqStmt ( exprStmt(gteExpr(tmr, zero)) ,
-                                       assign(tmr, minus(tmr,one)) ) ,
+                                       assign(tmr, '=', minus(tmr,one)) ) ,
                         oneOption ( elseStmt() ) ) ) ;
   local zero::Expr = constExpr(terminal(CONST,"0")) ;
   local one::Expr = constExpr(terminal(CONST,"1")) ;

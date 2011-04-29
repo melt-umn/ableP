@@ -1,16 +1,19 @@
 grammar edu:umn:cs:melt:ableP:host:extensions:typeChecking ;
 
+nonterminal TypeRep with tag, pp, host<TypeRep> ;
+
 synthesized attribute typerep::TypeRep;
 synthesized attribute typereps::[TypeRep] ;
-
-nonterminal TypeRep with tag, host<TypeRep> ;
-
 synthesized attribute tag::String;
+
+{- Type checking currently boils down to a simple "compatibility"
+   check between types.  Operations such as assignment and parameter
+   passing check for this compatibility between the types of,
+   respectively, the left and right hand sides of the assignment, and
+   the actual and formal parameters.
+ -}
 synthesized attribute isCompatible::Boolean occurs on TypeRep;
 synthesized attribute isArithmetic::Boolean occurs on TypeRep;
-attribute pp occurs on TypeRep;
-
---synthesized attribute var_ref_p :: Production (Expr ::= ID TypeRep ) ;
 
 -- Arithmetic Types.
 -- This is not-quite standard Promela type checking.
@@ -72,6 +75,7 @@ t::TypeRep ::=
 
 -- non arithmetic types are checked by pattern matching.
 inherited attribute trToCheck :: TypeRep occurs on TypeRep ;
+
 function areCompatible
 Boolean ::= t1::TypeRep t2::TypeRep
 { return tr_1.isCompatible ;
@@ -81,6 +85,11 @@ Boolean ::= t1::TypeRep t2::TypeRep
   local tr_1::TypeRep = t1 ;
   tr_1.trToCheck = t2 ;
 }
+
+function allTrue
+Boolean ::= bs::[Boolean]
+{ return if null(bs) then true
+         else head(bs) && allTrue(tail(bs)) ; }
 
 abstract production chanTypeRep
 t::TypeRep ::= 
@@ -116,13 +125,15 @@ t::TypeRep ::=
 }
 
 abstract production procTypeRep
-t::TypeRep ::=
+t::TypeRep ::= ts::[TypeRep]
 { t.tag = "proc type";
   t.pp = "proc type";
-  t.host = procTypeRep();
-  t.isCompatible = case t.trToCheck of
-                     procTypeRep() -> true
-                   | _ -> false end ;
+  t.host = procTypeRep(ts);
+  t.isCompatible 
+    = case t.trToCheck of
+        procTypeRep(ts_in) -> length(ts) == length(ts_in) &&
+                              allTrue(zipWith(ts, ts_in, areCompatible))
+      | _ -> false end ;
   t.isArithmetic = false ;
 }
 
@@ -154,7 +165,6 @@ t::TypeRep ::= fields::[ Pair<String TypeRep> ]
 { t.tag = "user";
   t.pp = "user";
   t.isCompatible = false;
-  --t.var_ref_p = promela_bound_var_ref ;
 }
 
 
@@ -173,7 +183,6 @@ t::TypeRep ::=
 { t.tag = "inline";
   t.pp = "inline";
   t.isCompatible = false;
-  --t.var_ref_p = inline_var_ref ;
 }
 
 abstract production substitute_varref_with_expr_type
@@ -181,6 +190,5 @@ t::TypeRep ::= replacement::Expr
 { t.tag = "inline-sub";
   t.pp = "inline-sub";
   t.isCompatible = false;
-  --t.var_ref_p = substitute_var_ref ;
 }
 

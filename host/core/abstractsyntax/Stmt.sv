@@ -236,23 +236,23 @@ s::Stmt ::= b::Stmt
 -- Assignments, increments, side-effects        --
 --------------------------------------------------
 abstract production assign
-s::Stmt ::= lhs::Expr rhs::Expr 
+s::Stmt ::= lhs::Expr op::'=' rhs::Expr 
 { s.pp = s.ppi ++ lhs.pp ++ " = " ++ rhs.pp ;
   production attribute overloads :: [Stmt] with ++ ;
   overloads := [ ] ;
 
-  forwards to if null(overloads) then defaultAssign(lhs,rhs) 
+  forwards to if null(overloads) then defaultAssign(lhs,op,rhs) 
               else head(overloads) ;
 }
 
 abstract production defaultAssign
-s::Stmt ::= lhs::Expr rhs::Expr 
+s::Stmt ::= lhs::Expr op::'=' rhs::Expr 
 { s.pp = s.ppi ++ lhs.pp ++ " = " ++ rhs.pp ++ " ;\n" ; 
   s.errors := lhs.errors ++ rhs.errors ;
   s.defs = emptyDefs();
   s.uses = lhs.uses ++ rhs.uses ;
-  s.host = assign(lhs.host, rhs.host) ;
-  s.inlined = assign(lhs.inlined, rhs.inlined) ;
+  s.host = assign(lhs.host, op, rhs.host) ;
+  s.inlined = assign(lhs.inlined, op, rhs.inlined) ;
 }
 
 abstract production incrStmt

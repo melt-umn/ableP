@@ -57,7 +57,7 @@ procty::ProcType_c ::= dpt::D_PROCTYPE (d_procType_c) { }
 
 nonterminal Inst_c ;  -- inst
 concrete productions
-i::Inst_c ::= (empty_inst_c) { }
+i::Inst_c ::= {-empty-} (empty_inst_c) { }
 i::Inst_c ::= a::ACTIVE (active_inst_c) { }
 i::Inst_c ::= a::ACTIVE '[' ct::CONST ']' (activeconst_inst_c) { }
 i::Inst_c ::= a::ACTIVE '[' id::ID ']' (activename_inst_c) { }
@@ -154,7 +154,7 @@ s::Step_c ::= st1::Stmt_c un::UNLESS st2::Stmt_c (unless_c) { }
 
 nonterminal Vis_c ;  -- vis
 concrete productions
-v::Vis_c ::=            (vis_empty_c) { }
+v::Vis_c ::= {-empty-}  (vis_empty_c) { }
 v::Vis_c ::= h::HIDDEN  (vis_hidden_c) { }
 v::Vis_c ::= s::SHOW    (vis_show_c) { }
 v::Vis_c ::= i::ISLOCAL (vis_islocal_c) { }
@@ -163,7 +163,7 @@ v::Vis_c ::= i::ISLOCAL (vis_islocal_c) { }
 nonterminal Asgn_c ;    -- asgn
 concrete productions
 a::Asgn_c ::= at::ASGN  (oneAsgn_c)  { }
-a::Asgn_c ::=           (noAsgn_c)   { }
+a::Asgn_c ::= {-empty-} (noAsgn_c)   { }
 
 
 nonterminal OneDecl_c ;   -- one_decl
@@ -182,7 +182,7 @@ dcls::DeclList_c ::= dcl::OneDecl_c s::SEMI rest::DeclList_c (multi_Decl_c) { }
 
 nonterminal Decl_c ;   -- decl
 concrete productions
-dcl::Decl_c ::= (empty_Decl_c) { }
+dcl::Decl_c ::= {-empty-} (empty_Decl_c) { }
 dcl::Decl_c ::= dcllist::DeclList_c (decllist_c) { }
 
 
@@ -233,7 +233,7 @@ c::Cmpnd_c ::= p::Pfld_c s::Sfld_c (cmpnd_pfld_c) { }
 
 nonterminal Sfld_c ;  -- sfld
 concrete productions
-sf::Sfld_c ::= (empty_sfld_c) { }
+sf::Sfld_c ::= {-empty-} (empty_sfld_c) { }
 sf::Sfld_c ::= d::STOP c::Cmpnd_c (dot_sfld_c) precedence = 45 { }
 
 
@@ -298,7 +298,7 @@ op::Option_c ::= '::' seq::Sequence_c os::OS_c (op_seq_c) { }
 
 nonterminal OS_c ;  -- OS
 concrete productions
-os::OS_c ::= (os_no_semi_c) { }
+os::OS_c ::= {-empty-} (os_no_semi_c) { }
 os::OS_c ::= s::SEMI  (os_semi_c) { }
 
 
@@ -363,7 +363,7 @@ e::Expr_c ::= pn::PNAME ':' pf::Pfld_c (fld_expr_c) { }
 
 nonterminal OptPriority_c ; -- Opt_priority
 concrete productions
-op::OptPriority_c ::= (none_priority_c) { }
+op::OptPriority_c ::= {-empty-} (none_priority_c) { }
 op::OptPriority_c ::= p::PRIORITY ct::CONST (num_priority_c) { }
 
 
@@ -402,7 +402,7 @@ pr::Probe_c ::= net::NEMPTY '(' vref::Varref_c ')' (nempty_probe_c) { }
 
 nonterminal OptEnabler_c ; -- Opt_enabler
 concrete productions
-oe::OptEnabler_c ::=  (none_enabler_c) { }
+oe::OptEnabler_c ::= {-empty-} (none_enabler_c) { }
 oe::OptEnabler_c ::= p::PROVIDED '(' fe::FullExpr_c ')'  (expr_enabler_c) { }
 
 
@@ -434,13 +434,13 @@ tl::TypList_c ::= bt::BaseType_c ',' tyl::TypList_c (tl_comma_c) { }
 
 nonterminal Args_c ;  -- args
 concrete productions
-args::Args_c ::= (empty_args_c) { }
-args::Args_c ::= a::Arg_c (one_args_c) { }
+args::Args_c ::= {-empty-} (empty_args_c) { }
+args::Args_c ::= a::Arg_c  (one_args_c) { }
 
 
 nonterminal PrArgs_c ;   -- prargs
 concrete productions
-pa::PrArgs_c ::= (empty_prargs_c) { }
+pa::PrArgs_c ::= {-empty-}    (empty_prargs_c) { }
 pa::PrArgs_c ::= ',' a::Arg_c (one_prargs_c) { }
 
 

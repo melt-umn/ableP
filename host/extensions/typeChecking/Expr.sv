@@ -62,10 +62,10 @@ exp::Expr ::= vref::Expr ra::RArgs
 aspect production run
 exp::Expr ::= pn::ID args::Exprs p::Priority
 { exp.typerep = eres.dcl.typerep ; 
-  exp.errors <- if true -- wrong number of errors ToDo
-                then [ mkError ( "Incorrect number of arguments to \"" ++ 
-                                 exp.pp ++ "\"." ) ]
-                else [ ] ;
+  exp.errors <-
+    if   areCompatible( exp.typerep, procTypeRep(args.typereps) ) 
+    then [ ]
+    else [ mkError ( "Incorrect types used in \"run\"",  mkLocID(pn) ) ] ;
 }
 aspect production exprChInit
 exp::Expr ::= ci::ChInit

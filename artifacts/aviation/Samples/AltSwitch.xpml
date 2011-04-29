@@ -7,7 +7,8 @@ chan monitor = [0] of {mtype, mtype} ;
 timer trouble_t, above_t ;   /* expands to "int trouble_t = -1;" */
 
 proctype monitorStatus( ) {
-
+  /* Read the 'monitor' channel for updates from 'determinStatus'
+     process. */
 }
 
 active proctype determineStatus () 
@@ -43,7 +44,9 @@ active proctype determineStatus ()
 
  trouble:
    monitor!altStatus,altitude ;        /* send msg to monitor */
-   trouble_t = 1; expire(trouble_t);   /* what delay expands to */
+
+   trouble_t = 1; 
+   expire(trouble_t);                  /* what delay expands to */
    goto check ;
 }
 

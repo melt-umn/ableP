@@ -80,8 +80,8 @@ t::TypeExpr ::= un::UNAME
 
  production res::EnvResult = lookup_name(un.lexeme, t.env) ;
  t.errors := if res.found then [ ]
-             else [ mkError ( "Type \"" ++ un.lexeme ++ "\" not declared, line " ++
-                              toString(un.line) ++ ", column " ++ toString(un.column) ) ] ;
+             else [ mkError ( "Type \"" ++ un.lexeme ++ "\" not declared",
+                              mkLoc(un.line,un.column) ) ] ;
 
  t.host = unameTypeExpr(un) ;
  t.inlined = unameTypeExpr(un) ;

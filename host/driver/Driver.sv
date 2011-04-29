@@ -76,31 +76,33 @@ IOVal<Integer> ::= args::[String]
 
   local attribute print_success :: IO ;
   print_success = 
-    print( "Warnings: " ++
-           (if null(ast_warnings)  then " No warnings.\n" 
-            else "\n" ++ showErrors(ast_warnings) ++ "\n"
+    print( (if null(ast_warnings)  then "" --" No warnings to report.\n" 
+            else "Warnings: \n" ++ showErrors(ast_warnings) ++ "\n"
            ) ++
-           "Errors:   " ++
-           (if null(ast_errors)  then " No semantic errors.\n" 
-            else "\n" ++ showErrors(ast_errors) ++ "\n"
+           (if null(ast_errors)  then "No semantic errors detected.\n" 
+            else "Errors: \n" ++ showErrors(ast_errors) ++ "\n"
            ) ++
-           "\n\n"
+           "\n"
            , print_debug ) ;
 
   local splitFileName::Pair<String String> = splitFileNameAndExtension(filename) ;
 
   local writeHostIO::IO
     = if   splitFileName.snd == "xpml" && parseHOSTpp.parseSuccess
-      then writeFile( splitFileName.fst ++ "_HOST.pml", r_host_cst.pp,
-                      print ("writing host from CST as \"" ++ 
-                             splitFileName.fst ++ "_HOST.pml\" \n",
+      then writeFile( splitFileName.fst ++ ".pml", r_host_cst.pp,
+                      print ("Writing pure-Promela version as \"" ++ 
+                             splitFileName.fst ++ ".pml\" \n",
                              print_success ) )
       else print_success ;
 
+  local inlinedFileName::String = splitFileName.fst ++ "_inlined." ++
+                                  splitFileName.snd ;
   local writeInlinedIO::IO 
     = if   parseHOSTpp.parseSuccess
-      then writeFile ( splitFileName.fst ++ "_inlined." ++ splitFileName.snd, 
-                  r_inlined_cst.pp, writeHostIO ) 
+      then writeFile ( inlinedFileName, r_inlined_cst.pp, 
+                      print ("Writing inlined version as \"" ++ 
+                             inlinedFileName ++ "\" \n",
+                             writeHostIO ) )
       else writeHostIO ;
       -- Write the inlined version of a .xpml or .pml file with the same 
       -- extension.

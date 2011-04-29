@@ -39,7 +39,7 @@ s::Stmt ::= sl::'select' v::Expr lower::Expr upper::Expr step::Expr
   
   forwards to 
    seqStmt ( 
-     assign (v, lower),
+     assign (v, '=', lower),
      seqStmt (
        doStmt ( 
          consOption (
@@ -47,7 +47,7 @@ s::Stmt ::= sl::'select' v::Expr lower::Expr upper::Expr step::Expr
            oneOption ( 
              seqStmt (
                exprStmt ( genericBinOp(v, op, upper) ) ,
-               assign (v, genericBinOp(v, opPlus, step) ) 
+               assign (v, '=', genericBinOp(v, opPlus, step) ) 
              )
            )
          )
@@ -80,7 +80,7 @@ Options ::= v::Expr lw::Integer up::Integer by::Integer
 { return if   lw > up
          then oneOption(skipStmt())
          else consOption (
-                assign(v, constExpr(terminal(CONST,toString(lw)))) ,
+                assign(v, '=', constExpr(terminal(CONST,toString(lw)))) ,
                 mkOptions(v, lw+by, up, by) 
               ) ;
 }

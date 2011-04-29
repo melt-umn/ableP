@@ -19,6 +19,13 @@ e::Expr ::= id::ID
               | _ -> varRefExpr(id)  end ;
 }
 
+aspect production varRefExprAll
+e::Expr ::= id::ID
+{ overloads <- case eres.dcl of
+                 inlineArgDecl(_,ine) -> [ new(ine) ]
+               | _ -> [ ]  end ;
+}
+
 
 -- inline declarations --
 -------------------------
@@ -75,6 +82,7 @@ st::Stmt ::= n_ref::INAME actuals::Exprs
   local body::Stmt = case res.dcl of
            inlineDecl (_, _, s)  -> new(s)
          | _ -> error ("Should not be asking for body of inline.") end ;
+--  body.env = st.env ;
   local formals::InlineArgs = case res.dcl of
            inlineDecl (_, fs, _)  -> new(fs)
          | _ -> error ("Should not be asking for formals.") end ;

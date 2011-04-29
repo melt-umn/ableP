@@ -17,14 +17,14 @@ s::Stmt ::= sk::SELECT v::Expr lower::Expr upper::Expr
    -}
   
   forwards to 
-   seqStmt ( assign(v,lower),
+   seqStmt ( assign(v,'=', lower),
              seqStmt (
                doStmt ( consOption (
                           gotoStmt (label) ,
                           oneOption ( 
                             seqStmt ( 
                               exprStmt ( genericBinOp(v, oplt, upper) ) ,
-                              assign (v, genericBinOp(v, opplus, one) )
+                              assign (v, '=', genericBinOp(v, opplus, one) )
                             )
                           )  
                         )

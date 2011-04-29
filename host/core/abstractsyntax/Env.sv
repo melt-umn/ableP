@@ -72,7 +72,7 @@ autocopy attribute alluses::[Use]
             MArgs, RArgs, RArg ;
 
 attribute env
-  occurs on Unit, Stmt, Options, Expr, Exprs,
+  occurs on Unit, Stmt, Options, Expr, Exprs, Enabler,
             Decls, Declarator, IDList,
             MArgs, RArgs, RArg ;
 

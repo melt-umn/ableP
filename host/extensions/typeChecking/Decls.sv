@@ -1,6 +1,6 @@
 grammar edu:umn:cs:melt:ableP:host:extensions:typeChecking ;
 
-attribute typerep occurs on Decls ;
+attribute typerep, typereps occurs on Decls ;
 
 inherited attribute typerep_in :: TypeRep ;
 attribute typerep, typerep_in occurs on Declarator ;
@@ -8,20 +8,25 @@ attribute typerep, typerep_in occurs on Declarator ;
 aspect production seqDecls
 ds::Decls ::= ds1::Decls ds2::Decls
 { ds.typerep = errorTypeRep() ; 
+  ds.typereps = ds1.typereps ++ ds2.typereps ;
 }
 aspect production emptyDecl
 ds::Decls ::= 
 { ds.typerep = errorTypeRep() ; 
+  ds.typereps = [ ];
 }
 
 aspect production defaultVarDecl
 ds::Decls ::= vis::Vis t::TypeExpr v::Declarator
 { ds.typerep = v.typerep ;
+  ds.typereps = [ ds.typerep ] ;
   v.typerep_in = t.typerep;
+  
 }
 aspect production defaultVarAssignDecl
 ds::Decls ::= vis::Vis t::TypeExpr v::Declarator e::Expr
 { ds.typerep = v.typerep ;
+  ds.typereps = [ ds.typerep ] ;
   v.typerep_in = t.typerep;
 }
 
@@ -48,7 +53,7 @@ aspect production procDecl
 proc::Decls ::= i::Inst procty::ProcType nm::ID dcl::Decls
                 pri::Priority ena::Enabler 
                 b::Stmt
-{  proc.typerep = procTypeRep() ;
+{  proc.typerep = procTypeRep( dcl.typereps ) ;
 }
 
 

@@ -1,0 +1,40 @@
+#!/bin/bash
+
+### Step 1.   Copy into a release branch in Subversion !
+
+### Step 2.   Run this script in the release branch.
+
+# ./cleanup
+
+if [ -z "$1" ]; then
+  echo "invoke make-dist with a version argument."
+  echo "For example:  ./make-dist 0.3.1-rc1"
+  exit 1
+fi
+
+find . -name "*.sv" \! -name "ConcreteSyntax.sv" -print -exec ./addLGPLheader {} \;
+
+echo "DONE"
+exit 1
+echo "STILL GOING"
+
+ABLEP=ableP-$1
+
+if [[ -a $ABLEP || -a $ABLEP.tar.gz ]]; then
+  echo "error: $ABLEP already exists?"
+  exit 1
+fi
+
+ln -s . $ABLEP
+
+tar zcvf $ABLEP.tar.gz \
+ "--exclude=.svn" "--exclude=*~" "--exclude=syntax_check" \
+ $ABLEP/artifacts/ \
+ $ABLEP/host/ \
+ $ABLEP/extensions/
+ $ABLEP/COPYING* \
+ $ABLEP/HISTORY \
+ $ABLEP/README.txt \
+ $ABLEP/INSTALL \
+ 
+rm $ABLEP

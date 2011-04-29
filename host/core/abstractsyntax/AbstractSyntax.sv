@@ -1,8 +1,5 @@
 grammar edu:umn:cs:melt:ableP:host:core:abstractsyntax ;
 
-imports lib:langproc:errors ;
-exports lib:langproc:errors ;
-
 imports edu:umn:cs:melt:ableP:host:core:terminals;
 
 -- Attibutes used by most nonterminals.
@@ -20,8 +17,8 @@ autocopy attribute ppsep::String;
 autocopy attribute ppterm::String;
 
 
-function mkLoc
-String ::= l::Integer c::Integer
-{
- return "line: " ++ toString(l) ++ ", column: " ++ toString(c) ;
-}
+--function mkLoc
+--String ::= l::Integer c::Integer
+--{
+-- return "line: " ++ toString(l) ++ ", column: " ++ toString(c) ;
+--}

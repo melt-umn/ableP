@@ -128,7 +128,7 @@ ers1::ExprRows ::= ers2::ExprRows erow::ExprRow
   ers1.errors := ers2.errors ++ erow.errors ++
                  if erow.rlen == ers2.rlen 
                  then [ ]
-                 else [mkError (
+                 else [mkErrorNoLoc (
                         "Error: On line no " ++ toString(erow.lineno) ++
                         " The number of T,F,* entries in table row \n" ++
                         erow.pp ++ "  must be the same as the preceding rows" ) ];

@@ -36,14 +36,16 @@ abstract production varRefExprAll
 e::Expr ::= id::ID
 { production attribute overloads::[Expr] with ++ ;
   overloads := [ ] ;
+  production eres::EnvResult = lookup_name(id.lexeme, e.env) ;
+  e.host = varRefExprAll(id);
+
   forwards to if   null(overloads)
               then varRefExpr(id)
               else head(overloads) ;
   e.errors := if   length(overloads) > 1
               then [ mkError ("Internal error.  More than one overloading " ++
                               "productions for identifier \"" ++ 
-                              id.lexeme ++ "\", line " ++ 
-                              toString(id.line) ) ]
+                              id.lexeme, mkLocID(id) ) ]
               else forward.errors ;
 
 {- Does pattern matching not work on Strings?
@@ -74,8 +76,8 @@ abstract production varRefExpr
 e::Expr ::= id::ID
 { e.pp = id.lexeme ; 
   e.errors := if eres.found then [ ] 
-              else [ mkError ("Id \"" ++ id.lexeme ++ "\" not declared. " ++
-                              mkLoc(id.line,id.column) ++ "\n" ) ] ;
+              else [ mkError ("Id \"" ++ id.lexeme ++ "\" not declared" ,
+                              mkLocID(id) ) ] ;
 
   production eres::EnvResult = lookup_name(id.lexeme, e.env) ;
   e.uses = [ mkUse(eres.dcl.idNum, e) ];
@@ -252,8 +254,8 @@ exp::Expr ::= pn::ID args::Exprs p::Priority
 
   production eres::EnvResult = lookup_name(pn.lexeme, exp.env) ;
   exp.errors := (if eres.found then [ ] 
-                 else [ mkError ("Id \"" ++ pn.lexeme ++ "\" not declared. " ++
-                                 mkLoc(pn.line,pn.column) ++ "\n" ) ] )
+                 else [ mkError ("Id \"" ++ pn.lexeme ++ "\" not declared", 
+                                 mkLocID(pn) ) ] )
               ++ args.errors ;
 
   exp.uses = [ mkUse(eres.dcl.idNum, exp) ] ++ args.uses ;

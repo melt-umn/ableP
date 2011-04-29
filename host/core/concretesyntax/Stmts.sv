@@ -67,9 +67,9 @@ sc::Special_c ::= id::ID ':' st::Stmt_c
 attribute pp, ppi, ast<Stmt> occurs on Statement_c ;
 
 aspect production assign_stmt_c
-st::Statement_c ::= vref::Varref_c '=' exp::Expr_c
+st::Statement_c ::= vref::Varref_c op::'=' exp::Expr_c
 { st.pp = vref.pp ++ "=" ++ exp.pp ;
-  st.ast = assign(vref.ast, exp.ast) ;
+  st.ast = assign(vref.ast, op, exp.ast) ;
 }
 
 aspect production incr_stmt_c

@@ -6,6 +6,6 @@ for f in "*.pml.cpp" "pan.?" "a.out" "*_HOST.pml" "*_inlined.*pml" "diff_res" "d
 done
 
 
-for f in "*.jar" "build.xml" "*.test.output" ; do
+for f in "*.jar" "build.xml" "*.test.output" "*~" ; do
   find . -name $f -print $1
 done
