@@ -47,7 +47,7 @@ s::Stmt ::= f::FOR vr::Expr e::Expr body::Stmt
 
 -- Aspects on concrete syntax for for-loops --
 ----------------------------------------------
-attribute pp occurs on ForPre_c ; 
+attribute pp, ppi occurs on ForPre_c ; 
 attribute ast<Expr> occurs on ForPre_c ; 
 attribute forTerminal occurs on ForPre_c ; 
 
@@ -58,7 +58,7 @@ fp::ForPre_c ::= f::FOR '(' v::Varref_c
   fp.forTerminal = f ;
 }
 
-attribute pp occurs on ForPost_c ;
+attribute pp, ppi occurs on ForPost_c ;
 attribute ast<Stmt> occurs on ForPost_c ;
 
 aspect production forPost_c

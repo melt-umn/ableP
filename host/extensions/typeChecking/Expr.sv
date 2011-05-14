@@ -37,7 +37,14 @@ e::Expr ::= r::Expr f::ID
 }
 aspect production arrayAccess
 e::Expr ::= a::Expr i::Expr
-{
+{ e.typerep = case a.typerep of
+                arrayTypeRep(t) -> t
+              | _ -> errorTypeRep() 
+              end ;
+  e.errors <- case a.typerep of
+                arrayTypeRep(t) -> [ ] 
+              | _ -> [ mkErrorNoLoc ("Non-array type used in array access.") ]
+              end ;
 }
 aspect production trueExpr
 e::Expr ::= c::CONST

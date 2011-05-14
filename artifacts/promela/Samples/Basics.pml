@@ -1,3 +1,6 @@
+proctype hello()
+{ printf("Hello from a process\n"); }
+
 active proctype main()
 {
  run hello();
@@ -9,5 +12,3 @@ active proctype main()
  printf("i = %d, j = %d \n", i, j) ;
 }
 
-proctype hello()
-{ printf("Hello from a process\n"); }

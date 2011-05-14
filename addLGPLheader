@@ -1,0 +1,6 @@
+#!/bin/bash
+
+ls -l $1
+mv $1 $1_TEMP
+cat lgpl_header.txt $1_TEMP > $1
+rm -f $1_TEMP

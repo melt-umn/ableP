@@ -5,7 +5,7 @@ import edu:umn:cs:melt:ableP:host:core:concretesyntax only Program_c, ast, cst_P
 import edu:umn:cs:melt:ableP:host:core:abstractsyntax ; -- only Program, pp, host, errors ;
 import edu:umn:cs:melt:ableP:host:hostParser only promelaParser ;
 
-import lib:extcore ;
+--import lib:extcore ;
 
 function driver
 IOVal<Integer> ::= args::[String]
@@ -56,7 +56,8 @@ IOVal<Integer> ::= args::[String]
                  parseASTpp.parseErrors ++ "\n\n" ++
                  "r_ast.pp (which did not parse) is shown  below: \n" ++
                  "=============================================== \n" ++
-                 addLineNumbers(r_ast.pp) ++ "\n\n"
+                 --addLineNumbers(r_ast.pp) ++ "\n\n"
+                 r_ast.pp ++ "\n\n"
            )
            ++
            (if   parseHOSTpp.parseSuccess
@@ -69,7 +70,8 @@ IOVal<Integer> ::= args::[String]
                  parseHOSTpp.parseErrors ++ "\n\n" ++
                  "r_host.pp (which did not parse) is shown below: \n" ++
                  "=============================================== \n" ++
-                 addLineNumbers(r_hst.pp) ++ "\n\n"
+                 --addLineNumbers(r_hst.pp) ++ "\n\n"
+                 r_hst.pp ++ "\n\n"
            )
            ++ "\n\n"
            , text.io ) ;

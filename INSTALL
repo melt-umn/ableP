@@ -1,1 +1,30 @@
-To use ableP ...
+To use ableP you need the newest version of Silver - 0.3.2.
+
+This tar file to be expanded such that the "ableP" directory is
+insides the directory structure matching the name of the grammars.
+That is, it must be inside the directory structure
+   edu/umn/cs/melt/
+
+You also need the ableC concrete syntax grammar, which can be found at
+http://melt.cs.umn.edu/ableP as well.  The ableC tar file expands into
+a directory named ableC and should also be placed in the
+edu/umn/cs/melt directory, next to the ableP directory.
+
+More general instructions for installing and using Silver are
+available on the Silver site at melt.cs.umn.edu/silver.
+
+The 'silver-compile' scripts found in the artifacts/promela and
+artifacts/aviaion directories may need to be modified to point to
+where Silver has been installed.  These scripts set the GRAMMAR_PATH
+environment variable to point to the directory containing the
+enclosing "edu" directory.
+
+Running the script will generate a tar file that can be executed with
+the name of a sample file as the parameter.
+
+For example, in artifacts/aviation after running "./silver-compile"
+one can run "java -jar aviation.ableP.jar Samples/AltSwitch.xpml" to
+genrerate the pure Promela language version of this model.  It will be
+called Samples/AltSwitch_HOST.pml.
+
+
