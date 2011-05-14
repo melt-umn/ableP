@@ -35,18 +35,23 @@ function getErrors
 [Error] ::= errs::[Error]
 { return if null(errs)
          then [ ] 
-         else case head(errs) of
+         else case e of
                 mkError(_,_) -> [ head(errs) ]
               | _ -> [ ] end
               ++ getErrors(tail(errs)) ;
+ -- ToDo: get rid of this when bug 1424 is fixed.
+ local e :: Decorated Error = decorate head(errs) with {};
 }
 
 function getWarnings
 [Error] ::= errs::[Error]
 { return if null(errs)
          then [ ] 
-         else case head(errs) of
+         else case e of
                 mkWarning(_,_) -> [ head(errs) ]
               | _ -> [ ] end
               ++ getWarnings(tail(errs)) ;
+ -- ToDo: get rid of this when bug 1424 is fixed.
+ local e :: Decorated Error = decorate head(errs) with {} ;
+
 }
