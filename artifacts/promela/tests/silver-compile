@@ -11,11 +11,11 @@ export  SILVER_HOME="../../../../../../../../../silver/trunk"
 
 export ANT_OPTS="-Xss32m -Xmx2000m"
 
-#time java -Xss8M -Xmx1000M -jar $SILVER_HOME/RunSilver.jar \
-#     $1 -o ableP.tests.jar \
-#     edu:umn:cs:melt:ableP:artifacts:promela:tests \
-#     && ant
-
-silver $@ -o ableP.tests.jar \
+java -Xss8M -Xmx1000M -jar $SILVER_HOME/jars/RunSilver.jar \
+     $1 -o ableP.tests.jar \
      edu:umn:cs:melt:ableP:artifacts:promela:tests \
+     && ant
+
+#silver $@ -o ableP.tests.jar \
+#     edu:umn:cs:melt:ableP:artifacts:promela:tests \
 
