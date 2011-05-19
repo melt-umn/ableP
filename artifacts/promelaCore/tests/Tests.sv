@@ -38,7 +38,7 @@ IOVal<Integer> ::= args::[String] mainIO::IO
 
   -- make parse-only tests for all .pml files
   local parseTestsIO::IOVal<[Test]> = traverseDirectoriesAndPerform
-       ( ".", [ "../../promela/tests/SpinExamples" ], mkParseOnlyTest, 
+       ( ".", [ "SpinExamples" ], mkParseOnlyTest, 
          dirSkip, ioval(mainIO,[]) ) ;
 
   -- make tests to parse and compare pp of AST
