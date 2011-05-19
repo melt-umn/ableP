@@ -1,12 +1,12 @@
-grammar edu:umn:cs:melt:ableP:artifacts:promela:tests ;
+grammar edu:umn:cs:melt:ableP:artifacts:promelaCore:tests ;
 
 import lib:testing ;
 import lib:extcore ;
 
-import edu:umn:cs:melt:ableP:host:core:abstractsyntax hiding msg ;
-import edu:umn:cs:melt:ableP:host:core:concretesyntax ;
-import edu:umn:cs:melt:ableP:host:core:terminals ;
-import edu:umn:cs:melt:ableP:host:hostParser ;
+import edu:umn:cs:melt:ableP:host:core hiding msg ;
+--import edu:umn:cs:melt:ableP:host:core:concretesyntax ;
+--import edu:umn:cs:melt:ableP:host:core:terminals ;
+--import edu:umn:cs:melt:ableP:host:hostParser ;
 import edu:umn:cs:melt:ableP:host:tests ;
 
 function main
@@ -16,16 +16,16 @@ IOVal<Integer> ::= args::[String] mainIO::IO
  testResults = consolidateTestSuite( 
       [
         -- check parsing.  Runs on most Spin-provided examples
-        tests(parseTestsIO.iovalue) ,
+        tests(parseTestsIO.iovalue) 
 
         -- check that AST is created, and its generated pp is parseable
-        tests(astPPTestsIO.iovalue) ,
+--        tests(astPPTestsIO.iovalue) ,
 
 
 --                    tests(hostASTParseTestsIO.iovalue) ,
 
         -- check that there are no semantic errors on original AST or host AST.
-        tests(noErrorsTestsIO.iovalue)
+--        tests(noErrorsTestsIO.iovalue)
       ] ) ;
  testResults.ioIn = noErrorsTestsIO.io;
 
@@ -38,12 +38,12 @@ IOVal<Integer> ::= args::[String] mainIO::IO
 
   -- make parse-only tests for all .pml files
   local parseTestsIO::IOVal<[Test]> = traverseDirectoriesAndPerform
-       ( ".", [ "../../promelaCore/tests/SpinExamples", "Spin6_Examples" ], mkParseOnlyTest, 
+       ( ".", [ "../../promela/tests/SpinExamples" ], mkParseOnlyTest, 
          dirSkip, ioval(mainIO,[]) ) ;
 
   -- make tests to parse and compare pp of AST
   local astPPTestsIO::IOVal<[Test]> = traverseDirectoriesAndPerform
-       ( ".", [ "AST_pp_tests", "../../promelaCore/tests/SpinExamples" ] , -- , "../../aviation/PaperExamples" ], 
+       ( ".", [ "AST_pp_tests", "SpinExamples" ] , -- , "../../aviation/PaperExamples" ], 
          mkASTppTest, dirSkip, ioval(mainIO,[]) ) ;
 
   -- make tests to parse host AST
@@ -62,7 +62,7 @@ IOVal<[Test]> ::= fn::String ioIn::IOVal<[Test]>
 { return
     ioval( ioIn.io,
            if   endsWith(".pml",fn)
-           then [ parseOnlyTestAfterCPP(fn, promelaParser) ] ++ ioIn.iovalue
+           then [ parseOnlyTestAfterCPP(fn, promelaCoreParser) ] ++ ioIn.iovalue
            else ioIn.iovalue ) ;
 }
 
@@ -71,7 +71,7 @@ IOVal<[Test]> ::= fn::String ioIn::IOVal<[Test]>
 { return
     ioval( ioIn.io,
            if   endsWith(".pml",fn)
-           then [ postCPPParsingTest(fn, promelaParser, -- ppOfASTParsable_test
+           then [ postCPPParsingTest(fn, promelaCoreParser, -- ppOfASTParsable_test
                                                      ppOfAST_test
                                  ) ]
                 ++ ioIn.iovalue
@@ -83,7 +83,7 @@ IOVal<[Test]> ::= fn::String ioIn::IOVal<[Test]>
 { return
     ioval( ioIn.io,
            if   endsWith(".pml",fn)
-           then [ postParsingTest(fn, promelaParser, parsePPofHost_test) ] ++ 
+           then [ postParsingTest(fn, promelaCoreParser, parsePPofHost_test) ] ++ 
                 ioIn.iovalue
            else ioIn.iovalue ) ;
 }
@@ -95,7 +95,7 @@ makeTestSuite ableP_host_tests ;
 aspect production ableP_host_tests 
 top::TestSuite ::=
 { testsToPerform
-     <- [ parseOnlyTest("../../promelaCore/tests/SpinExamples/CH3/counter.pml", promelaParser),
-          parseFailTest("ErroneousFiles/ParseErrors/counter.pml", promelaParser) ] ; 
+     <- [ parseOnlyTest("SpinExamples/CH3/counter.pml", promelaCoreParser),
+          parseFailTest("ErroneousFiles/ParseErrors/counter.pml", promelaCoreParser) ] ; 
 } 
 
