@@ -6,6 +6,7 @@ echo "Making initial tar file"
 tar cf ableP.tar  \
   "--exclude=.svn" "--exclude=tests" "--exclude=XX" \
   "--exclude=syntax_check" \
+  "--exclude=docs" \
   "--exclude=Others"   "--exclude=Notes.txt*" \
   "--exclude=build.xml" \
   "--exclude=*.svX" \

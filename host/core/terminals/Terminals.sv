@@ -6,33 +6,28 @@ import edu:umn:cs:melt:ableC:terminals ;
 lexer class promela_kwd;
 lexer class promela;
 
+lexer class p_WS_Comments dominates Ccomment ;
                         
 -- White space and comments --
 ------------------------------
-lexer class p_WS_Comments ;
+--lexer class p_WS_Comments ;
 
 ignore terminal WhiteSpace_P /[\t\n\ ]+/ 
- lexer classes {promela, p_WS_Comments}, dominates { Ccomment } ;
+ lexer classes {promela, p_WS_Comments} ; 
 
 ignore terminal BlockComment_P /[\/][\*]([^\*]|[\r\n]|([\*]+([^\*\/]|[\r\n])))*[\*]+[\/]/ 
- lexer classes {promela, p_WS_Comments} , dominates { Ccomment };
+ lexer classes {promela, p_WS_Comments} ; 
 
 ignore terminal LineComment_P  /[\/][\/].*/ 
- lexer classes {promela, p_WS_Comments} , dominates { Ccomment } ;
+ lexer classes {promela, p_WS_Comments} ; 
 
 ignore terminal CPPDirectiveLayout_P /[#].*/ 
- lexer classes {promela, p_WS_Comments} , dominates { Ccomment } ;
+ lexer classes {promela, p_WS_Comments} ; 
 
 
 terminal ASSERT       'assert'       lexer classes {promela,promela_kwd};
 terminal PRINTM       'printm'       lexer classes {promela,promela_kwd};
 terminal PRINTF       'printf'       lexer classes {promela,promela_kwd};
-
-terminal C_CODE  'c_code'   lexer classes {promela,promela_kwd};
-terminal C_DECL  'c_decl'   lexer classes {promela,promela_kwd};
-terminal C_EXPR  'c_expr'   lexer classes {promela,promela_kwd};
-terminal C_STATE 'c_state'  lexer classes {promela,promela_kwd};
-terminal C_TRACK 'c_track'  lexer classes {promela,promela_kwd};
 
 terminal RUN          'run'          lexer classes {promela,promela_kwd};
 terminal LEN          'len'          lexer classes {promela,promela_kwd};

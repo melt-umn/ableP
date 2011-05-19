@@ -85,6 +85,8 @@ e::Expr ::= id::ID
   -- e.inlined = ... see Inline.sv ...
 }
 
+-- varRef-style production for special identifiers 
+-- These are _, _last, _pid, _nr_pr, and np_
 abstract production varRefExpr__   --  "_"
 e::Expr ::= id::ID
 { e.pp = id.lexeme ; 

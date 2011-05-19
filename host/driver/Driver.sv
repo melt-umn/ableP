@@ -1,11 +1,12 @@
 grammar edu:umn:cs:melt:ableP:host:driver;
 
 import edu:umn:cs:melt:ableP:host:core:terminals;
-import edu:umn:cs:melt:ableP:host:core:concretesyntax only Program_c, ast, cst_Program_c ;
-import edu:umn:cs:melt:ableP:host:core:abstractsyntax ; -- only Program, pp, host, errors ;
-import edu:umn:cs:melt:ableP:host:hostParser only promelaParser ;
-
---import lib:extcore ;
+import edu:umn:cs:melt:ableP:host:core:concretesyntax
+   only Program_c, ast, cst_Program_c ;
+import edu:umn:cs:melt:ableP:host:core:abstractsyntax ; 
+-- only Program, pp, host, errors ;
+import edu:umn:cs:melt:ableP:host:hostParser 
+   only promelaParser ;
 
 function driver
 IOVal<Integer> ::= args::[String]
@@ -29,10 +30,12 @@ IOVal<Integer> ::= args::[String]
   local ast_errors::[Error] = getErrors(r_ast.errors) ;
 
   local r_hst::Program = r_ast.host ;
-  local parseHOSTpp::ParseResult<Program_c> = promelaParser(r_hst.pp, "parseHOSTpp") ;
+  local parseHOSTpp::ParseResult<Program_c>
+     = promelaParser(r_hst.pp, "parseHOSTpp") ;
   local r_host_cst::Program_c = parseHOSTpp.parseTree ;
 
-  local parsedInlined::ParseResult<Program_c> = ext_parser(r_ast.inlined.pp, "parseInlinedpp") ;
+  local parsedInlined::ParseResult<Program_c>
+    = ext_parser(r_ast.inlined.pp, "parseInlinedpp") ;
   local r_inlined_cst::Program_c = parsedInlined.parseTree ;
    
   local attribute print_debug :: IO ;
