@@ -4,9 +4,6 @@ import lib:testing ;
 import lib:extcore ;
 
 import edu:umn:cs:melt:ableP:host:core hiding msg ;
---import edu:umn:cs:melt:ableP:host:core:concretesyntax ;
---import edu:umn:cs:melt:ableP:host:core:terminals ;
---import edu:umn:cs:melt:ableP:host:hostParser ;
 import edu:umn:cs:melt:ableP:host:tests ;
 
 function main
@@ -89,13 +86,4 @@ IOVal<[Test]> ::= fn::String ioIn::IOVal<[Test]>
 }
 
 
-
-makeTestSuite ableP_host_tests ;
-
-aspect production ableP_host_tests 
-top::TestSuite ::=
-{ testsToPerform
-     <- [ parseOnlyTest("SpinExamples/CH3/counter.pml", promelaCoreParser),
-          parseFailTest("ErroneousFiles/ParseErrors/counter.pml", promelaCoreParser) ] ; 
-} 
 

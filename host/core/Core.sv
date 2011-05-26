@@ -6,4 +6,4 @@ exports edu:umn:cs:melt:ableP:host:core:terminals ;
 
 exports edu:umn:cs:melt:ableP:host:core:coreParser ;
 
-exports edu:umn:cs:melt:ableP:host:core:driver ;
+--exports edu:umn:cs:melt:ableP:host:core:driver ;

@@ -1,10 +1,22 @@
 grammar edu:umn:cs:melt:ableP:host:core:driver;
 
+{- This driver program is used only by the artifact
+     ableP:artifacts:promelaCore.
+
+   Since this will not be the 'host' of an extended this need only
+   read .pml files and it need only do some analysis of them to report
+   the limited errors that are reported by the core - just
+   name-binding errors.
+
+   It may output the inlined version of the program, but otherwise
+   generate no new files.
+
+ -}
+
 import edu:umn:cs:melt:ableP:host:core:terminals;
 import edu:umn:cs:melt:ableP:host:core:concretesyntax
    only Program_c, ast, cst_Program_c ;
 import edu:umn:cs:melt:ableP:host:core:abstractsyntax ; 
--- only Program, pp, host, errors ;
 import edu:umn:cs:melt:ableP:host:core:coreParser 
    only promelaCoreParser ;
 
