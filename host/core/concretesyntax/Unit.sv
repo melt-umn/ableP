@@ -75,6 +75,7 @@ aspect production utype_dcllist_c
 u::Utype_c ::= td::TYPEDEF id::ID '{' dl::DeclList_c '}'
 { u.pp = u.ppi ++ "typedef " ++ id.lexeme ++ " { " ++ dl.pp ++ " }";
   dl.ppi = "  " ++ u.ppi ;
+  dl.ppsep = " " ;
   u.ast = unitDecls(typedefDecls( id, dl.ast )) ;
 }
 
