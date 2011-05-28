@@ -33,37 +33,37 @@ exp1::Expression_c ::= '(' exp2::Expression_c ')'
 
 aspect production and_expression_c
 exp::Expression_c ::= lhs::Expression_c op::AND rhs::Expression_c
-{ exp.pp = lhs.pp ++ "&&" ++ rhs.pp;
+{ exp.pp = lhs.pp ++ " && " ++ rhs.pp;
   exp.ast = genericBinOp(lhs.ast, mkOp(op.lexeme, boolTypeExpr()), rhs.ast) ;
 }
 
 aspect production and_expr_c
 exp::Expression_c ::= lhs::Expression_c op::AND rhs::Expr_c
-{ exp.pp = lhs.pp ++ "&&" ++ rhs.pp;
+{ exp.pp = lhs.pp ++ " && " ++ rhs.pp;
   exp.ast = genericBinOp(lhs.ast, mkOp(op.lexeme, boolTypeExpr()), rhs.ast) ;
 }
 
 aspect production and_expr_expression_c
 exp::Expression_c ::= lhs::Expr_c op::AND rhs::Expression_c
-{ exp.pp = lhs.pp ++ "&&" ++ rhs.pp;
+{ exp.pp = lhs.pp ++ " && " ++ rhs.pp;
   exp.ast = genericBinOp(lhs.ast, mkOp(op.lexeme, boolTypeExpr()), rhs.ast) ;
 }
 
 aspect production or_expression_c
 exp::Expression_c ::= lhs::Expression_c op::OR rhs::Expression_c
-{ exp.pp = lhs.pp ++ "||" ++ rhs.pp;
+{ exp.pp = lhs.pp ++ " || " ++ rhs.pp;
   exp.ast = genericBinOp(lhs.ast, mkOp(op.lexeme, boolTypeExpr()), rhs.ast) ;
 }
 
 aspect production or_expr_c
 exp::Expression_c ::= lhs::Expression_c op::OR rhs::Expr_c
-{ exp.pp = lhs.pp ++ "||" ++ rhs.pp;
+{ exp.pp = lhs.pp ++ " || " ++ rhs.pp;
   exp.ast = genericBinOp(lhs.ast, mkOp(op.lexeme, boolTypeExpr()), rhs.ast) ;
 }
 
 aspect production expr_or_c
 exp::Expression_c ::= lhs::Expr_c op::OR rhs::Expression_c
-{ exp.pp = lhs.pp ++ "||" ++ rhs.pp;
+{ exp.pp = lhs.pp ++ " || " ++ rhs.pp;
   exp.ast = genericBinOp(lhs.ast, mkOp(op.lexeme, boolTypeExpr()), rhs.ast) ;
 }
 
@@ -193,13 +193,13 @@ exp::Expr_c ::= lhs::Expr_c op::'>>' rhs::Expr_c
 
 aspect production tild_expr_c
 exp::Expr_c ::= '~' lhs::Expr_c 
-{ exp.pp = "~" ++ lhs.pp ;
+{ exp.pp = "~ " ++ lhs.pp ;
   exp.ast = tildeExpr(lhs.ast);
 }
 
 aspect production neg_expr_c
 exp::Expr_c ::= '-' lhs::Expr_c
-{ exp.pp = "-" ++ lhs.pp ;
+{ exp.pp = "- " ++ lhs.pp ;
   exp.ast = negExpr(lhs.ast);
 }
 
@@ -208,13 +208,13 @@ exp::Expr_c ::= '-' lhs::Expr_c
 
 aspect production snd_expr_c
 exp::Expr_c ::= '!' lhs::Expr_c
-{ exp.pp = "!" ++ lhs.pp;
+{ exp.pp = "! " ++ lhs.pp;
   exp.ast = sndNotExpr(lhs.ast);
 }
 
 aspect production expr_expr_c
 e::Expr_c ::= '(' c::Expr_c s1::SEMI thenexp::Expr_c ':' elseexp::Expr_c ')'
-{ e.pp = "(" ++ c.pp ++ s1.lexeme ++ thenexp.pp ++ ":" ++ elseexp.pp ++ ")";
+{ e.pp = "(" ++ c.pp ++ s1.lexeme ++ " " ++ thenexp.pp ++ " : " ++ elseexp.pp ++ ")";
   e.ast = condExpr(c.ast, thenexp.ast, elseexp.ast);
 }
 
@@ -238,13 +238,13 @@ exp::Expr_c ::= e::ENABLED '(' ex::Expr_c ')'
 
 aspect production rcv_expr_c
 exp::Expr_c ::= vref::Varref_c r::RCV '[' ra::RArgs_c ']'
-{ exp.pp = vref.pp ++ "?" ++ "[" ++ ra.pp ++ "]";
+{ exp.pp = vref.pp ++ " ? " ++ "[" ++ ra.pp ++ "]";
   exp.ast = rcvExpr( vref.ast, ra.ast );
 }
 
 aspect production rrcv_expr_c
 exp::Expr_c ::= vref::Varref_c rr::R_RCV '[' ra::RArgs_c ']'
-{ exp.pp = vref.pp ++ "??" ++ "[" ++ ra.pp ++ "]";
+{ exp.pp = vref.pp ++ " ?? " ++ "[" ++ ra.pp ++ "]";
   exp.ast = rrcvExpr( vref.ast, ra.ast );
 }
 
@@ -280,13 +280,13 @@ e::Expr_c ::= pv::PC_VALUE '(' pc::Expr_c ')'
 
 aspect production pname_expr_c
 e::Expr_c ::= pn::PNAME '[' ex::Expr_c ']' '@' n::ID
-{ e.pp = pn.lexeme ++ "[" ++ ex.pp ++ "]"  ++ "@" ++ n.lexeme;
+{ e.pp = pn.lexeme ++ "[" ++ ex.pp ++ "]"  ++ " @ " ++ n.lexeme;
   e.ast = pnameExprIdExpr( pn,ex.ast,n);
 }
 
 aspect production name_expr_c
 e::Expr_c ::= pn::PNAME '@' n::ID
-{ e.pp = pn.lexeme ++ "@" ++ n.lexeme;
+{ e.pp = pn.lexeme ++ " @ " ++ n.lexeme;
   e.ast = pnameIdExpr(pn,n);
 }
 
@@ -325,10 +325,6 @@ aspect production cmpnd_pfld_c
 c::Cmpnd_c ::= p::Pfld_c s::Sfld_c 
 { c.pp = p.pp ++ s.pp ;  
   c.ast = s.ast ;
-          --case s of
-          --  empty_sfld_c() -> p.ast
-          --| _ -> s.ast
-          --end ;
   p.context = c.context ;
   s.context = just(p.ast) ;
 }

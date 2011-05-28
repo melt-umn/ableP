@@ -24,7 +24,7 @@ a::Arg_c ::= exp::Expr_c
 
 aspect production expr_args_c
 a1::Arg_c ::= exp::Expr_c ',' a2::Arg_c
-{ a1.pp = exp.pp ++ " , " ++ a2.pp ;
+{ a1.pp = exp.pp ++ ", " ++ a2.pp ;
   a1.ast = consExprs (exp.ast ,a2.ast) ;  }
 
 
@@ -38,7 +38,7 @@ pa::PrArgs_c ::=
 
 aspect production one_prargs_c
 pa::PrArgs_c ::= ',' a::Arg_c
-{ pa.pp = "," ++ a.pp;
+{ pa.pp = ", " ++ a.pp;
   pa.ast = a.ast ;  }
 
 --MArgs
@@ -75,7 +75,7 @@ ra::RArg_c ::= cst::CONST
 
 aspect production neg_const_c
 ra::RArg_c ::= '-' cst::CONST
-{ ra.pp = "-" ++ cst.lexeme;
+{ ra.pp = "- " ++ cst.lexeme;
   ra.ast = negConstRArg(cst);  }
 
 
@@ -89,7 +89,7 @@ ras::RArgs_c ::= ra::RArg_c
 
 aspect production cons_rargs_c
 ras1::RArgs_c ::= ra::RArg_c ',' ras2::RArgs_c
-{ ras1.pp = ra.pp ++ " , " ++ ras2.pp;
+{ ras1.pp = ra.pp ++ ", " ++ ras2.pp;
   ras1.ast = consRArg(ra.ast,ras2.ast);  }
 
 aspect production cons_rpargs_c

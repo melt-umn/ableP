@@ -5,8 +5,8 @@ attribute pp, ppi, ast<Stmt> occurs on Body_c ;
 
 aspect production body_statements_c 
 b::Body_c ::= '{' s::Sequence_c os::OS_c '}'
-{ b.pp = "\n{\n" ++ s.ppi ++ s.pp ++ os.pp ++ " \n}";
-  s.ppi = b.ppi ++ "  " ;
+{ b.pp = "{\n" ++ s.ppi ++ s.pp ++ os.pp ++ "\n" ++ b.ppi ++ "}" ;
+  s.ppi = "  " ++ b.ppi ;
   b.ast = blockStmt(s.ast);
 }
 
@@ -21,7 +21,7 @@ s::Sequence_c ::= st::Step_c
 }
 aspect production cons_step_c
 s::Sequence_c ::= s2::Sequence_c ms::MS_c st::Step_c
-{ s.pp = s2.pp ++ ms.pp ++ "\n" ++ s.ppi ++ st.pp;
+{ s.pp = s2.pp ++ " " ++ ms.pp ++ "\n" ++ s.ppi ++ st.pp;
   s2.ppi = s.ppi;
   st.ppi = s.ppi ;
   s.ast = seqStmt(s2.ast, st.ast);
@@ -36,7 +36,7 @@ os::OS_c ::=
 
 aspect production os_semi_c
 os::OS_c ::= s::SEMI 
-{ os.pp = ";" ; }
+{ os.pp = s.lexeme ; }
 
 -- MS
 attribute pp occurs on MS_c ;

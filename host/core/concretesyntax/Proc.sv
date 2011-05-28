@@ -6,10 +6,12 @@ aspect production proc_decl_c
 proc::Proc_c ::= i::Inst_c procty::ProcType_c nm::ID 
                  lp::LPAREN dcl::Decl_c rp::RPAREN 
                  optpri::OptPriority_c optena::OptEnabler_c b::Body_c
-{ proc.pp = proc.ppi ++ i.pp ++ " " ++ procty.pp ++ " " ++ nm.lexeme ++
+{ proc.pp = -- v1 proc.ppi ++ 
+            i.pp ++ ifNEspace(i.pp) ++ procty.pp ++ " " ++ nm.lexeme ++
             " (" ++ dcl.pp ++ ") " ++ optpri.pp ++ optena.pp ++ 
             b.pp;
-  b.ppi = proc.ppi ++ "  " ;
+  dcl.ppsep = " " ;
+  b.ppi = proc.ppi ; 
   proc.ast = procDecl(i.ast, procty.ast,nm, dcl.ast, 
                       optpri.ast, optena.ast, b.ast);
 }

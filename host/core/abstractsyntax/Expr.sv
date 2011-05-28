@@ -37,7 +37,7 @@ e::Expr ::= id::ID
 { production attribute overloads::[Expr] with ++ ;
   overloads := [ ] ;
   production eres::EnvResult = lookup_name(id.lexeme, e.env) ;
-  e.host = varRefExprAll(id);
+  --e.host = varRefExprAll(id);
 
   forwards to if   null(overloads)
               then varRefExpr(id)

@@ -19,7 +19,6 @@ ds::Decls ::= ds1::Decls ds2::Decls
 
 abstract production emptyDecl
 ds::Decls ::= 
-
 { ds.pp = "" ;
   ds.errors := [ ] ;
   ds.host = emptyDecl();
