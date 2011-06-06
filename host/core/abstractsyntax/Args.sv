@@ -11,6 +11,8 @@ ma::MArgs ::= es::Exprs
   ma.uses = es.uses ;
   ma.host = margsSeq(es.host) ;
   ma.inlined = margsSeq(es.inlined) ;
+  ma.transformed = applyARewriteRule(ma.rwrules_MArgs, ma,
+                    margsSeq ( es.transformed ));
 }
 
 abstract production margsPattern
@@ -20,6 +22,8 @@ ma::MArgs ::= es::Exprs
   ma.uses = es.uses ;
   ma.host = margsPattern(es.host) ;
   ma.inlined = margsPattern(es.inlined) ;
+  ma.transformed = applyARewriteRule(ma.rwrules_MArgs, ma,
+                    margsPattern ( es.transformed ));
 }
 
 -- Message arguments for receiving
@@ -32,6 +36,8 @@ ras::RArgs ::= ra::RArg
   ras.uses = ra.uses ;
   ras.host = oneRArg(ra.host) ; 
   ras.inlined = oneRArg(ra.inlined) ; 
+  ras.transformed = applyARewriteRule(ras.rwrules_RArgs, ras,
+                       oneRArg ( ra.transformed ));
 }
 abstract production consRArg
 ras::RArgs ::= ra::RArg rest::RArgs
@@ -40,6 +46,8 @@ ras::RArgs ::= ra::RArg rest::RArgs
   ras.uses = ra.uses ++ rest.uses ;
   ras.host = consRArg(ra.host, rest.host);  
   ras.inlined = consRArg(ra.inlined, rest.inlined);  
+  ras.transformed = applyARewriteRule(ras.rwrules_RArgs, ras,
+                       consRArg ( ra.transformed, rest.transformed ));
 }
 abstract production consParenRArg
 ras::RArgs ::= ra::RArg rest::RArgs
@@ -48,6 +56,8 @@ ras::RArgs ::= ra::RArg rest::RArgs
   ras.uses = ra.uses ++ rest.uses ;
   ras.host = consParenRArg(ra.host, rest.host); 
   ras.inlined = consParenRArg(ra.inlined, rest.inlined);  
+  ras.transformed = applyARewriteRule(ras.rwrules_RArgs, ras,
+                       consParenRArg ( ra.transformed, rest.transformed ));
 }
 
 nonterminal RArg with pp, errors, host<RArg>, inlined<RArg> ;
@@ -59,6 +69,8 @@ ra::RArg ::= vr::Expr
   ra.uses = vr.uses ;
   ra.host = varRArg(vr.host);   
   ra.inlined = varRArg(vr.inlined);   
+  ra.transformed = applyARewriteRule(ra.rwrules_RArg, ra,
+                       varRArg ( vr.transformed ));
 }
 abstract production evalRArg
 ra::RArg ::= exp::Expr
@@ -67,6 +79,8 @@ ra::RArg ::= exp::Expr
   ra.uses = exp.uses ;
   ra.host = evalRArg(exp.host);   
   ra.inlined = evalRArg(exp.inlined);   
+  ra.transformed = applyARewriteRule(ra.rwrules_RArg, ra,
+                       evalRArg ( exp.transformed ));
 }
 abstract production constRArg
 ra::RArg ::= cst::CONST
@@ -74,7 +88,9 @@ ra::RArg ::= cst::CONST
   ra.errors := [ ];
   ra.uses = [ ] ;
   ra.host = constRArg(cst) ;
-  ra.inlined = constRArg(cst) ;   
+  ra.inlined = constRArg(cst) ;
+  ra.transformed = applyARewriteRule(ra.rwrules_RArg, ra, 
+                       constRArg ( cst ));
 }
 abstract production negConstRArg
 ra::RArg ::= cst::CONST
@@ -83,4 +99,6 @@ ra::RArg ::= cst::CONST
   ra.uses = [ ]  ;
   ra.host = negConstRArg(cst) ; 
   ra.inlined = negConstRArg(cst) ; 
+  ra.transformed = applyARewriteRule(ra.rwrules_RArg, ra, 
+                       negConstRArg ( cst ));
 }

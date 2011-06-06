@@ -15,6 +15,9 @@ ds::Decls ::= ds1::Decls ds2::Decls
   ds1.env = ds.env ;
   ds2.env = mergeDefs(ds.env, ds1.defs);
   ds.uses = ds1.uses ++ ds2.uses ;
+
+  ds.transformed = applyARewriteRule(ds.rwrules_Decls, ds,
+                     seqDecls( ds1.transformed, ds2.transformed ));
 }
 
 abstract production emptyDecl
@@ -26,6 +29,9 @@ ds::Decls ::=
 
   ds.defs = emptyDefs();
   ds.uses = [ ] ;
+
+  ds.transformed = applyARewriteRule(ds.rwrules_Decls, ds,
+                     emptyDecl( ));
 }
 
 -- Declarations, binding names to values or types.
@@ -44,15 +50,17 @@ ds::Decls ::= vis::Vis t::TypeExpr v::Declarator
 
 abstract production defaultVarDecl
 ds::Decls ::= vis::Vis t::TypeExpr v::Declarator
-{
- ds.pp = ds.ppi ++ vis.pp ++ t.pp ++ " " ++ v.pp ; 
- ds.errors := t.errors ++ v.errors ;
- ds.host = varDecl(vis.host,  t.host, v.host);
- ds.inlined = varDecl(vis.inlined,  t.inlined, v.inlined);
+{ ds.pp = ds.ppi ++ vis.pp ++ t.pp ++ " " ++ v.pp ; 
+  ds.errors := t.errors ++ v.errors ;
+  ds.host = varDecl(vis.host,  t.host, v.host);
+  ds.inlined = varDecl(vis.inlined,  t.inlined, v.inlined);
 
- ds.defs = valueBinding(v.name, ds) ;
- ds.uses = [ ] ;
- ds.idNum = genInt();
+  ds.defs = valueBinding(v.name, ds) ;
+  ds.uses = [ ] ;
+  ds.idNum = genInt();
+
+  ds.transformed = applyARewriteRule(ds.rwrules_Decls, ds,
+                     defaultVarDecl(vis.transformed, t.transformed, v.transformed));
 }
 
 abstract production varAssignDecl
@@ -61,15 +69,18 @@ ds::Decls ::= vis::Vis t::TypeExpr v::Declarator e::Expr
 
 abstract production defaultVarAssignDecl
 ds::Decls ::= vis::Vis t::TypeExpr v::Declarator e::Expr
-{
- ds.pp = ds.ppi ++ vis.pp ++ t.pp ++ " " ++ v.pp ++ " = " ++ e.pp ;
- ds.errors := t.errors ++ v.errors ++ e.errors ;
- ds.host = varAssignDecl(vis.host, t.host, v.host, e.host) ;
- ds.inlined = varAssignDecl(vis.inlined, t.inlined, v.inlined, e.inlined) ;
+{ ds.pp = ds.ppi ++ vis.pp ++ t.pp ++ " " ++ v.pp ++ " = " ++ e.pp ;
+  ds.errors := t.errors ++ v.errors ++ e.errors ;
+  ds.host = varAssignDecl(vis.host, t.host, v.host, e.host) ;
+  ds.inlined = varAssignDecl(vis.inlined, t.inlined, v.inlined, e.inlined) ;
 
- ds.defs = valueBinding(v.name, ds) ;
- ds.uses = e.uses ;
- ds.idNum = genInt();
+  ds.defs = valueBinding(v.name, ds) ;
+  ds.uses = e.uses ;
+  ds.idNum = genInt();
+
+  ds.transformed = applyARewriteRule(ds.rwrules_Decls, ds,
+                     defaultVarAssignDecl(vis.transformed, t.transformed, 
+                                          v.transformed, e.transformed));
 }
 
 nonterminal Declarator  with pp, errors, host<Declarator>, inlined<Declarator>, name; 
@@ -81,6 +92,8 @@ vd::Declarator ::= id::ID
   vd.host = vd_id(id);
   vd.inlined = vd_id(id);
   vd.name = id.lexeme ;
+  vd.transformed = applyARewriteRule(vd.rwrules_Declarator, vd,
+                     vd_id(id));
 }
 
 abstract production vd_idconst
@@ -90,6 +103,8 @@ vd::Declarator ::= id::ID cnt::CONST
   vd.host = vd_idconst(id,cnt);
   vd.inlined = vd_idconst(id,cnt);
   vd.name = id.lexeme ;
+  vd.transformed = applyARewriteRule(vd.rwrules_Declarator, vd,
+                     vd_idconst(id,cnt));
 }
 
 abstract production vd_array
@@ -99,6 +114,21 @@ vd::Declarator ::= id::ID cnt::CONST
   vd.host = vd_array(id,cnt);
   vd.inlined = vd_array(id,cnt);
   vd.name = id.lexeme ;
+  vd.transformed = applyARewriteRule(vd.rwrules_Declarator, vd,
+                     vd_array(id,cnt));
+}
+
+
+abstract production mtypeDecl
+ds::Decls ::= v::Vis name::ID
+{ -- we assume an implicit "mtype" in this production.
+ ds.pp = v.pp ++ " mtype = { " ++ name.lexeme ++ " } " ;
+ ds.errors := [ ] ; 
+ ds.defs = valueBinding(name.lexeme, ds);
+ ds.host = mtypeDecl(v.host, name) ;
+ ds.inlined = mtypeDecl(v.inlined, name);
+ ds.transformed = applyARewriteRule(ds.rwrules_Decls, ds,
+                        mtypeDecl(v.transformed, name));
 }
 
 
@@ -109,17 +139,20 @@ v::Vis ::=
 { v.pp = "";   
   v.host = vis_empty(); 
   v.inlined = vis_empty(); 
+  v.transformed = applyARewriteRule(v.rwrules_Vis, v, v);
 }
 abstract production vis_hidden
 v::Vis ::=
 { v.pp = "hidden "; 
   v.host = vis_hidden() ;
   v.inlined = vis_hidden() ;
+  v.transformed = applyARewriteRule(v.rwrules_Vis, v, v);
 }
 abstract production vis_show
 v::Vis ::=
 { v.pp = "show "; 
   v.host = vis_show();
+  v.transformed = applyARewriteRule(v.rwrules_Vis, v, v);
   v.inlined = vis_show();
 }
 abstract production vis_islocal
@@ -127,6 +160,7 @@ v::Vis ::=
 { v.pp = "local "; 
   v.host = vis_islocal();
   v.inlined = vis_islocal();
+  v.transformed = applyARewriteRule(v.rwrules_Vis, v, v);
 }
 
 
@@ -157,6 +191,8 @@ names::IDList ::= name::ID
   names.host = singleName(name);
   names.inlined = singleName(name);
   names.decls = mtypeDecl(names.inVis, name) ;
+  names.transformed = applyARewriteRule(names.rwrules_IDList, names,
+                        singleName(name));
 }
 
 abstract production snocNames
@@ -165,12 +201,7 @@ names::IDList ::= some::IDList name::ID
   names.host = snocNames(some.host, name);
   names.inlined = snocNames(some.inlined, name);
   names.decls = seqDecls( some.decls, mtypeDecl(names.inVis, name) ) ;
+  names.transformed = applyARewriteRule(names.rwrules_IDList, names,
+                        snocNames(some.transformed, name));
 }
 
-abstract production mtypeDecl
-ds::Decls ::= v::Vis name::ID
-{ -- we assume an implicit "mtype" in this production.
- ds.pp = v.pp ++ " mtype = { " ++ name.lexeme ++ " } " ;
- ds.errors := [ ] ; 
- ds.defs = valueBinding(name.lexeme, ds);
-}

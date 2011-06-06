@@ -1,7 +1,7 @@
 grammar edu:umn:cs:melt:ableP:host:extensions:v6 ;
 
 -- This files contains the abstract syntax for the new for-loop
--- aspects on its concrete syntax.
+-- and aspects on its concrete syntax to generate the abstract syntax.
 
 -- For loop --
 --------------
@@ -12,8 +12,8 @@ s::Stmt ::= f::FOR vr::Expr lower::Expr upper::Expr body::Stmt
 
   s.errors := vr.errors ++ lower.errors ++ upper.errors ++ body.errors ;
 
-  {- do :: $vr <= $upper ;  $body
-        :: else; goto $label ;
+  {- do :: $vr <= $upper ->  $body
+        :: else -> goto $label ;
      $label : skip();
    -}
   
@@ -40,9 +40,64 @@ s::Stmt ::= f::FOR vr::Expr e::Expr body::Stmt
          " {\n" ++ body.pp ++ "\n} ;" ;
 
   s.errors := vr.errors ++ e.errors ++ body.errors ;
-  s.host = forIn(f,vr.host, e.host,body.host) ;
-  s.inlined = forIn(f,vr.inlined, e.inlined,body.inlined) ;
+  -- ToDo - verify that e is an array.
+  local tr::TypeRep = e.typerep ;
+
+  {- $vr = 0 ;
+     do :: ( $vr <= $array_size ) ->
+           $body
+           $vr = $vr + 1;
+        :: else -> goto $label ;
+     od;
+     $label: skip() ;
+   -}
+  forwards to
+    seqStmt (
+      assign ( vr, asnOp, zero),
+      seqStmt (
+        doStmt ( consOption (
+                   seqStmt (
+                     exprStmt(genericBinOp(vr, mkOp("<=",boolTypeExpr()), array_size)) ,
+                     seqStmt (
+                       body,
+                       assign ( vr, asnOp, 
+                                genericBinOp(vr, mkOp("+",intTypeExpr()), one)
+                       )
+                     )
+                   )
+                   ,
+                   oneOption (
+                     seqStmt (
+                       elseStmt(),
+                       gotoStmt (label)
+                     )
+                   )
+                 )
+        ) ,
+        labeledStmt(label, skipStmt())
+      )
+    ) ;
+
+  local array_size::Expr 
+    = constExpr(terminal(CONST, toString(
+         case e.typerep of
+           arrayTypeRep(_,sz) -> sz
+         | _ -> 0 end) ,
+         f.line, f.column) ) ;
+  local asnOp::ASGN = terminal(ASGN,"=", f.line, f.column) ;
+  local one::Expr = constExpr(terminal(CONST,"1", f.line, f.column)) ;
+  local zero::Expr = constExpr(terminal(CONST,"0", f.line, f.column)) ;
+  local op::Op = mkOp("<=", boolTypeExpr()) ;
+  local label::ID = terminal(ID,"l"++toString(f.line), f.line, f.column) ;
+
+
+--  s.host = forIn(f,vr.host, e.host,body.host) ;
+--  s.inlined = forIn(f,vr.inlined, e.inlined,body.inlined) ;
 }
+
+
+
+
 
 
 aspect production varRefExprAll
@@ -62,7 +117,7 @@ e::Expr ::= id::ID eres::EnvResult
   local newRenamedID::ID 
     = terminal(ID, if eres.found then dcl.inRename else id.lexeme, 
                id.line, id.column) ;
-  e.host = varRefExpr(newRenamedID) ;
+  e.host = varRefExpr(id, eres) ; -- newRenamedID) ;
 
   -- We need to know if 'id' is an argument in an inline declaration
   -- body.  If so, we replace it with the actual argument from the
@@ -70,7 +125,9 @@ e::Expr ::= id::ID eres::EnvResult
   -- created for this call site, for the formal parameter.
   e.inlined = case eres.dcl of
                 inlineArgDecl(_,ine) -> ine
-              | _ -> varRefExpr(id)  end ;
+              | _ -> varRefExpr(id, eres)  end ;
+
+  forwards to varRefExpr(id, eres) ;
 }
 
 synthesized attribute inRename::String occurs on Decls, Declarator ;
@@ -80,6 +137,14 @@ ds::Decls ::= vis::Vis t::TypeExpr v::Declarator
 aspect production defaultVarAssignDecl
 ds::Decls ::= vis::Vis t::TypeExpr v::Declarator e::Expr
 { ds.inRename = v.inRename ; }
+
+{-
+concrete production inVarDcl_c
+vd::VarDcl_c ::= i::IN
+{ vd.pp = i.lexeme;     
+--  vd.ast = vd_id(i);  
+}
+-}
 
 aspect production vd_id
 vd::Declarator ::= id::ID

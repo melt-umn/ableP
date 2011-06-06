@@ -8,7 +8,7 @@ synthesized attribute inlined<a> :: a ;
 -}
 
 aspect production varRefExpr
-e::Expr ::= id::ID
+e::Expr ::= id::ID eres::EnvResult
 { -- We need to know if 'id' is an argument in an inline declaration
   -- body.  If so, we replace it with the actual argument from the
   -- inline call site. This expressions is part of the declaration,
@@ -16,7 +16,7 @@ e::Expr ::= id::ID
 
   e.inlined = case eres.dcl of
                 inlineArgDecl(_,ine) -> ine
-              | _ -> varRefExpr(id)  end ;
+              | _ -> varRefExpr(id, eres)  end ;
 }
 
 aspect production varRefExprAll

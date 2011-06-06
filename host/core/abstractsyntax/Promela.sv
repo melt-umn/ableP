@@ -1,7 +1,5 @@
 grammar edu:umn:cs:melt:ableP:host:core:abstractsyntax;
 
-import edu:umn:cs:melt:ableP:host:core:terminals;
-
 nonterminal Program with pp, errors, host<Program>, inlined<Program> ;
 
 abstract production program
@@ -18,10 +16,31 @@ p::Program ::= u::Unit
   u.ppi = "" ;
   u.ppterm = "; \n" ;
   p.errors := u.errors;
-  p.host = programWithNewUnits(u.host);
+
+  production attribute transformations :: [ Function(Program ::= Program) ]
+    with ++ ;
+  transformations := [ ] ; -- applyInRenameTransformation ] ;
+
+  p.host = applyTransformations ( programWithNewUnits(u.host), transformations ) ;
+
+--  p.host = applyInRenameTransformation (
+--            programWithNewUnits(u.host) ) ;
+
   p.inlined = programWithNewUnits(u.inlined) ;
 
   u.env = emptyDefs();
   u.alluses = u.uses ;
+
+
+  p.transformed = applyARewriteRule(p.rwrules_Program, p,
+                    programWithNewUnits(u.transformed));
+}
+
+function applyTransformations
+Program ::= p::Program trafos::[ Function(Program ::= Program) ] 
+{ return
+    if   null(trafos)
+    then p
+    else applyTransformations (  head(trafos)(p), tail(trafos) ) ;
 }
 

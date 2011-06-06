@@ -24,6 +24,12 @@ proc::Decls ::= i::Inst procty::ProcType nm::ID dcl::Decls
   b.env = mergeDefs(dcl.defs, dcl.env) ;
 
   proc.uses = dcl.uses ++ b.uses;
+
+  proc.transformed = applyARewriteRule(proc.rwrules_Decls, proc,
+                     procDecl(i.transformed, procty.transformed, nm, 
+                              dcl.transformed, pri.transformed, ena.transformed,
+                              b.transformed));
+
 }
 
 --ProcType
@@ -33,12 +39,14 @@ pt::ProcType ::=
 { pt.pp = "proctype";
   pt.host = just_procType() ;
   pt.inlined = just_procType() ;
+  pt.transformed = applyARewriteRule(pt.rwrules_ProcType, pt, pt) ;
 }
 abstract production d_procType
 pt::ProcType ::=
 { pt.pp = "D_proctype";
   pt.host = d_procType() ;
   pt.inlined = d_procType() ;
+  pt.transformed = applyARewriteRule(pt.rwrules_ProcType, pt, pt) ;
 }
 
 
@@ -49,24 +57,28 @@ i::Inst ::=
 { i.pp = "";
   i.host = empty_inst();
   i.inlined = empty_inst();
+  i.transformed = applyARewriteRule(i.rwrules_Inst, i, i) ;
 }
 abstract production active_inst
 i::Inst ::= 
 { i.pp = "active";
   i.host = active_inst();
   i.inlined = active_inst();
+  i.transformed = applyARewriteRule(i.rwrules_Inst, i, i) ;
 }
 abstract production activeconst_inst
 i::Inst ::= ct::CONST
 { i.pp = "active[" ++ ct.lexeme ++ "]";
   i.host = activeconst_inst(ct);
   i.inlined = activeconst_inst(ct);
+  i.transformed = applyARewriteRule(i.rwrules_Inst, i, i) ;
 }
 abstract production activename_inst
 i::Inst ::= id::ID
 { i.pp = "active[" ++ id.lexeme ++ "]";
   i.host = activename_inst(id);
   i.inlined = activename_inst(id);
+  i.transformed = applyARewriteRule(i.rwrules_Inst, i, i) ;
 }
 
 --Priority
@@ -76,12 +88,14 @@ p::Priority ::=
 { p.pp= "";
   p.host = none_priority();
   p.inlined = none_priority();
+  p.transformed = applyARewriteRule(p.rwrules_Priority, p, p) ;
 }
 abstract production num_priority
 p::Priority ::= ct::CONST
 { p.pp = " priority " ++ ct.lexeme;
   p.host = num_priority(ct);
   p.inlined = num_priority(ct);
+  p.transformed = applyARewriteRule(p.rwrules_Priority, p, p) ;
 }
 
 
@@ -92,6 +106,7 @@ e::Enabler ::=
 { e.pp = "";
   e.host = noEnabler();
   e.inlined = noEnabler();
+  e.transformed = applyARewriteRule(e.rwrules_Enabler, e, e) ;
 }
 
 abstract production optEnabler
@@ -99,6 +114,8 @@ en::Enabler ::= e::Expr
 { en.pp = "provided " ++ "(" ++ e.pp ++ ")";
   en.host = optEnabler(e.host);
   en.inlined = optEnabler(e.inlined);
+  en.transformed = applyARewriteRule(en.rwrules_Enabler, en, 
+                     optEnabler(e.transformed));
 }
 
 

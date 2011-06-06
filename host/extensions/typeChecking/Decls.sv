@@ -40,7 +40,7 @@ vd::Declarator ::= id::ID cnt::CONST
 }
 aspect production vd_array
 vd::Declarator ::= id::ID cnt::CONST
-{ vd.typerep = arrayTypeRep(vd.typerep_in);
+{ vd.typerep = arrayTypeRep(vd.typerep_in, toInt(cnt.lexeme));
 }
 
 aspect production mtypeDecl

@@ -13,6 +13,8 @@ u::Unit ::= u1::Unit u2::Unit
   u.defs = mergeDefs(u1.defs,u2.defs);  
   u1.env = u.env ;
   u2.env = mergeDefs(u1.defs,u.env);
+  u.transformed = applyARewriteRule(u.rwrules_Unit, u,
+                    seqUnit(u1.transformed, u2.transformed));
 }
 
 abstract production emptyUnit
@@ -22,20 +24,25 @@ u::Unit ::=
   u.host = emptyUnit();
   u.inlined = emptyUnit();
   u.defs = emptyDefs() ;
+  u.transformed = applyARewriteRule(u.rwrules_Unit, u,
+                    emptyUnit());
 }
 
 abstract production unitDecls
-un::Unit ::= ds::Decls
-{ un.pp = ds.pp ++ un.ppterm ;
-  ds.ppi = un.ppi;
+u::Unit ::= ds::Decls
+{ u.pp = ds.pp ++ u.ppterm ;
+  ds.ppi = u.ppi;
   ds.ppsep = "; \n" ;
-  un.errors := ds.errors;
+  u.errors := ds.errors;
 
-  un.defs = ds.defs ;
-  un.uses = ds.uses ;
+  u.defs = ds.defs ;
+  u.uses = ds.uses ;
 
-  un.host = unitDecls(ds.host);
-  un.inlined = unitDecls(ds.inlined);
+  u.host = unitDecls(ds.host);
+  u.inlined = unitDecls(ds.inlined);
+
+  u.transformed = applyARewriteRule(u.rwrules_Unit, u,
+                     unitDecls(ds.transformed));
 }
 
 abstract production init
@@ -47,28 +54,35 @@ i::Unit ::= op::Priority body::Stmt
   i.uses = body.uses ;
   i.host = init(op.host, body.host) ;
   i.inlined = init(op.inlined, body.inlined) ;
+
+  i.transformed = applyARewriteRule(i.rwrules_Unit, i,
+                    init(op, body.transformed));
 }
 
 abstract production commentedUnit
 u::Unit ::= comm::String u2::Unit
-{
- u.pp = comm ++ u2.pp ;
- u.errors := u2.errors ;
- u.defs = u2.defs ;
- u.host = commentedUnit (comm, u2.host) ;
- u.inlined = commentedUnit (comm, u2.inlined) ;
- u.uses = u2.uses ;
+{ u.pp = comm ++ u2.pp ;
+  u.errors := u2.errors ;
+  u.defs = u2.defs ;
+  u.host = commentedUnit (comm, u2.host) ;
+  u.inlined = commentedUnit (comm, u2.inlined) ;
+  u.uses = u2.uses ;
+
+  u.transformed = applyARewriteRule(u.rwrules_Unit, u,
+                    commentedUnit(comm, u2.transformed));
 }
 
 abstract production ppUnit
 u::Unit ::= comm::String 
-{
- u.pp = comm ;
- u.errors := [ ] ;
- u.defs = emptyDefs() ;
- u.host = ppUnit(comm) ;
- u.inlined = ppUnit(comm) ;
- u.uses = [ ] ;
+{ u.pp = comm ;
+  u.errors := [ ] ;
+  u.defs = emptyDefs() ;
+  u.host = ppUnit(comm) ;
+  u.inlined = ppUnit(comm) ;
+  u.uses = [ ] ;
+
+  u.transformed = applyARewriteRule(u.rwrules_Unit, u,
+                    ppUnit(comm));
 }
 
 abstract production claim
@@ -78,6 +92,9 @@ c::Unit ::= body::Stmt
   c.defs = body.defs;
   c.host = claim(body.host);
   c.inlined = claim(body.inlined);
+
+  c.transformed = applyARewriteRule(c.rwrules_Unit, c,
+                    claim(body.transformed));
 }
 
 abstract production events
@@ -87,6 +104,9 @@ e::Unit ::= body::Stmt
   e.defs = body.defs;
   e.host = events(body.host);
   e.inlined = events(body.inlined);
+
+  e.transformed = applyARewriteRule(e.rwrules_Unit, e,
+                    events(body.transformed));
 }
 
 abstract production typedefDecls
@@ -97,5 +117,8 @@ d::Decls ::= id::ID dl::Decls
   d.inlined = typedefDecls(id, dl.inlined) ;
 
   d.defs = valueBinding(id.lexeme, d) ;
+
+  d.transformed = applyARewriteRule(d.rwrules_Decls, d,
+                    typedefDecls(id, dl.transformed));
 }
 

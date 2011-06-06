@@ -14,20 +14,24 @@ s::Stmt ::= s1::Stmt s2::Stmt
   s.uses = s1.uses ++ s2.uses ;
   s.host = seqStmt(s1.host, s2.host);
   s.inlined = seqStmt(s1.inlined, s2.inlined);
+
+  s.transformed = applyARewriteRule(s.rwrules_Stmt, s,
+                     seqStmt( s1.transformed, s2.transformed ));
 }
 
 abstract production blockStmt
 s::Stmt ::= body::Stmt
-{
- s.pp = "\n{\n" ++ body.ppi ++ body.pp ++ s.ppi ++ "\n}\n";
- body.ppi = s.ppi ++ " ";
- body.ppsep = "; \n" ;
- s.errors := body.errors ;
- s.host = blockStmt(body.host) ;
- s.inlined = blockStmt(body.inlined) ;
- s.defs = emptyDefs() ;
- body.env = s.env;
- s.uses = body.uses ;
+{ s.pp = "\n{\n" ++ body.ppi ++ body.pp ++ s.ppi ++ "\n}\n";
+  body.ppi = s.ppi ++ " ";
+  body.ppsep = "; \n" ;
+  s.errors := body.errors ;
+  s.host = blockStmt(body.host) ;
+  s.inlined = blockStmt(body.inlined) ;
+  s.defs = emptyDefs() ;
+  body.env = s.env;
+  s.uses = body.uses ;
+  s.transformed = applyARewriteRule(s.rwrules_Stmt, s,
+                     blockStmt( body.transformed ));
 }
 
 abstract production one_decl
@@ -41,6 +45,8 @@ s::Stmt ::= d::Decls
   s.uses = d.uses ;
   s.host = one_decl(d.host);
   s.inlined = one_decl(d.inlined);
+  s.transformed = applyARewriteRule(s.rwrules_Stmt, s,
+                     one_decl( d.transformed ));
 }
 
 -- Print statements
@@ -51,11 +57,14 @@ s::Stmt ::= st::String es::Exprs
             noneExprs() -> " " 
           | _ -> ", " ++ es.pp end  ++
           ");\n" ;
- s.errors := es.errors ;
- s.defs = emptyDefs();
- s.uses = [ ] ;
- s.host = printStmt(st, es.host) ;
- s.inlined = printStmt(st, es.inlined) ;
+  s.errors := es.errors ;
+  s.defs = emptyDefs();
+  s.uses = [ ] ;
+  s.host = printStmt(st, es.host) ;
+  s.inlined = printStmt(st, es.inlined) ;
+
+  s.transformed = applyARewriteRule(s.rwrules_Stmt, s,
+                     printStmt( st, es.transformed ));
 }
 
 abstract production printmStmt
@@ -66,6 +75,8 @@ s::Stmt ::= vref::Expr
   s.uses = vref.uses ;
   s.host = printmStmt(vref.host) ;
   s.inlined = printmStmt(vref.inlined) ;
+  s.transformed = applyARewriteRule(s.rwrules_Stmt, s,
+                     printmStmt( vref.transformed ));
 }
 abstract production printmConstStmt
 s::Stmt ::= cn::CONST
@@ -75,6 +86,7 @@ s::Stmt ::= cn::CONST
   s.uses = [ ] ;
   s.host = printmConstStmt(cn) ;
   s.inlined = printmConstStmt(cn) ;
+  s.transformed = applyARewriteRule(s.rwrules_Stmt, s, s) ;
 }
 
 
@@ -89,6 +101,8 @@ s::Stmt ::= op::Options
   s.inlined = ifStmt(op.inlined);
   s.defs = emptyDefs();
   s.uses = op.uses ;
+  s.transformed = applyARewriteRule(s.rwrules_Stmt, s,
+                     ifStmt( op.transformed ));
 }
 
 abstract production doStmt
@@ -100,6 +114,8 @@ s::Stmt ::= op::Options
   s.uses = op.uses ;
   s.host = doStmt(op.host);
   s.inlined = doStmt(op.inlined);
+  s.transformed = applyARewriteRule(s.rwrules_Stmt, s,
+                     doStmt( op.transformed ));
 }
 
 abstract production breakStmt
@@ -110,6 +126,7 @@ s::Stmt ::=
   s.uses = [ ] ;
   s.host = breakStmt();
   s.inlined = breakStmt();
+  s.transformed = applyARewriteRule(s.rwrules_Stmt, s, s);
 --  s.defs = emptyDefs();
 }
 
@@ -121,6 +138,7 @@ s::Stmt ::= id::ID
   s.uses = [ ] ; --ToDo check that ID is valid, etc.
   s.host = gotoStmt(id);
   s.inlined = gotoStmt(id);
+  s.transformed = applyARewriteRule(s.rwrules_Stmt, s, s);
 }
 
 abstract production labeledStmt
@@ -132,6 +150,8 @@ s::Stmt ::= id::ID st::Stmt
   s.uses = st.uses ;
   s.inlined = labeledStmt(id, st.inlined);
   s.host = labeledStmt(id, st.host);
+  s.transformed = applyARewriteRule(s.rwrules_Stmt, s,
+                     labeledStmt( id, st.transformed ));
 }
 
 abstract production elseStmt
@@ -142,6 +162,7 @@ s::Stmt ::=
   s.uses = [ ] ;
   s.inlined = elseStmt();
   s.host = elseStmt();
+  s.transformed = applyARewriteRule(s.rwrules_Stmt, s, s);
 }
 
 abstract production skipStmt
@@ -166,6 +187,8 @@ ops::Options ::= s::Stmt
   ops.uses = s.uses ;
   ops.host = oneOption(s.host);
   ops.inlined = oneOption(s.inlined);
+  ops.transformed = applyARewriteRule(ops.rwrules_Options, ops,
+                      oneOption ( s.transformed ));
 }
 
 abstract production consOption
@@ -183,6 +206,9 @@ ops::Options ::= s::Stmt rest::Options
 
   ops.host = consOption(s.host, rest.host);
   ops.inlined = consOption(s.inlined, rest.inlined);
+
+  ops.transformed = applyARewriteRule(ops.rwrules_Options, ops,
+                      consOption ( s.transformed, rest.transformed ));
 }
 
 
@@ -198,6 +224,9 @@ sc::Stmt ::= vref::Expr op::String ma::MArgs
   sc.uses = vref.uses ++ ma.uses ;
   sc.host = sndStmt (vref.host, op, ma.host) ;
   sc.inlined = sndStmt (vref.inlined, op, ma.inlined) ;
+
+  sc.transformed = applyARewriteRule(sc.rwrules_Stmt, sc,
+                      sndStmt ( vref.transformed, op, ma.transformed ));
 }
 
 abstract production rcvStmt
@@ -210,6 +239,9 @@ sc::Stmt ::= vref::Expr op::String ra::RArgs
   sc.uses = vref.uses ++ ra.uses ;
   sc.host = rcvStmt (vref.host, op, ra.host) ;
   sc.inlined = rcvStmt (vref.inlined, op, ra.inlined) ;
+
+  sc.transformed = applyARewriteRule(sc.rwrules_Stmt, sc,
+                      rcvStmt ( vref.transformed, op, ra.transformed ));
 }
 
 
@@ -222,6 +254,8 @@ s::Stmt ::= b::Stmt
   s.defs = emptyDefs();
   s.host = atomicStmt(b.host) ;
   s.inlined = atomicStmt(b.inlined) ;
+  s.transformed = applyARewriteRule(s.rwrules_Stmt, s,
+                      atomicStmt ( b.transformed ));
 }
 
 abstract production dstepStmt
@@ -231,6 +265,8 @@ s::Stmt ::= b::Stmt
   s.defs = emptyDefs();
   s.host = dstepStmt(b.host) ;
   s.inlined = dstepStmt(b.inlined) ;
+  s.transformed = applyARewriteRule(s.rwrules_Stmt, s,
+                      dstepStmt ( b.transformed ));
 }
 
 -- Assignments, increments, side-effects        --
@@ -253,23 +289,29 @@ s::Stmt ::= lhs::Expr op::'=' rhs::Expr
   s.uses = lhs.uses ++ rhs.uses ;
   s.host = assign(lhs.host, op, rhs.host) ;
   s.inlined = assign(lhs.inlined, op, rhs.inlined) ;
+  s.transformed = applyARewriteRule(s.rwrules_Stmt, s,
+                      defaultAssign ( lhs.transformed, op, rhs.transformed ));
 }
 
 abstract production incrStmt
-st::Stmt ::= vref::Expr
-{ st.pp = vref.pp ++ "++";
-  st.errors := vref.errors;
-  st.defs = emptyDefs();
-  st.host = incrStmt(vref.host);
-  st.inlined = incrStmt(vref.inlined);
+s::Stmt ::= vref::Expr
+{ s.pp = vref.pp ++ "++";
+  s.errors := vref.errors;
+  s.defs = emptyDefs();
+  s.host = incrStmt(vref.host);
+  s.inlined = incrStmt(vref.inlined);
+  s.transformed = applyARewriteRule(s.rwrules_Stmt, s,
+                     incrStmt ( vref.transformed ));
 }
 abstract production decrStmt
-st::Stmt ::= vref::Expr
-{ st.pp = vref.pp ++ "--";
-  st.errors := vref.errors;
-  st.defs = emptyDefs();
-  st.host = decrStmt(vref.host);
-  st.inlined = decrStmt(vref.inlined);
+s::Stmt ::= vref::Expr
+{ s.pp = vref.pp ++ "--";
+  s.errors := vref.errors;
+  s.defs = emptyDefs();
+  s.host = decrStmt(vref.host);
+  s.inlined = decrStmt(vref.inlined);
+  s.transformed = applyARewriteRule(s.rwrules_Stmt, s,
+                    decrStmt ( vref.transformed ));
 }
 
 -- Misc. Statements                             --
@@ -282,52 +324,64 @@ s::Stmt ::= e::Expr
   s.uses = e.uses ;
   s.host = exprStmt(e.host);
   s.inlined = exprStmt(e.inlined);
+  s.transformed = applyARewriteRule(s.rwrules_Stmt, s,
+                    exprStmt ( e.transformed ));
 }
 
 abstract production assertStmt
-st::Stmt ::= fe::Expr
-{ st.pp = "assert " ++ fe.pp ;
-  st.errors := fe.errors;
-  st.defs = emptyDefs();
-  st.host = assertStmt(fe.host) ;
-  st.inlined = assertStmt(fe.inlined) ;
+s::Stmt ::= fe::Expr
+{ s.pp = "assert " ++ fe.pp ;
+  s.errors := fe.errors;
+  s.defs = emptyDefs();
+  s.host = assertStmt(fe.host) ;
+  s.inlined = assertStmt(fe.inlined) ;
+  s.transformed = applyARewriteRule(s.rwrules_Stmt, s,
+                    assertStmt ( fe.transformed ));
 }
 
 abstract production unlessStmt
-st::Stmt ::= st1::Stmt st2::Stmt
-{ st.pp = st1.pp ++ " unless " ++ st2.pp ++ "\n" ;
-  st.errors := st1.errors ++ st2.errors;
-  st.defs = emptyDefs();
-  st.host = unlessStmt(st1.host, st2.host);
-  st.inlined = unlessStmt(st1.inlined, st2.inlined);
+s::Stmt ::= st1::Stmt st2::Stmt
+{ s.pp = st1.pp ++ " unless " ++ st2.pp ++ "\n" ;
+  s.errors := st1.errors ++ st2.errors;
+  s.defs = emptyDefs();
+  s.host = unlessStmt(st1.host, st2.host);
+  s.inlined = unlessStmt(st1.inlined, st2.inlined);
+  s.transformed = applyARewriteRule(s.rwrules_Stmt, s,
+                    unlessStmt ( st1.transformed, st2.transformed ));
 }
 
 -- ToDo.  Fix semantics here.
 abstract production xuStmt
-st::Stmt ::= xu::XU vlst::Exprs
-{ st.pp = xu.lexeme ++ " " ++ vlst.pp ;
-  st.errors := vlst.errors ;
-  st.defs = emptyDefs() ; 
-  st.host = xuStmt(xu, vlst.host);
-  st.inlined = xuStmt(xu, vlst.inlined);
+s::Stmt ::= xu::XU vlst::Exprs
+{ s.pp = xu.lexeme ++ " " ++ vlst.pp ;
+  s.errors := vlst.errors ;
+  s.defs = emptyDefs() ; 
+  s.host = xuStmt(xu, vlst.host);
+  s.inlined = xuStmt(xu, vlst.inlined);
+  s.transformed = applyARewriteRule(s.rwrules_Stmt, s,
+                    xuStmt ( xu, vlst.transformed ));
 }
 
 -- ToDo.  Fix semantics here.
 abstract production namedXUStmt
-st::Stmt ::= id::ID xu::XU
-{ st.pp = id.lexeme ++ ":" ++ xu.lexeme ;
-  st.errors := [ ] ;
-  st.defs = emptyDefs() ;
-  st.host = namedXUStmt(id, xu);
-  st.inlined = namedXUStmt(id, xu);
+s::Stmt ::= id::ID xu::XU
+{ s.pp = id.lexeme ++ ":" ++ xu.lexeme ;
+  s.errors := [ ] ;
+  s.defs = emptyDefs() ;
+  s.host = namedXUStmt(id, xu);
+  s.inlined = namedXUStmt(id, xu);
+  s.transformed = applyARewriteRule(s.rwrules_Stmt, s,
+                    namedXUStmt ( id, xu ));
 }
 
 -- ToDo.  Fix semantics here.
 abstract production namedDecl
-st::Stmt ::= id::ID d::Decls
-{ st.pp = id.lexeme ++ ":" ++ d.pp  ;
-  st.errors := d.errors;
-  st.defs = d.defs;
-  st.host = namedDecl(id, d.host) ;
-  st.inlined = namedDecl(id, d.inlined) ;
+s::Stmt ::= id::ID d::Decls
+{ s.pp = id.lexeme ++ ":" ++ d.pp  ;
+  s.errors := d.errors;
+  s.defs = d.defs;
+  s.host = namedDecl(id, d.host) ;
+  s.inlined = namedDecl(id, d.inlined) ;
+  s.transformed = applyARewriteRule(s.rwrules_Stmt, s,
+                    namedDecl ( id, d.transformed ));
 }

@@ -4,7 +4,7 @@ attribute typerep occurs on Expr ;
 attribute typereps occurs on Exprs ;
 -- Expr
 aspect production varRefExpr
-e::Expr ::= id::ID
+e::Expr ::= id::ID eres::EnvResult
 { e.typerep = eres.dcl.typerep ; 
 }
 aspect production varRefExpr__   --  "_"
@@ -38,11 +38,11 @@ e::Expr ::= r::Expr f::ID
 aspect production arrayAccess
 e::Expr ::= a::Expr i::Expr
 { e.typerep = case a.typerep of
-                arrayTypeRep(t) -> t
+                arrayTypeRep(t,_) -> t
               | _ -> errorTypeRep() 
               end ;
   e.errors <- case a.typerep of
-                arrayTypeRep(t) -> [ ] 
+                arrayTypeRep(_,_) -> [ ] 
               | _ -> [ mkErrorNoLoc ("Non-array type used in array access.") ]
               end ;
 }

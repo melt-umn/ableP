@@ -8,6 +8,7 @@ t::TypeExpr ::=
   t.errors := [ ];
   t.host = intTypeExpr();
   t.inlined = intTypeExpr();
+  t.transformed = applyARewriteRule(t.rwrules_TypeExpr, t, t);
 }
 
 abstract production mtypeTypeExpr
@@ -16,6 +17,7 @@ t::TypeExpr ::=
   t.errors := [];
   t.host = mtypeTypeExpr();
   t.inlined = mtypeTypeExpr();
+  t.transformed = applyARewriteRule(t.rwrules_TypeExpr, t, t);
 }
 
 abstract production chanTypeExpr
@@ -24,6 +26,7 @@ t::TypeExpr ::=
   t.errors := [ ];
   t.host = chanTypeExpr();
   t.inlined = chanTypeExpr();
+  t.transformed = applyARewriteRule(t.rwrules_TypeExpr, t, t);
 }
 
 abstract production bitTypeExpr
@@ -32,6 +35,7 @@ t::TypeExpr ::=
   t.errors := [ ];
   t.host = bitTypeExpr() ;
   t.inlined = bitTypeExpr() ;
+  t.transformed = applyARewriteRule(t.rwrules_TypeExpr, t, t);
 }
 
 abstract production boolTypeExpr
@@ -40,6 +44,7 @@ t::TypeExpr ::=
   t.errors := [ ];
   t.host = boolTypeExpr() ;
   t.inlined = boolTypeExpr() ;
+  t.transformed = applyARewriteRule(t.rwrules_TypeExpr, t, t);
 }
 
 abstract production byteTypeExpr
@@ -48,6 +53,7 @@ t::TypeExpr ::=
   t.errors := [ ];
   t.host = byteTypeExpr() ;
   t.inlined = byteTypeExpr() ;
+  t.transformed = applyARewriteRule(t.rwrules_TypeExpr, t, t);
 }
 
 abstract production shortTypeExpr
@@ -56,6 +62,7 @@ t::TypeExpr ::=
   t.errors := [ ];
   t.host = shortTypeExpr() ;
   t.inlined = shortTypeExpr() ;
+  t.transformed = applyARewriteRule(t.rwrules_TypeExpr, t, t);
 }
 
 abstract production pidTypeExpr
@@ -64,6 +71,7 @@ t::TypeExpr ::=
   t.errors := [ ];
   t.host = pidTypeExpr() ;
   t.inlined = pidTypeExpr() ;
+  t.transformed = applyARewriteRule(t.rwrules_TypeExpr, t, t);
 }
 
 abstract production unsignedTypeExpr
@@ -72,19 +80,21 @@ t::TypeExpr ::=
   t.errors := [ ];
   t.host = unsignedTypeExpr();
   t.inlined = unsignedTypeExpr();
+  t.transformed = applyARewriteRule(t.rwrules_TypeExpr, t, t);
 }
 
 abstract production unameTypeExpr
 t::TypeExpr ::= un::UNAME
 { t.pp = un.lexeme;
 
- production res::EnvResult = lookup_name(un.lexeme, t.env) ;
- t.errors := if res.found then [ ]
-             else [ mkError ( "Type \"" ++ un.lexeme ++ "\" not declared",
-                              mkLoc(un.line,un.column) ) ] ;
+  production res::EnvResult = lookup_name(un.lexeme, t.env) ;
+  t.errors := if res.found then [ ]
+              else [ mkError ( "Type \"" ++ un.lexeme ++ "\" not declared",
+                               mkLoc(un.line,un.column) ) ] ;
 
- t.host = unameTypeExpr(un) ;
- t.inlined = unameTypeExpr(un) ;
+  t.host = unameTypeExpr(un) ;
+  t.inlined = unameTypeExpr(un) ;
+  t.transformed = applyARewriteRule(t.rwrules_TypeExpr, t, t);
 }
 
 nonterminal TypeExprs with pp, errors, host<TypeExprs>, inlined<TypeExprs> ;
@@ -95,6 +105,8 @@ tes::TypeExprs::= te::TypeExpr
   tes.errors := te.errors;
   tes.host = oneTypeExpr(te.host) ;
   tes.inlined = oneTypeExpr(te.inlined) ;
+  tes.transformed = applyARewriteRule(tes.rwrules_TypeExprs, tes,
+                      oneTypeExpr(te.transformed));
 }
 
 abstract production consTypeExpr
@@ -103,4 +115,6 @@ tes::TypeExprs ::= te::TypeExpr rest::TypeExprs
   tes.errors := te.errors ++ rest.errors;
   tes.host = consTypeExpr(te.host, rest.host);
   tes.inlined = consTypeExpr(te.inlined, rest.inlined);
+  tes.transformed = applyARewriteRule(tes.rwrules_TypeExprs, tes,
+                      consTypeExpr(te.transformed, rest.transformed));
 }

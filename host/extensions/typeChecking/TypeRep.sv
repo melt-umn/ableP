@@ -138,11 +138,11 @@ t::TypeRep ::= ts::[TypeRep]
 }
 
 abstract production arrayTypeRep
-t::TypeRep ::= ct::TypeRep
+t::TypeRep ::= ct::TypeRep size::Integer
 { t.pp = "array of " ++ ct.pp ;
   t.tag = "array type" ;
   t.isCompatible = case t.trToCheck of
-                     arrayTypeRep(ct2) -> true
+                     arrayTypeRep(ct2,_) -> true
                    | _ -> false end ;
   t.isArithmetic = false ;
 }
