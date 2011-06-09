@@ -183,7 +183,7 @@ Stmt ::= timers::[String]
 { return if   null(timers)
          then skipStmt()
          else seqStmt (
-                tick( varRefExpr( terminal(ID,head(timers)))) ,
+                tick( varRefExprAll( terminal(ID,head(timers)))) ,
                 mkTickStmts( tail(timers) )
               ) ;
 }

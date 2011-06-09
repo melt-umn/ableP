@@ -2,7 +2,12 @@ grammar edu:umn:cs:melt:ableP:artifacts:aviation:tests ;
 
 import lib:testing with msg as test_msg ;
 import lib:extcore ;
+
 import edu:umn:cs:melt:ableP:host ;
+import edu:umn:cs:melt:ableP:extensions:tables ;
+import edu:umn:cs:melt:ableP:extensions:enhancedSelect ;
+import edu:umn:cs:melt:ableP:extensions:discreteTime ;
+
 import edu:umn:cs:melt:ableP:host:tests ;
 import edu:umn:cs:melt:ableP:artifacts:promela:tests ;
 
