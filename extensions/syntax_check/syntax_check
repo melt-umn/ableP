@@ -1,21 +1,37 @@
 #!/bin/bash
 
-#silver.copper --onlycs edu:umn:cs:melt:ableJ14:host 
-
-#silver.copper --onlycs edu:umn:cs:melt:ableJ14:exts:foreach
-
-#java -classpath \
-#  /project/melt/People/evw/Melt/Copper/CopperCompiler.jar edu/umn/cs/melt/copper/main/ParserCompiler -compose None None \
-#  .Generated/Module_edu_umn_cs_melt_ableJ14_host_Grammar.copper  \
-#  .Generated/Module_edu_umn_cs_melt_ableJ14_exts_foreach_Grammar.copper  > /dev/null
+echo "Attempting to run modular determinism analysis for tables extension."
 
 export GRAMMAR_PATH="../../../../../../../../grammars"
-export  SILVER_HOME="../../../../../../../../silver/trunk/jars"
+export  SILVER_HOME="../../../../../../../../silver/trunk"
 
-java -Xss8M -Xmx2000M -jar $SILVER_HOME/CopperCompiler.jar -compose \
-          Parser_edu_umn_cs_melt_ableP_host_hostParser_promelaParser.copper \
-          Parser_edu_umn_cs_melt_ableP_extensions_syntax_check_ext_pp.copper > Parse.java  
+echo ""
+echo "First, create the .copper spec for the host language parser"
+echo ""
 
+cd $GRAMMAR_PATH/edu/umn/cs/melt/ableP/artifacts/promela
+./silver-compile --clean
 
-#          $SILVER_HOME/../generated/src/edu/umn/cs/melt/ableP/host/hostParser/Parser_edu_umn_cs_melt_ableP_host_hostParser_promelaParser.copper \
-#          $SILVER_HOME/../generated/src/edu/umn/cs/melt/ableP/extensions/syntax_check/ext/Parser_edu_umn_cs_melt_ableP_extensions_syntax_check_ext_pp.copper > Parse.java  
+cp $SILVER_HOME/generated/src/edu/umn/cs/melt/ableP/host/hostParser/Parser_edu_umn_cs_melt_ableP_host_hostParser_promelaParser.copper  .
+
+cd $GRAMMAR_PATH/edu/umn/cs/melt/ableP/extensions/syntax_check
+
+echo ""
+echo "Second, create the .copper spec for the extension"
+echo ""
+
+export ANT_OPTS="-Xss32m -Xmx2000m"
+
+java -Xss8M -Xmx2000M -jar $SILVER_HOME/jars/RunSilver.jar \
+     edu:umn:cs:melt:ableP:extensions:syntax_check
+
+cp $SILVER_HOME/generated/src/edu/umn/cs/melt/ableP/extensions/syntax_check/Parser_edu_umn_cs_melt_ableP_extensions_syntax_check_extGrammar.copper .
+
+echo ""
+echo "Third, run the modular determinism test" 
+echo ""
+
+java -Xss8M -Xmx2000M -jar $SILVER_HOME/jars/CopperCompiler.jar -compose \
+  Parser_edu_umn_cs_melt_ableP_host_hostParser_promelaParser.copper \
+  Parser_edu_umn_cs_melt_ableP_extensions_syntax_check_extGrammar.copper \
+  > Parse.java  
