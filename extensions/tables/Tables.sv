@@ -21,6 +21,12 @@ terminal END       'lbt' lexer classes { promela,promela_kwd};
 terminal TrueTV_t  'T'   lexer classes { promela,promela_kwd};
 terminal FalseTV_t 'F'   lexer classes { promela,promela_kwd};
 
+terminal BadInfix    '%+%'  lexer classes {promela},
+                            precedence = 30,association = left;
+concrete production infix_c
+exp::Expr_c ::= e1::Expr_c op::BadInfix e2::Expr_c 
+{ }
+
 --concrete syntax
 concrete production table_c
 exp::Expr_c ::= tbl1::TABLE erows::ExprRows_c e::END

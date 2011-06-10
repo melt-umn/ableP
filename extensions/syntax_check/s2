@@ -1,0 +1,16 @@
+#!/bin/bash
+
+echo "Attempting to run modular determinism analysis for tables extension."
+
+export GRAMMAR_PATH="../../../../../../../../grammars"
+export  SILVER_HOME="../../../../../../../../silver/trunk"
+
+echo ""
+echo "Third, run the modular determinism test" 
+echo ""
+
+java -Xss8M -Xmx2000M -jar $SILVER_HOME/jars/CopperCompiler.jar -compose \
+  -skin xml \
+  Parser_edu_umn_cs_melt_ableP_host_hostParser_promelaParser.copper \
+  Parser_edu_umn_cs_melt_ableP_extensions_syntax_check_extGrammar.copper \
+  > /dev/null

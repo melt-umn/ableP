@@ -12,19 +12,6 @@ import edu.umn.cs.melt.copper.runtime.engines.semantics.VirtualLocation;
 
 
 
-  <term id="EmptyString">
-    <code><![CDATA[
-RESULT = new common.TerminalRecord(lexeme,virtualLocation.getFileName(),virtualLocation.getLine(),virtualLocation.getColumn());
-    ]]></code>
-    <classes>
-    </classes>
-    <regex>
-<emptystring/>    </regex>
-    <dominates>
-    </dominates>
-    <submits>
-    </submits>
-  </term>
   <term id="edu_umn_cs_melt_ableP_extensions_tables_TABLE">
     <code><![CDATA[
 RESULT = new common.TerminalRecord(lexeme,virtualLocation.getFileName(),virtualLocation.getLine(),virtualLocation.getColumn());
@@ -34,7 +21,7 @@ RESULT = new common.TerminalRecord(lexeme,virtualLocation.getFileName(),virtualL
       <termclass id="edu_umn_cs_melt_ableP_host_core_terminals_promela_kwd" />
     </classes>
     <regex>
-<concat><string>t</string><string>b</string><string>l</string></concat>    </regex>
+<string>tbl</string>    </regex>
     <dominates>
     </dominates>
     <submits>
@@ -49,7 +36,7 @@ RESULT = new common.TerminalRecord(lexeme,virtualLocation.getFileName(),virtualL
       <termclass id="edu_umn_cs_melt_ableP_host_core_terminals_promela_kwd" />
     </classes>
     <regex>
-<concat><string>l</string><string>b</string><string>t</string></concat>    </regex>
+<string>lbt</string>    </regex>
     <dominates>
     </dominates>
     <submits>
@@ -85,6 +72,25 @@ RESULT = new common.TerminalRecord(lexeme,virtualLocation.getFileName(),virtualL
     <submits>
     </submits>
   </term>
+  <term id="edu_umn_cs_melt_ableP_extensions_tables_BadInfix">
+    <code><![CDATA[
+RESULT = new common.TerminalRecord(lexeme,virtualLocation.getFileName(),virtualLocation.getLine(),virtualLocation.getColumn());
+    ]]></code>
+    <classes>
+      <termclass id="edu_umn_cs_melt_ableP_host_core_terminals_promela" />
+    </classes>
+    <regex>
+<string>%+%</string>    </regex>
+    <dominates>
+    </dominates>
+    <submits>
+    </submits>
+    <operator>
+      <precedence>30</precedence>
+      <associativity>left</associativity>
+      <opclass id="main"/>
+    </operator>
+  </term>
   <nonterm id="edu_umn_cs_melt_ableP_extensions_tables_ExprRows_c" />
   <nonterm id="edu_umn_cs_melt_ableP_extensions_tables_ExprRow_c" />
   <nonterm id="edu_umn_cs_melt_ableP_extensions_tables_TruthValueList_c" />
@@ -93,11 +99,19 @@ RESULT = new common.TerminalRecord(lexeme,virtualLocation.getFileName(),virtualL
   <nonterm id="edu_umn_cs_melt_ableP_extensions_tables_TruthValueList" />
   <nonterm id="edu_umn_cs_melt_ableP_extensions_tables_TruthValue" />
 
-  <start>
-    <nonterm id="edu_umn_cs_melt_ableP_host_core_concretesyntax_Program_c"/>
-    <layout><term id="EmptyString"/></layout>
-  </start>
 
+  <prod id="Production_edu_umn_cs_melt_ableP_extensions_tables_infix_c" class="main" precedence="0">
+    <code><![CDATA[
+RESULT = new edu.umn.cs.melt.ableP.extensions.tables.Pinfix_c(_children);
+    ]]></code>
+    <lhs><nonterm id="edu_umn_cs_melt_ableP_host_core_concretesyntax_Expr_c"/></lhs>
+    <rhs>
+    <nonterm id="edu_umn_cs_melt_ableP_host_core_concretesyntax_Expr_c"/>
+    <nonterm id="edu_umn_cs_melt_ableP_extensions_tables_BadInfix"/>
+    <nonterm id="edu_umn_cs_melt_ableP_host_core_concretesyntax_Expr_c"/>
+    </rhs>
+    <layout><term id="EmptyString"/></layout>
+  </prod>
   <prod id="Production_edu_umn_cs_melt_ableP_extensions_tables_table_c" class="main" precedence="0">
     <code><![CDATA[
 RESULT = new edu.umn.cs.melt.ableP.extensions.tables.Ptable_c(_children);

@@ -10,7 +10,7 @@ echo "First, create the .copper spec for the host language parser"
 echo ""
 
 cd $GRAMMAR_PATH/edu/umn/cs/melt/ableP/artifacts/promela
-./silver-compile --clean
+## ./silver-compile --clean
 
 cp $SILVER_HOME/generated/src/edu/umn/cs/melt/ableP/host/hostParser/Parser_edu_umn_cs_melt_ableP_host_hostParser_promelaParser.copper  .
 
@@ -27,11 +27,15 @@ java -Xss8M -Xmx2000M -jar $SILVER_HOME/jars/RunSilver.jar \
 
 cp $SILVER_HOME/generated/src/edu/umn/cs/melt/ableP/extensions/syntax_check/Parser_edu_umn_cs_melt_ableP_extensions_syntax_check_extGrammar.copper .
 
+exit 0
+
+
 echo ""
 echo "Third, run the modular determinism test" 
 echo ""
 
 java -Xss8M -Xmx2000M -jar $SILVER_HOME/jars/CopperCompiler.jar -compose \
+  -skin xml \
   Parser_edu_umn_cs_melt_ableP_host_hostParser_promelaParser.copper \
   Parser_edu_umn_cs_melt_ableP_extensions_syntax_check_extGrammar.copper \
-  > Parse.java  
+  > /dev/null
