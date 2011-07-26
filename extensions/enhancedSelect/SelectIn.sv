@@ -65,7 +65,12 @@ abstract production selectStepConst
 s::Stmt ::= sl::'select' v::Expr lower::CONST upper::CONST step::CONST
 { s.pp = "select ( " ++ v.pp ++ ":" ++ lower.lexeme ++ " .. " ++ upper.lexeme ++
                    " step " ++ step.lexeme ++ " ); " ;
-  s.errors := v.errors ;
+  s.errors := if   lw > up
+              then [ mkError ("Select statement requires lower bound to be " ++ 
+                              "less than or equal to upper bound.",
+                               mkLoc(sl.line, sl.column) ) ] ++
+                   v.errors
+              else v.errors ;
 
   {- if ::v = lower;  ::v = lower+step;  ... ::v = upper;  fi;  -}
   forwards to ifStmt (mkOptions(v, lw, up, by)) ;
@@ -77,12 +82,10 @@ s::Stmt ::= sl::'select' v::Expr lower::CONST upper::CONST step::CONST
 
 function mkOptions
 Options ::= v::Expr lw::Integer up::Integer by::Integer
-{ return if   lw > up
-         then oneOption(skipStmt())
-         else consOption (
-                assign(v, '=', constExpr(terminal(CONST,toString(lw)))) ,
-                mkOptions(v, lw+by, up, by) 
-              ) ;
+{ return if   lw + by > up
+         then oneOption(stmt)
+         else consOption ( stmt, mkOptions(v, lw+by, up, by) ) ;
+ local stmt::Stmt = assign(v, '=', constExpr(terminal(CONST,toString(lw)))) ;
 }
 
 

@@ -79,11 +79,13 @@ s::Stmt ::= f::FOR vr::Expr e::Expr body::Stmt
     ) ;
 
   local array_size::Expr 
-    = constExpr(terminal(CONST, toString(
-         case e.typerep of
+    = constExpr(terminal(CONST, toString(array_size_value),
+                         f.line, f.column) ) ;
+  local array_size_value::Integer
+    = case e.typerep of
            arrayTypeRep(_,sz) -> sz
-         | _ -> 0 end) ,
-         f.line, f.column) ) ;
+         | _ -> 0 end ;
+
   local asnOp::ASGN = terminal(ASGN,"=", f.line, f.column) ;
   local one::Expr = constExpr(terminal(CONST,"1", f.line, f.column)) ;
   local zero::Expr = constExpr(terminal(CONST,"0", f.line, f.column)) ;

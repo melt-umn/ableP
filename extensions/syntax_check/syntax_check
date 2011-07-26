@@ -3,14 +3,14 @@
 echo "Attempting to run modular determinism analysis for tables extension."
 
 export GRAMMAR_PATH="../../../../../../../../grammars"
-export  SILVER_HOME="../../../../../../../../silver/trunk"
+export  SILVER_HOME="../../../../../../../../silver-0.3.3"
 
 echo ""
 echo "First, create the .copper spec for the host language parser"
 echo ""
 
 cd $GRAMMAR_PATH/edu/umn/cs/melt/ableP/artifacts/promela
-## ./silver-compile --clean
+./silver-compile --clean
 
 cp $SILVER_HOME/generated/src/edu/umn/cs/melt/ableP/host/hostParser/Parser_edu_umn_cs_melt_ableP_host_hostParser_promelaParser.copper  .
 

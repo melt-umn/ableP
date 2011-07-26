@@ -49,6 +49,8 @@ IOVal<Integer> ::= args::[String]
            "\n\n" ++ 
            "AST pretty print: \n================= \n" ++ r_ast.pp ++
            "\n\n" ++
+           "AST host pretty print: \n================= \n" ++ r_hst.pp ++
+           "\n\n" ++
            (if   parseASTpp.parseSuccess
             then "AST pretty print (from parsed CST): \n" ++
                  "=================================== \n" ++ 

@@ -2,7 +2,9 @@
    host Promela language implementation as well as the various
    extensions. This file contains a running update of the status of
    the project and known missing pieces that we are working (really!)
-   to complete.
+   to complete.  If you have questions, comments, or requests for
+   specific fixes and improvements please do not hesitate to contact
+   us.  
 
 ----------------------------------------------------------------------
 -- To Do  --  --  --  --  -- --  -- --  -- --  -- --  -- --  -- --  --
@@ -22,15 +24,22 @@
    analysis such as this can contribute new errors to the pre-existing
    core language error-message attributes.
 
-** Rename variables named "in".  Context-aware scanning makes it easy
-   to use "in" as a variable and as a keyword in the new for-loop.
-   But since we translate to pure Promela we need to renamed variables
-   named "in" so that the generated code is accepted by Spin.
+** Add better support, to Silver, to support the running of the
+   modular determinism analysis. (See PLDI 2009 paper for details.)
+
+** Add support for transparent prefixes to allow user to disambiguate
+   overlapping marking tokens.  (See PLDI 2009 paper for details.)
+
 
 ----------------------------------------------------------------------
 -- Status --  --  --  --  -- --  -- --  -- --  -- --  -- --  -- --  --
 ----------------------------------------------------------------------
-
+** July 15, 2011: Release the first 'beta' version of ableP.  
+ Fixed issues:
+ ** Rename variables named "in".  Context-aware scanning makes it easy
+    to use "in" as a variable and as a keyword in the new for-loop.
+    But since we translate to pure Promela we need to renamed variables
+    named "in" so that the generated code is accepted by Spin.
 
 ** April 30, 2011: Release the first 'alpha' version of ableP.  This
    is primarily an exercise in deciding how best to distribute ableP

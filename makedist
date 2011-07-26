@@ -12,16 +12,18 @@ tar cf ableP.tar  \
   "--exclude=*.svX" \
   "--exclude=*.test"  "--exclude=*.test.output" \
   "--exclude=*.tar" "--exclude=*.jar" \
+  "--exclude=ToDo" "--exclude=ReleaseTest" \
   ableP || exit
 echo "Creating directory for release"
+mkdir -p ReleaseTest
 rm -Rf ReleaseTest/*
+
 mv ableP.tar ReleaseTest || exit
 cd ReleaseTest
 tar xf ableP.tar || exit
 mv ableP.tar first_ableP.tar || exit
 cd ableP
 echo "#1: `pwd`"
-
 
 
 ### Step 2.   Run this script in the release branch.

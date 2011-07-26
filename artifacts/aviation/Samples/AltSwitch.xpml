@@ -19,18 +19,23 @@ active proctype determineStatus ()
  startup ? threshold, hyst ;  /* receive threshold and hysteresis values */
  run monitorStatus ( ) ;      /* start monitoring process */
 
- check:  /* select, non-deterministically, values for altitude and altQuality. */
+ check:
+
+  /* select, non-deterministically, values for altitude and altQuality. */
   select (altitude: 1000 .. 10000 step 100) ;
   select (altQuality: High, Med, Low) ;
 
-  if :: tbl altStatus == Unknown        : T *  /* Assign value to altStatus */
+  /* Assign value to altStatus */
+  if :: tbl altStatus == Unknown        : T *  
             altQuality == High          : T T
             altitude > threshold        : T T
             altitude > threshold + hyst : * T  
         lbt -> altStatus = Above ;
+
      :: tbl altQuality == High   : T
             altitude > threshold : F  
         lbt -> altStatus = Below ; 
+
      :: else; altStatus = (altQuality == High -> Unknown : altStatus) ;
   fi ;
 

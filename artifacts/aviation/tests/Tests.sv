@@ -1,6 +1,8 @@
 grammar edu:umn:cs:melt:ableP:artifacts:aviation:tests ;
 
-import lib:testing with msg as test_msg ;
+import silver:testing with msg as test_msg ;
+import silver:testing:bin ;
+
 import lib:extcore ;
 
 import edu:umn:cs:melt:ableP:host ;

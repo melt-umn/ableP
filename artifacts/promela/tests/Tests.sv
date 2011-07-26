@@ -1,6 +1,8 @@
 grammar edu:umn:cs:melt:ableP:artifacts:promela:tests ;
 
-import lib:testing ;
+import silver:testing ;
+import silver:testing:bin ;
+
 import lib:extcore ;
 
 import edu:umn:cs:melt:ableP:host:core:abstractsyntax hiding msg ;

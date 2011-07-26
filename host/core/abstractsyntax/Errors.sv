@@ -6,7 +6,7 @@ synthesized attribute loc::Loc ;
 
 abstract production mkError
 e::Error ::= m::String l::Loc
-{ e.msg = l.pp ++ ": " ++ m ;
+{ e.msg = l.pp ++ ":\n " ++ m ;
   e.loc = l ;
 }
 
