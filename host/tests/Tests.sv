@@ -75,9 +75,20 @@ t::Test ::= fn::String parseF::Function(ParseResult<a> ::= String String)
  local exists::IOVal<Boolean> = isFile(fn, t.ioIn);
 
  local cppCommand :: String
+   = "cpp -P " ++ fn ++ " > " ++ fn ++ ".cpp" ;
+ {- Removing the 'tail' call.
    = "cpp -P " ++ fn ++ " | tail -n +3 > " ++ fn ++ ".cpp" ;
    -- even the -P option to cpp leaves 2 blanks lines, so we also
    -- use tail to remove these blank lines
+
+
+   cpp in versions 4.2.1 and earlier would leave 2 blank lines in the
+   resulting file when the -P flag is used.  Later versions do not do
+   this.  If one loads the soft/gcc on CS machines the default is 4.2.
+   On Mac OS X the default is also 4.2, at least on 10.5.  Maybe 10.6
+   moves to a newer version.
+
+ -}
  local mkCPPfile::IOVal<Integer> = system (cppCommand, exists.io ) ;
  local text::IOVal<String> = readFile(fn++".cpp", mkCPPfile.io);
 
