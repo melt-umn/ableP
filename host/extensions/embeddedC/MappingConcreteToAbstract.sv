@@ -95,40 +95,46 @@ nonterminal C_CODE_nt_c with pp, ast<Ccmpd> ;
 nonterminal C_DECL_nt_c with pp, ast<Cdcls> ;
 nonterminal C_EXPR_nt_c with pp, ast<Expr> ;
 
-concrete productions
-c::Ccode_c ::= cmpd::C_CODE_nt_c  ( p_C_CODE_nt_c )
-{ }
-c::Ccode_c ::= dcls::C_DECL_nt_c  ( p_C_DECL_nt_c )
-{ }
+concrete productions c::Ccode_c
+(p_C_CODE_nt_c) | cmpd::C_CODE_nt_c  { }
+(p_C_DECL_nt_c) | dcls::C_DECL_nt_c  { }
 
 -- The following are introduced because the above two rules in spin.y
 -- use the same prep_inline function that the inlining productions use
 -- to read the code by some hand-coded method.  We can do better.
 
-concrete productions
-st::C_CODE_nt_c ::= kwd::C_CODE '{' cmpd::C_CmpdStmt '}'
- { st.pp  = kwd.lexeme ++ " { " ++ cmpd.pp ++ " } " ; 
-   st.ast = cCmpd(kwd, cmpd.pp ) ; }
-st::C_CODE_nt_c ::= kwd::C_CODE '[' ce::Ansi_C_Expr ']' '{' cmpd::C_CmpdStmt '}'
- { st.pp  = kwd.lexeme ++ " [ " ++ ce.ansi_c_pp ++ " ] { " ++ cmpd.pp ++ " } " ;
-   st.ast = cExprCmpd(kwd, ce.ansi_c_pp, cmpd.pp) ;  }
-st::C_DECL_nt_c ::= kwd::C_DECL '{' cd::Ansi_C_DeclarationList '}' 
- { st.pp  = kwd.lexeme ++ " { " ++ cd.ansi_c_pp ++ " } " ;
-   st.ast = cDcls(kwd, cd.ansi_c_pp);  }
+concrete productions st::C_CODE_nt_c
+| kwd::C_CODE '{' cmpd::C_CmpdStmt '}'
+  { 
+    st.pp  = kwd.lexeme ++ " { " ++ cmpd.pp ++ " } " ; 
+    st.ast = cCmpd(kwd, cmpd.pp ) ;
+  }
+| kwd::C_CODE '[' ce::Ansi_C_Expr ']' '{' cmpd::C_CmpdStmt '}'
+  { 
+    st.pp  = kwd.lexeme ++ " [ " ++ ce.ansi_c_pp ++ " ] { " ++ cmpd.pp ++ " } " ;
+    st.ast = cExprCmpd(kwd, ce.ansi_c_pp, cmpd.pp) ;
+  }
+
+concrete productions st::C_DECL_nt_c
+| kwd::C_DECL '{' cd::Ansi_C_DeclarationList '}' 
+  { 
+    st.pp  = kwd.lexeme ++ " { " ++ cd.ansi_c_pp ++ " } " ;
+    st.ast = cDcls(kwd, cd.ansi_c_pp);
+  }
 
 
 -- This is CompoundStatement_c in ableC without the curly brackets.
 nonterminal C_CmpdStmt with pp ; 
 
-concrete productions
-c::C_CmpdStmt ::= dcls::Ansi_C_DeclarationList stmt::Ansi_C_StmtList
- { c.pp = dcls.ansi_c_pp  ++ " " ++ stmt.ansi_c_pp ;  }
-c::C_CmpdStmt ::= dcls::Ansi_C_DeclarationList
- { c.pp = dcls.ansi_c_pp ; }
-c::C_CmpdStmt ::= stmt::Ansi_C_StmtList
- { c.pp = stmt.ansi_c_pp ; }
-c::C_CmpdStmt ::=
- { c.pp = "" ; }
+concrete productions c::C_CmpdStmt
+| dcls::Ansi_C_DeclarationList stmt::Ansi_C_StmtList
+  { c.pp = dcls.ansi_c_pp  ++ " " ++ stmt.ansi_c_pp ;  }
+| dcls::Ansi_C_DeclarationList
+  { c.pp = dcls.ansi_c_pp ; }
+| stmt::Ansi_C_StmtList
+  { c.pp = stmt.ansi_c_pp ; }
+|
+  { c.pp = "" ; }
 
 
 -- C code in Promela expressions --
@@ -148,16 +154,16 @@ st::Cexpr_c ::= cc::C_EXPR_nt_c
 -- as above, the previous productions in spin.y use the prep_inline
 -- function to read the C code using hand written code, so it is not
 -- in the rules.  We have the following rules to do a better job.
-concrete productions
-ce::C_EXPR_nt_c ::= kwd::C_EXPR '{' e::Ansi_C_Expr  '}'
+concrete productions ce::C_EXPR_nt_c
+| kwd::C_EXPR '{' e::Ansi_C_Expr  '}'
 { ce.pp  = kwd.lexeme ++ " { " ++ e.ansi_c_pp ++ " } " ;
   ce.ast = exprCExpr (kwd, e.ansi_c_pp) ;   }
 
-ce::C_EXPR_nt_c ::= kwd::C_EXPR '{' cmpd::C_CmpdStmt  '}'
+| kwd::C_EXPR '{' cmpd::C_CmpdStmt  '}'
 { ce.pp  = kwd.lexeme ++ " { " ++ cmpd.pp ++ " } " ;
   ce.ast = exprCCmpd (kwd, cmpd.pp ) ;   }
 
-ce::C_EXPR_nt_c ::= kwd::C_EXPR '[' e::Ansi_C_Expr ']' '{' cmpd::C_CmpdStmt '}'
+| kwd::C_EXPR '[' e::Ansi_C_Expr ']' '{' cmpd::C_CmpdStmt '}'
 { ce.pp  = kwd.lexeme ++ " [ " ++ e.ansi_c_pp ++ " ] { " ++ cmpd.pp ++ " } " ;
   ce.ast = exprCExprCmpd (kwd, e.ansi_c_pp, cmpd.pp ) ;   }
 

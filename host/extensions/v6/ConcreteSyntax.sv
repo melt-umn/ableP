@@ -46,8 +46,8 @@ s::Special_c ::= sl::'select' '(' v::Varref_c ':' lower::Expr_c '..' upper::Expr
 -- LTL formulas --
 ------------------
 
-concrete productions
-u::Unit_c ::= l::LTL_c (unitLTL_c) { }
+concrete productions u::Unit_c 
+(unitLTL_c) | l::LTL_c { }
 
 nonterminal LTL_c ;
 
@@ -76,10 +76,9 @@ concrete production ltlKwd_c
 l::LTL_Kwd ::= 'ltl' { } action { ltlMode = true ; }
 
 nonterminal OptName2_c ;
-concrete productions
-op::OptName2_c ::= id::ID (with_OptName2_c) { }
---op::OptName2_c ::=        (without_OptName2_c) { }
-without_OptName2_c: op::OptName2_c ::=         { }
+concrete productions op::OptName2_c
+(with_OptName2_c)    | id::ID  { }
+(without_OptName2_c) |  { }
 
 concrete production expr_ltl_c
 e::Expr_c ::= l::LTL_expr_c
@@ -87,15 +86,15 @@ e::Expr_c ::= l::LTL_expr_c
 
 nonterminal LTL_expr_c ;
 
-concrete productions
-ltl::LTL_expr_c ::= l::Expr_c op::UNTIL_t r::Expr_c (until_c) { }
-ltl::LTL_expr_c ::= l::Expr_c op::RELEASE_t r::Expr_c  (release_c) { }
-ltl::LTL_expr_c ::= l::Expr_c op::WEAK_UNTIL_t r::Expr_c (weak_until_c) { }
-ltl::LTL_expr_c ::= l::Expr_c op::IMPLIES_t r::Expr_c (implies_c) { } 
-ltl::LTL_expr_c ::= l::Expr_c op::EQUIV_t r::Expr_c (equiv_c) { }
-ltl::LTL_expr_c ::= op::NEXT_t r::Expr_c (next_c) precedence = 45 { }
-ltl::LTL_expr_c ::= op::ALWAYS_t r::Expr_c (always_c) precedence = 45 { }
-ltl::LTL_expr_c ::= op::EVENTUALLY_t r::Expr_c (eventually_c) precedence = 45 { }
+concrete productions ltl::LTL_expr_c
+(until_c)      | l::Expr_c op::UNTIL_t r::Expr_c  { }
+(release_c)    | l::Expr_c op::RELEASE_t r::Expr_c   { }
+(weak_until_c) | l::Expr_c op::WEAK_UNTIL_t r::Expr_c  { }
+(implies_c)    | l::Expr_c op::IMPLIES_t r::Expr_c  { } 
+(equiv_c)      | l::Expr_c op::EQUIV_t r::Expr_c  { }
+(next_c)       | op::NEXT_t r::Expr_c  precedence = 45 { }
+(always_c)     | op::ALWAYS_t r::Expr_c  precedence = 45 { }
+(eventually_c) | op::EVENTUALLY_t r::Expr_c  precedence = 45 { }
 
 
 -- ToDo:  these are probably handled well by context aware scanning.

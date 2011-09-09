@@ -29,20 +29,16 @@ st::Statement_c ::= cc::Ccode_c
 --------------------------------------------------
 nonterminal C_Fcts_c  ;    -- c_fcts
 
-concrete productions
-st::C_Fcts_c ::= cc::Ccode_c  ( p_Ccode_c )  { }
-st::C_Fcts_c ::= cc::Cstate_c ( p_CState_c ) { } 
+concrete productions st::C_Fcts_c
+(p_Ccode_c)  | cc::Ccode_c   { }
+(p_CState_c) | cc::Cstate_c  { } 
 
 nonterminal Cstate_c ;   -- cstate
-concrete productions
-cs::Cstate_c ::= ca::C_STATE str1::STRING str2::STRING  ( p_C_STATE_2 )
- { }
-cs::Cstate_c ::= ct::C_TRACK str1::STRING str2::STRING  ( p_C_TRACK_2 )
- { }
-cs::Cstate_c ::= ca::C_STATE str1::STRING str2::STRING str3::STRING  ( p_C_STATE_3 )
- { }
-cs::Cstate_c ::= ct::C_TRACK str1::STRING str2::STRING str3::STRING  ( p_C_TRACK_3 )
- { }
+concrete productions cs::Cstate_c
+(p_C_STATE_2) | ca::C_STATE str1::STRING str2::STRING   { }
+(p_C_TRACK_2) | ct::C_TRACK str1::STRING str2::STRING   { }
+(p_C_STATE_3) | ca::C_STATE str1::STRING str2::STRING str3::STRING   { }
+(p_C_TRACK_3) | ct::C_TRACK str1::STRING str2::STRING str3::STRING   { }
 
 
 nonterminal Ccode_c ;    -- ccode

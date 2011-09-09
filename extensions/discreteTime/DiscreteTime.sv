@@ -16,9 +16,11 @@ terminal EXPIRE 'expire'  lexer classes { promela,promela_kwd};
 
 -- timer type
 -- #define timer int 
-concrete productions
+concrete production typeType_c
 t::Type_c ::= 'timer'
-  { t.pp = "timer"; t.ast = timerTypeExpr(); }
+{ t.pp = "timer"; 
+  t.ast = timerTypeExpr();
+}
 
 abstract production timerTypeExpr
 t::TypeExpr ::=
