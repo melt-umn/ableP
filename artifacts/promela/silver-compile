@@ -1,18 +1,9 @@
 #!/bin/bash
 
-# This script will use Silver to build an AG evaluator for the
-# tutorials grammar and run ant to compile the resulting Java code.
-
 # invoke as               ./silver-compile
 # or add arguments, like  ./silver-compile --clean
 
-export GRAMMAR_PATH="../../../../../../../../grammars"
-#export  SILVER_HOME="../../../../../../../../silver-0.3.3"
-export  SILVER_HOME="../../../../../../../../silver/trunk"
+export GRAMMAR_PATH="../../../../../../.."
 
-export ANT_OPTS="-Xss32m -Xmx2000m"
+silver -o ableP.promela.jar $@ edu:umn:cs:melt:ableP:artifacts:promela
 
-java -Xss8M -Xmx2000M -jar $SILVER_HOME/jars/RunSilver.jar \
-     $1 -o ableP.promela.jar \
-     edu:umn:cs:melt:ableP:artifacts:promela \
-     && ant
