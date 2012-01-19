@@ -337,7 +337,7 @@ sf::Sfld_c ::=
 { sf.pp =  "" ; 
   sf.ast = case sf.context of 
              nothing() -> error ("Should not ask for ast on empty_sfld_c!") 
-           | just(e) -> new(e)   -- seem to require the use of new here!
+           | just(e) -> e
            end ;
 }
 

@@ -47,7 +47,7 @@ r::RewriteRule<Declarator  Decorated Declarator> ::=
  r.matched = pieces.isJust ;
  r.rewrite
    = case pieces of
-                 just(d) -> new(d)
+                 just(d) -> d
                | _ -> error ("accessing rewrite on failed match")
                end ;
 
@@ -72,7 +72,7 @@ r::RewriteRule<Expr Decorated Expr> ::=
  r.matched = pieces.isJust ;
  r.rewrite
    = case pieces of
-                 just(e) -> new(e)
+                 just(e) -> e
                | _ -> error ("accessing rewrite on failed match")
                end ;
 
