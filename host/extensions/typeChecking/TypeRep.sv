@@ -132,7 +132,7 @@ t::TypeRep ::= ts::[TypeRep]
   t.isCompatible 
     = case t.trToCheck of
         procTypeRep(ts_in) -> length(ts) == length(ts_in) &&
-                              allTrue(zipWith(ts, ts_in, areCompatible))
+                              allTrue(zipWith(areCompatible, ts, ts_in))
       | _ -> false end ;
   t.isArithmetic = false ;
 }

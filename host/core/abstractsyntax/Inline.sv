@@ -87,8 +87,8 @@ st::Stmt ::= n_ref::INAME actuals::Exprs
            inlineDecl (_, fs, _)  -> new(fs)
          | _ -> error ("Should not be asking for formals.") end ;
 
-  local declList::[Decls] = zipWith_p ( formals.asList, actuals.asList , inlineArgDecl) ;
-  local asDecl::Decls = foldr1_p ( seqDecls, declList ) ;
+  local declList::[Decls] = zipWith_p ( inlineArgDecl, formals.asList, actuals.asList ) ;
+  local asDecl::Decls = foldr1 ( seqDecls, declList ) ;
 }
 
 abstract production inlineArgDecl
