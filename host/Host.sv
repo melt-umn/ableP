@@ -17,5 +17,4 @@ exports edu:umn:cs:melt:ableP:host:extensions:v6 ;
 
 -- Need to allow qualifications and renaming on exports.
 
-exports edu:umn:cs:melt:ableC:terminals ; -- as AbleC ;
 exports edu:umn:cs:melt:ableC:concretesyntax ; -- as AbleC ;
