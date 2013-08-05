@@ -10,5 +10,5 @@ parser promelaParser :: Program_c {
  edu:umn:cs:melt:ableP:host:extensions:embeddedC ;
  edu:umn:cs:melt:ableP:host:extensions:v6 ;
 
- edu:umn:cs:melt:ableC:concretesyntax ;
+ edu:umn:cs:melt:ableC:concretesyntax:ansiC89 ;
 }

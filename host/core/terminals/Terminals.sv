@@ -1,6 +1,6 @@
 grammar edu:umn:cs:melt:ableP:host:core:terminals ;
 
-import edu:umn:cs:melt:ableC:concretesyntax ;
+import edu:umn:cs:melt:ableC:concretesyntax:ansiC89 ;
 
 -- lexer classes for promela terminals and its keywords
 lexer class promela_kwd;

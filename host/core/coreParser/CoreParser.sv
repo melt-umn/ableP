@@ -11,5 +11,5 @@ parser promelaCoreParser :: Program_c {
  -- Ccomment, that Promela coments and white space take precedence over.
  -- Without including this, Copper raises an error.
  -- ToDo: file a bug about this and put bug# here.
- edu:umn:cs:melt:ableC:concretesyntax ;
+ edu:umn:cs:melt:ableC:concretesyntax:ansiC89 ;
 }
