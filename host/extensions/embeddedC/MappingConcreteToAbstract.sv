@@ -130,10 +130,6 @@ concrete productions st::C_DECL_nt_c
 nonterminal C_CmpdStmt with pp ; 
 
 concrete productions c::C_CmpdStmt
-| dcls::Ansi_C_DeclarationList stmt::Ansi_C_StmtList
-  { c.pp = ansi_c_pp(dcls)  ++ " " ++ ansi_c_pp(stmt) ;  }
-| dcls::Ansi_C_DeclarationList
-  { c.pp = ansi_c_pp(dcls) ; }
 | stmt::Ansi_C_StmtList
   { c.pp = ansi_c_pp(stmt) ; }
 |
