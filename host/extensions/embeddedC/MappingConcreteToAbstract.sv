@@ -19,7 +19,7 @@ st::Statement_c ::= cc::Ccode_c
 -- of the production.
 --------------------------------------------------
 attribute pp occurs on C_Fcts_c ;
-attribute ast<Unit> occurs on C_Fcts_c ;
+attribute ast<PUnit> occurs on C_Fcts_c ;
 
 aspect production p_Ccode_c
 st::C_Fcts_c ::= cc::Ccode_c   { st.pp = cc.pp; st.ast = cc.ast ; }
@@ -29,7 +29,7 @@ st::C_Fcts_c ::= cc::Cstate_c  { st.pp = cc.pp; st.ast = cc.ast ; }
 
 
 attribute pp occurs on Cstate_c ;
-attribute ast<Unit> occurs on Cstate_c ;
+attribute ast<PUnit> occurs on Cstate_c ;
 
 aspect production p_C_STATE_2
 cs::Cstate_c ::= ca::C_STATE str1::STRING str2::STRING
@@ -55,7 +55,7 @@ cs::Cstate_c ::= ct::C_TRACK str1::STRING str2::STRING str3::STRING
 
 synthesized attribute ast_Stmt :: Stmt ;
 attribute pp occurs on Ccode_c ;
-attribute ast<Unit> occurs on Ccode_c ;
+attribute ast<PUnit> occurs on Ccode_c ;
 attribute ast_Stmt occurs on Ccode_c ;
 
 aspect production p_C_CODE_nt_c

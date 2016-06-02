@@ -10,7 +10,7 @@ forward.
 synthesized attribute transformed<a> :: a;
 
 attribute transformed<Program>    occurs on Program ;
-attribute transformed<Unit>       occurs on Unit ;
+attribute transformed<PUnit>       occurs on PUnit ;
 attribute transformed<Declarator> occurs on Declarator ;
 attribute transformed<Decls>      occurs on Decls ;
 attribute transformed<Stmt>       occurs on Stmt ;
@@ -40,127 +40,127 @@ attribute transformed<Enabler>    occurs on Enabler ;
 
 autocopy attribute rwrules_Program
   :: [ RewriteRule<Program Decorated Program> ]
-  occurs on Program, Unit, Decls, Declarator, Stmt, Options, Expr, Exprs,
+  occurs on Program, PUnit, Decls, Declarator, Stmt, Options, Expr, Exprs,
             MArgs, RArgs, RArg, Vis, TypeExpr, TypeExprs, IDList, Op, ChInit,
             ProcType, Inst, Priority, Enabler ;
 
 autocopy attribute rwrules_Unit    
-  :: [ RewriteRule<Unit Decorated Unit> ]
-  occurs on Program, Unit, Decls, Declarator, Stmt, Options, Expr, Exprs,
+  :: [ RewriteRule<PUnit Decorated PUnit> ]
+  occurs on Program, PUnit, Decls, Declarator, Stmt, Options, Expr, Exprs,
             MArgs, RArgs, RArg, Vis, TypeExpr, TypeExprs, IDList, Op, ChInit,
             ProcType, Inst, Priority, Enabler ;
 
 autocopy attribute rwrules_Decls
   :: [ RewriteRule<Decls Decorated Decls> ]
-  occurs on Program, Unit, Decls, Declarator, Stmt, Options, Expr, Exprs,
+  occurs on Program, PUnit, Decls, Declarator, Stmt, Options, Expr, Exprs,
             MArgs, RArgs, RArg, Vis, TypeExpr, TypeExprs, IDList, Op, ChInit,
             ProcType, Inst, Priority, Enabler ;
 
 autocopy attribute rwrules_Declarator 
   :: [ RewriteRule<Declarator Decorated Declarator> ]
-  occurs on Program, Unit, Decls, Declarator, Stmt, Options, Expr, Exprs,
+  occurs on Program, PUnit, Decls, Declarator, Stmt, Options, Expr, Exprs,
             MArgs, RArgs, RArg, Vis, TypeExpr, TypeExprs, IDList, Op, ChInit,
             ProcType, Inst, Priority, Enabler ;
 
 autocopy attribute rwrules_Stmt
   :: [ RewriteRule<Stmt Decorated Stmt> ]
-  occurs on Program, Unit, Decls, Declarator, Stmt, Options, Expr, Exprs,
+  occurs on Program, PUnit, Decls, Declarator, Stmt, Options, Expr, Exprs,
             MArgs, RArgs, RArg, Vis, TypeExpr, TypeExprs, IDList, Op, ChInit,
             ProcType, Inst, Priority, Enabler ;
 
 autocopy attribute rwrules_Options
   :: [ RewriteRule<Options Decorated Options> ]
-  occurs on Program, Unit, Decls, Declarator, Stmt, Options, Expr, Exprs,
+  occurs on Program, PUnit, Decls, Declarator, Stmt, Options, Expr, Exprs,
             MArgs, RArgs, RArg, Vis, TypeExpr, TypeExprs, IDList, Op, ChInit,
             ProcType, Inst, Priority, Enabler ;
 
 autocopy attribute rwrules_Expr
   :: [ RewriteRule<Expr Decorated Expr> ]
-  occurs on Program, Unit, Decls, Declarator, Stmt, Options, Expr, Exprs,
+  occurs on Program, PUnit, Decls, Declarator, Stmt, Options, Expr, Exprs,
             MArgs, RArgs, RArg, Vis, TypeExpr, TypeExprs, IDList, Op, ChInit,
             ProcType, Inst, Priority, Enabler ;
 
 autocopy attribute rwrules_Exprs
   :: [ RewriteRule<Exprs Decorated Exprs> ]
-  occurs on Program, Unit, Decls, Declarator, Stmt, Options, Expr, Exprs,
+  occurs on Program, PUnit, Decls, Declarator, Stmt, Options, Expr, Exprs,
             MArgs, RArgs, RArg, Vis, TypeExpr, TypeExprs, IDList, Op, ChInit,
             ProcType, Inst, Priority, Enabler ;
 
 autocopy attribute rwrules_MArgs
   :: [ RewriteRule<MArgs Decorated MArgs> ]
-  occurs on Program, Unit, Decls, Declarator, Stmt, Options, Expr, Exprs,
+  occurs on Program, PUnit, Decls, Declarator, Stmt, Options, Expr, Exprs,
             MArgs, RArgs, RArg, Vis, TypeExpr, TypeExprs, IDList, Op, ChInit,
             ProcType, Inst, Priority, Enabler ;
 
 autocopy attribute rwrules_RArgs
   :: [ RewriteRule<RArgs Decorated RArgs> ]
-  occurs on Program, Unit, Decls, Declarator, Stmt, Options, Expr, Exprs,
+  occurs on Program, PUnit, Decls, Declarator, Stmt, Options, Expr, Exprs,
             MArgs, RArgs, RArg, Vis, TypeExpr, TypeExprs, IDList, Op, ChInit,
             ProcType, Inst, Priority, Enabler ;
 
 autocopy attribute rwrules_RArg
   :: [ RewriteRule<RArg Decorated RArg> ]
-  occurs on Program, Unit, Decls, Declarator, Stmt, Options, Expr, Exprs,
+  occurs on Program, PUnit, Decls, Declarator, Stmt, Options, Expr, Exprs,
             MArgs, RArgs, RArg, Vis, TypeExpr, TypeExprs, IDList, Op, ChInit,
             ProcType, Inst, Priority, Enabler ;
 
 autocopy attribute rwrules_Vis
   :: [ RewriteRule<Vis Decorated Vis> ]
-  occurs on Program, Unit, Decls, Declarator, Stmt, Options, Expr, Exprs,
+  occurs on Program, PUnit, Decls, Declarator, Stmt, Options, Expr, Exprs,
             MArgs, RArgs, RArg, Vis, TypeExpr, TypeExprs, IDList, Op, ChInit,
             ProcType, Inst, Priority, Enabler ;
 
 autocopy attribute rwrules_TypeExpr
   :: [ RewriteRule<TypeExpr Decorated TypeExpr> ]
-  occurs on Program, Unit, Decls, Declarator, Stmt, Options, Expr, Exprs,
+  occurs on Program, PUnit, Decls, Declarator, Stmt, Options, Expr, Exprs,
             MArgs, RArgs, RArg, Vis, TypeExpr, TypeExprs, IDList, Op, ChInit,
             ProcType, Inst, Priority, Enabler ;
 
 autocopy attribute rwrules_TypeExprs
   :: [ RewriteRule<TypeExprs Decorated TypeExprs> ]
-  occurs on Program, Unit, Decls, Declarator, Stmt, Options, Expr, Exprs,
+  occurs on Program, PUnit, Decls, Declarator, Stmt, Options, Expr, Exprs,
             MArgs, RArgs, RArg, Vis, TypeExpr, TypeExprs, IDList, Op, ChInit,
             ProcType, Inst, Priority, Enabler ;
 
 autocopy attribute rwrules_IDList
   :: [ RewriteRule<IDList Decorated IDList> ]
-  occurs on Program, Unit, Decls, Declarator, Stmt, Options, Expr, Exprs,
+  occurs on Program, PUnit, Decls, Declarator, Stmt, Options, Expr, Exprs,
             MArgs, RArgs, RArg, Vis, TypeExpr, TypeExprs, IDList, Op, ChInit,
             ProcType, Inst, Priority, Enabler ;
 
 autocopy attribute rwrules_Op
   :: [ RewriteRule<Op Decorated Op> ]
-  occurs on Program, Unit, Decls, Declarator, Stmt, Options, Expr, Exprs,
+  occurs on Program, PUnit, Decls, Declarator, Stmt, Options, Expr, Exprs,
             MArgs, RArgs, RArg, Vis, TypeExpr, TypeExprs, IDList, Op, ChInit,
             ProcType, Inst, Priority, Enabler ;
 
 autocopy attribute rwrules_ChInit
   :: [ RewriteRule<ChInit Decorated ChInit> ]
-  occurs on Program, Unit, Decls, Declarator, Stmt, Options, Expr, Exprs,
+  occurs on Program, PUnit, Decls, Declarator, Stmt, Options, Expr, Exprs,
             MArgs, RArgs, RArg, Vis, TypeExpr, TypeExprs, IDList, Op, ChInit,
             ProcType, Inst, Priority, Enabler ;
 
 autocopy attribute rwrules_ProcType
   :: [ RewriteRule<ProcType Decorated ProcType> ]
-  occurs on Program, Unit, Decls, Declarator, Stmt, Options, Expr, Exprs,
+  occurs on Program, PUnit, Decls, Declarator, Stmt, Options, Expr, Exprs,
             MArgs, RArgs, RArg, Vis, TypeExpr, TypeExprs, IDList, Op, ChInit,
             ProcType, Inst, Priority, Enabler ;
 
 autocopy attribute rwrules_Inst
   :: [ RewriteRule<Inst Decorated Inst> ]
-  occurs on Program, Unit, Decls, Declarator, Stmt, Options, Expr, Exprs,
+  occurs on Program, PUnit, Decls, Declarator, Stmt, Options, Expr, Exprs,
             MArgs, RArgs, RArg, Vis, TypeExpr, TypeExprs, IDList, Op, ChInit,
             ProcType, Inst, Priority, Enabler ;
 
 autocopy attribute rwrules_Priority
   :: [ RewriteRule<Priority Decorated Priority> ]
-  occurs on Program, Unit, Decls, Declarator, Stmt, Options, Expr, Exprs,
+  occurs on Program, PUnit, Decls, Declarator, Stmt, Options, Expr, Exprs,
             MArgs, RArgs, RArg, Vis, TypeExpr, TypeExprs, IDList, Op, ChInit,
             ProcType, Inst, Priority, Enabler ;
 
 autocopy attribute rwrules_Enabler
   :: [ RewriteRule<Enabler Decorated Enabler> ]
-  occurs on Program, Unit, Decls, Declarator, Stmt, Options, Expr, Exprs,
+  occurs on Program, PUnit, Decls, Declarator, Stmt, Options, Expr, Exprs,
             MArgs, RArgs, RArg, Vis, TypeExpr, TypeExprs, IDList, Op, ChInit,
             ProcType, Inst, Priority, Enabler ;
 

@@ -6,7 +6,7 @@ grammar edu:umn:cs:melt:ableP:host:extensions:v6 ;
 -- Named claim --
 -----------------
 abstract production namedClaim
-c::Unit ::= id::ID body::Stmt
+c::PUnit ::= id::ID body::Stmt
 { c.pp = "never " ++ id.lexeme ++ " " ++ body.pp ;
   c.errors := body.errors;
   c.defs = body.defs;

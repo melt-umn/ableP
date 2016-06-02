@@ -6,7 +6,7 @@ grammar edu:umn:cs:melt:ableP:host:extensions:v6 ;
 -- LTL formulas --
 ------------------
 abstract production unitLTL
-u::Unit ::= l::LTL_c
+u::PUnit ::= l::LTL_c
 { u.pp = l.pp ;
   u.errors := [ ] ;
   u.defs = emptyDefs() ;

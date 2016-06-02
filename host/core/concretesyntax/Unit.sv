@@ -1,6 +1,6 @@
 grammar edu:umn:cs:melt:ableP:host:core:concretesyntax ;
 
-attribute pp, ppi, ast<Unit> occurs on Unit_c ;
+attribute pp, ppi, ast<PUnit> occurs on Unit_c ;
 
 aspect production unit_proc_c
 u::Unit_c ::= p::Proc_c
@@ -37,8 +37,8 @@ u::Unit_c ::= se::SEMI
 
 
 --Init 
-attribute pp, ppi, ast<Unit> occurs on Init_c ;
-synthesized attribute cst_Init_c :: Init_c occurs on Unit ;
+attribute pp, ppi, ast<PUnit> occurs on Init_c ;
+synthesized attribute cst_Init_c :: Init_c occurs on PUnit ;
 
 aspect production init_c
 i::Init_c ::= it::INIT op::OptPriority_c body::Body_c
@@ -48,7 +48,7 @@ i::Init_c ::= it::INIT op::OptPriority_c body::Body_c
 }
 
 --Claim  
-attribute pp, ppi, ast<Unit> occurs on Claim_c ;
+attribute pp, ppi, ast<PUnit> occurs on Claim_c ;
 
 aspect production claim_c
 c::Claim_c ::= ck::CLAIM body::Body_c
@@ -58,7 +58,7 @@ c::Claim_c ::= ck::CLAIM body::Body_c
 }
 
 --Events 
-attribute pp, ppi, ast<Unit> occurs on Events_c ;
+attribute pp, ppi, ast<PUnit> occurs on Events_c ;
 
 aspect production events_c
 e::Events_c ::= tr::TRACE body::Body_c
@@ -68,8 +68,8 @@ e::Events_c ::= tr::TRACE body::Body_c
 }
 
 --Utype
-attribute pp, ppi, ast<Unit> occurs on Utype_c ;
-synthesized attribute cst_Utype_c :: Utype_c occurs on Unit ;
+attribute pp, ppi, ast<PUnit> occurs on Utype_c ;
+synthesized attribute cst_Utype_c :: Utype_c occurs on PUnit ;
 
 aspect production utype_dcllist_c
 u::Utype_c ::= td::TYPEDEF id::ID '{' dl::DeclList_c '}'
@@ -88,8 +88,8 @@ aspect production unameNM_c
 nm::NM_c ::= n::UNAME  { nm.pp = n.lexeme ; }
 
 -- NS
-attribute pp, ppi, ast<Unit> occurs on NS_c ;
-synthesized attribute cst_NS_c::NS_c occurs on Unit ;
+attribute pp, ppi, ast<PUnit> occurs on NS_c ;
+synthesized attribute cst_NS_c::NS_c occurs on PUnit ;
 
 aspect production inline_dcl_iname_c
 ns::NS_c ::= il::INLINE ina::NM_c '(' args::InlineArgs_c ')' stmt::Statement_c

@@ -1,9 +1,9 @@
 grammar edu:umn:cs:melt:ableP:host:core:abstractsyntax;
 
-nonterminal Unit with pp, ppi, ppterm, errors, host<Unit>, inlined<Unit> ;
+nonterminal PUnit with pp, ppi, ppterm, errors, host<PUnit>, inlined<PUnit> ;
 
 abstract production seqUnit
-u::Unit ::= u1::Unit u2::Unit
+u::PUnit ::= u1::PUnit u2::PUnit
 { u.pp = u1.pp ++ u2.pp;
   u1.ppi = "";   u2.ppi = "";
   u1.ppterm = "; \n" ; u2.ppterm = "; \n" ;
@@ -18,7 +18,7 @@ u::Unit ::= u1::Unit u2::Unit
 }
 
 abstract production emptyUnit
-u::Unit ::= 
+u::PUnit ::= 
 { u.pp = "" ;
   u.errors := [ ] ;
   u.host = emptyUnit();
@@ -29,7 +29,7 @@ u::Unit ::=
 }
 
 abstract production unitDecls
-u::Unit ::= ds::Decls
+u::PUnit ::= ds::Decls
 { u.pp = ds.pp ++ u.ppterm ;
   ds.ppi = u.ppi;
   ds.ppsep = "; \n" ;
@@ -46,7 +46,7 @@ u::Unit ::= ds::Decls
 }
 
 abstract production init
-i::Unit ::= op::Priority body::Stmt
+i::PUnit ::= op::Priority body::Stmt
 { i.pp = "init " ++ op.pp ++ body.pp ;
   body.ppi = "  ";
   i.errors := body.errors;
@@ -60,7 +60,7 @@ i::Unit ::= op::Priority body::Stmt
 }
 
 abstract production commentedUnit
-u::Unit ::= comm::String u2::Unit
+u::PUnit ::= comm::String u2::PUnit
 { u.pp = comm ++ u2.pp ;
   u.errors := u2.errors ;
   u.defs = u2.defs ;
@@ -73,7 +73,7 @@ u::Unit ::= comm::String u2::Unit
 }
 
 abstract production ppUnit
-u::Unit ::= comm::String 
+u::PUnit ::= comm::String 
 { u.pp = comm ;
   u.errors := [ ] ;
   u.defs = emptyDefs() ;
@@ -86,7 +86,7 @@ u::Unit ::= comm::String
 }
 
 abstract production claim
-c::Unit ::= body::Stmt
+c::PUnit ::= body::Stmt
 { c.pp = "never " ++ body.pp ;
   c.errors := body.errors;
   c.defs = body.defs;
@@ -98,7 +98,7 @@ c::Unit ::= body::Stmt
 }
 
 abstract production events
-e::Unit ::= body::Stmt
+e::PUnit ::= body::Stmt
 { e.pp = "trace " ++ body.pp ;
   e.errors := body.errors;
   e.defs = body.defs;

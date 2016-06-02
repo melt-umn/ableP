@@ -5,7 +5,7 @@ grammar edu:umn:cs:melt:ableP:host:extensions:v6 ;
 -- 'host' program that rewrites any 'in' identifiers so that the
 -- program is acceptable to SPIN which doesn't allow this.
 aspect production programWithNewUnits
-p::Program ::= u::Unit
+p::Program ::= u::PUnit
 { transformations <- [ applyInRenameTransformation ] ;
 }
 

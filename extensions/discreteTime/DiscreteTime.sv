@@ -125,12 +125,12 @@ st::Stmt ::= tmr::Expr
 -- proctype Timers() { do :: timeout -> atomic{ tick(tmr1); tick(tmr2) } od }
 
 aspect production program
-p::Program ::= u::Unit
+p::Program ::= u::PUnit
 { newUnits <- mkTimerProc() ;
 }
 
 abstract production mkTimerProc
-u::Unit ::=
+u::PUnit ::=
 { local declaredTimers::[String] = allTimerDecls( u.env.bindings ) ;
 
   forwards to 

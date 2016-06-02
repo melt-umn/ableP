@@ -62,22 +62,22 @@ e::EnvResult ::= f::Boolean d::Decorated Decls
 
 
 synthesized attribute uses::[Use]
-  occurs on Unit, Stmt, Options, Expr, Exprs,
+  occurs on PUnit, Stmt, Options, Expr, Exprs,
             Decls, Declarator, 
             MArgs, RArgs, RArg ;
 
 autocopy attribute alluses::[Use]
-  occurs on Unit, Stmt, Options, Expr, Exprs,
+  occurs on PUnit, Stmt, Options, Expr, Exprs,
             Decls, Declarator, 
             MArgs, RArgs, RArg ;
 
 attribute env
-  occurs on Unit, Stmt, Options, Expr, Exprs, Enabler,
+  occurs on PUnit, Stmt, Options, Expr, Exprs, Enabler,
             Decls, Declarator, IDList,
             MArgs, RArgs, RArg ;
 
 attribute defs
-  occurs on Unit, Stmt, Options,
+  occurs on PUnit, Stmt, Options,
             Decls, Declarator, IDList ;
 
 nonterminal Use ;
