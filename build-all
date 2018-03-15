@@ -13,7 +13,7 @@ ARGS=$@
 
 if [ -d ../ableC ]; then
   echo "Found AbleC at ../ableC"
-  ARGS=$ARGS -I ../ableC/
+  ARGS="$ARGS -I ../ableC/"
 elif [ -d edu.umn.cs.melt.ableC ]; then
   echo "Found AbleC at edu.umn.cs.melt.ableC"
 else
