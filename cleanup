@@ -2,10 +2,10 @@
 
 # Promela testing and SPIN generated files
 for f in "*.pml.cpp" "pan.?" "a.out" "*_HOST.pml" "*_inlined.*pml" "diff_res" "d1" "d2" ; do
-  find . -name $f -print $1
+  find edu.umn.cs.melt.ableP -name "$f" -print $1
 done
 
 
 for f in "*.jar" "build.xml" "*.test.output" "*~" ; do
-  find . -name $f -print $1
+  find . -name "$f" -print $1
 done
