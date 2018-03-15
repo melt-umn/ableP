@@ -38,6 +38,8 @@ try {
     withEnv(newenv) {
       dir("ableP") {
         sh "./build-all"
+        // clean up
+        sh "rm *.jar"
       }
     }
   }
