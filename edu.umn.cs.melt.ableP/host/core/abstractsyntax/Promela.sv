@@ -17,7 +17,7 @@ p::Program ::= u::PUnit
   u.ppterm = "; \n" ;
   p.errors := u.errors;
 
-  production attribute transformations :: [ Function(Program ::= Program) ]
+  production attribute transformations :: [ (Program ::= Program) ]
     with ++ ;
   transformations := [ ] ; -- applyInRenameTransformation ] ;
 
@@ -37,7 +37,7 @@ p::Program ::= u::PUnit
 }
 
 function applyTransformations
-Program ::= p::Program trafos::[ Function(Program ::= Program) ] 
+Program ::= p::Program trafos::[ (Program ::= Program) ] 
 { return
     if   null(trafos)
     then p

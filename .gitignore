@@ -2,4 +2,5 @@
 *.jar
 build.xml
 edu.umn.cs.melt.ableC
+*.cpp
 

@@ -35,7 +35,7 @@ s::Stmt ::= sk::SELECT v::Expr lower::Expr upper::Expr
   local oplt::Op = mkOp("<", boolTypeExpr()) ;
   local opplus::Op = mkOp("+", boolTypeExpr()) ;
   local one::Expr = constExpr(terminal(CONST,"1")) ;
-  local label::ID = terminal(ID,"l"++toString(sk.line), sk.line, sk.column) ;
+  local label::ID = terminal(ID,"l"++toString(sk.line), sk.location) ;
 }
 
 

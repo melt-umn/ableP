@@ -62,7 +62,7 @@ st::Stmt ::= d::DELAY tmr::Expr val::Expr
                | _ -> [ mkError("\"" ++ val.pp ++ "\" must be of type \"timer\".") ]
                end ++ -}
                tmr.errors ++ val.errors ;
-  forwards to seqStmt( set( terminal(SET,"set", d.line, d.column), tmr, val),
+  forwards to seqStmt( set( terminal(SET,"set", d.location), tmr, val),
                        expire(tmr) ) ;
 }
 
@@ -82,7 +82,7 @@ st::Stmt ::= s::'set' t::Expr e::Expr
                        mkLoc(s.line, s.column) ) ] ;
   st.defs = emptyDefs();
 
-  forwards to defaultAssign(t.host, terminal(ASGN, "=", s.line, s.column), e.host) ;
+  forwards to defaultAssign(t.host, terminal(ASGN, "=", s.location), e.host) ;
 }
 
 -- #define expire(tmr) (tmr==0) 

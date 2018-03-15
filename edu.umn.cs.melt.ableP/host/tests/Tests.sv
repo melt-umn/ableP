@@ -22,7 +22,7 @@ IOVal<[Test]> ::= fn::String ioIn::IOVal<[Test]>
 
 abstract production semanticsOK_test 
 t::Test ::= cst_tree::Program_c fn::String
-            parseF::Function(ParseResult<Program_c> ::= String String)
+            parseF::(ParseResult<Program_c> ::= String String)
 {
  -- a test to check that there are no warnings or errors on the
  -- tree ast_tree nor host_tree
@@ -39,8 +39,8 @@ t::Test ::= cst_tree::Program_c fn::String
 
 
 abstract production postParsingTest
-t::Test ::= fn::String parseF::Function(ParseResult<a> ::= String String)
-            custom::Production(Test ::= a String Function(ParseResult<a> ::= String String))
+t::Test ::= fn::String parseF::(ParseResult<a> ::= String String)
+            custom::(Test ::= a String (ParseResult<a> ::= String String))
 {
  local exists::IOVal<Boolean> = isFile(fn, t.ioIn);
  local text::IOVal<String> = readFile(fn, exists.io);
@@ -69,8 +69,8 @@ t::Test ::= fn::String parseF::Function(ParseResult<a> ::= String String)
  }
 
 abstract production postCPPParsingTest
-t::Test ::= fn::String parseF::Function(ParseResult<a> ::= String String)
-            custom::Production(Test ::= a String Function(ParseResult<a> ::= String String))
+t::Test ::= fn::String parseF::(ParseResult<a> ::= String String)
+            custom::(Test ::= a String (ParseResult<a> ::= String String))
 {
  local exists::IOVal<Boolean> = isFile(fn, t.ioIn);
 
@@ -119,7 +119,7 @@ t::Test ::= fn::String parseF::Function(ParseResult<a> ::= String String)
 
 abstract production ppOfASTParsable_test 
 t::Test ::= tree::Program_c fn::String
-            parseF::Function(ParseResult<Program_c> ::= String String)
+            parseF::(ParseResult<Program_c> ::= String String)
 {
  local p_ast1::Program = tree.ast ;
  local p_ast1_pp::String = p_ast1.pp ;
@@ -150,7 +150,7 @@ t::Test ::= tree::Program_c fn::String
 
 abstract production ppOfAST_test 
 t::Test ::= tree::Program_c fn::String
-            parseF::Function(ParseResult<Program_c> ::= String String)
+            parseF::(ParseResult<Program_c> ::= String String)
 {
  -- compute 'unparse' of tree
  local p1_ast::Program = tree.ast ;
@@ -218,7 +218,7 @@ t::Test ::= tree::Program_c fn::String
 
 abstract production parsePPofHost_test 
 t::Test ::= tree::Program_c fn::String 
-            parseF::Function(ParseResult<Program_c> ::= String String)
+            parseF::(ParseResult<Program_c> ::= String String)
 {
  local f_ast::Program = tree.ast.host ;
  local f_ast_pp::String = f_ast.pp ;

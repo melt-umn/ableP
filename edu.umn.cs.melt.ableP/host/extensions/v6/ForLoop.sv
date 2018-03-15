@@ -30,7 +30,7 @@ s::Stmt ::= f::FOR vr::Expr lower::Expr upper::Expr body::Stmt
              labeledStmt ( label, skipStmt () )
            ) ;
   local op::Op = mkOp("<=", boolTypeExpr()) ;
-  local label::ID = terminal(ID,"l"++toString(f.line), f.line, f.column) ;
+  local label::ID = terminal(ID,"l"++toString(f.line), f.location) ;
 }
 
 
@@ -80,17 +80,17 @@ s::Stmt ::= f::FOR vr::Expr e::Expr body::Stmt
 
   local array_size::Expr 
     = constExpr(terminal(CONST, toString(array_size_value),
-                         f.line, f.column) ) ;
+                         f.location) ) ;
   local array_size_value::Integer
     = case e.typerep of
            arrayTypeRep(_,sz) -> sz
          | _ -> 0 end ;
 
-  local asnOp::ASGN = terminal(ASGN,"=", f.line, f.column) ;
-  local one::Expr = constExpr(terminal(CONST,"1", f.line, f.column)) ;
-  local zero::Expr = constExpr(terminal(CONST,"0", f.line, f.column)) ;
+  local asnOp::ASGN = terminal(ASGN,"=", f.location) ;
+  local one::Expr = constExpr(terminal(CONST,"1", f.location)) ;
+  local zero::Expr = constExpr(terminal(CONST,"0", f.location)) ;
   local op::Op = mkOp("<=", boolTypeExpr()) ;
-  local label::ID = terminal(ID,"l"++toString(f.line), f.line, f.column) ;
+  local label::ID = terminal(ID,"l"++toString(f.line), f.location) ;
 
 
 --  s.host = forIn(f,vr.host, e.host,body.host) ;
@@ -118,7 +118,7 @@ e::Expr ::= id::ID eres::EnvResult
 
   local newRenamedID::ID 
     = terminal(ID, if eres.found then dcl.inRename else id.lexeme, 
-               id.line, id.column) ;
+               id.location) ;
   e.host = varRefExpr(id, eres) ; -- newRenamedID) ;
 
   -- We need to know if 'id' is an argument in an inline declaration

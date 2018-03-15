@@ -12,7 +12,7 @@ lexer class p_WS_Comments dominates Ccomment ;
 ------------------------------
 --lexer class p_WS_Comments ;
 
-ignore terminal WhiteSpace_P /[\t\n\ ]+/ 
+ignore terminal WhiteSpace_P /[\t\r\n\ ]+/ 
  lexer classes {promela, p_WS_Comments} ; 
 
 ignore terminal BlockComment_P /[\/][\*]([^\*]|[\r\n]|([\*]+([^\*\/]|[\r\n])))*[\*]+[\/]/ 

@@ -97,7 +97,7 @@ ns::NS_c ::= il::INLINE ina::NM_c '(' args::InlineArgs_c ')' stmt::Statement_c
           ns.ppi ++ stmt.pp;
   stmt.ppi = "  " ++ ns.ppi ;
 
-  ns.ast = unitDecls( inlineDecl( terminal(ID, ina.pp, il.line, il.column), 
+  ns.ast = unitDecls( inlineDecl( terminal(ID, ina.pp, il.location), 
                                   args.ast, stmt.ast ) );
 }
 

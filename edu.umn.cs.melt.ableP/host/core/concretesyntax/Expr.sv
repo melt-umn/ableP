@@ -376,7 +376,7 @@ attribute pp, ast<ID> occurs on Aname_c ;
 aspect production aname_pname_c
 an::Aname_c ::= pn::PNAME
 { an.pp = pn.lexeme ;
-  an.ast = terminal(ID, pn.lexeme, pn.line, pn.column) ;
+  an.ast = terminal(ID, pn.lexeme, pn.location) ;
 }
 aspect production aname_name_c
 an::Aname_c ::= id::ID

@@ -10,7 +10,7 @@ import edu:umn:cs:melt:ableP:host:hostParser
 
 function driver
 IOVal<Integer> ::= args::[String]
-                   ext_parser::Function(ParseResult<Program_c>::=String String) 
+                   ext_parser::(ParseResult<Program_c>::=String String) 
                    driverIO::IO 
 {
   local debugMode::Boolean = head(args) == "--debug" ;

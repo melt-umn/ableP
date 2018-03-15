@@ -38,5 +38,5 @@ abstract production timerAssign
 s::Stmt ::= lhs::Expr op::'=' rhs::Expr 
 { -- This is just syntactic sugar for the set operation.
   s.pp = lhs.pp ++ " = " ++ rhs.pp ;
-  forwards to set(terminal(SET, "set", op.line, op.column), lhs, rhs) ;
+  forwards to set(terminal(SET, "set", op.location), lhs, rhs) ;
 }

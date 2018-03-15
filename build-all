@@ -1,0 +1,34 @@
+#!/bin/bash
+
+set -eu
+
+if ! which silver > /dev/null; then
+  echo "Requires a silver installation to use. ('silver' should be in PATH)"
+  echo "See https://github.com/melt-umn/silver/"
+  echo "Or http://melt.cs.umn.edu/ for more information."
+  exit 1
+fi
+
+ARGS=$@
+
+if [ -d ../ableC ]; then
+  echo "Found AbleC at ../ableC"
+  ARGS=$ARGS -I ../ableC/
+elif [ -d edu.umn.cs.melt.ableC ]; then
+  echo "Found AbleC at edu.umn.cs.melt.ableC"
+else
+  echo "Did not spot AbleC, build will likely fail."
+fi
+
+silver $ARGS edu:umn:cs:melt:ableP:artifacts:promelaCore
+silver $ARGS edu:umn:cs:melt:ableP:artifacts:promelaCore:tests
+(cd edu.umn.cs.melt.ableP/artifacts/promelaCore/tests && java -jar ../../../../edu.umn.cs.melt.ableP.artifacts.promelaCore.tests.jar)
+silver $ARGS edu:umn:cs:melt:ableP:artifacts:promela
+silver $ARGS edu:umn:cs:melt:ableP:artifacts:promela:tests
+(cd edu.umn.cs.melt.ableP/artifacts/promela/tests && java -jar ../../../../edu.umn.cs.melt.ableP.artifacts.promela.tests.jar)
+silver $ARGS edu:umn:cs:melt:ableP:artifacts:aviation
+silver $ARGS edu:umn:cs:melt:ableP:artifacts:aviation:tests
+(cd edu.umn.cs.melt.ableP/artifacts/aviation/tests && java -jar ../../../../edu.umn.cs.melt.ableP.artifacts.aviation.tests.jar)
+
+echo "Success"
+

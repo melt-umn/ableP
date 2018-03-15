@@ -87,7 +87,7 @@ r::RewriteRule<Expr Decorated Expr> ::=
                                      if   eres.found 
                                      then eres.dcl.inRename
                                      else idx.lexeme, 
-                                     idx.line, idx.column)  ,
+                                     idx.location)  ,
                             eres ) )
                else nothing()
           | _ -> nothing()
@@ -100,6 +100,6 @@ ID ::= id::ID
 { return
     terminal( ID, id.lexeme ++ "_" ++ toString(id.line) ++
                                "_" ++ toString(id.column) ,
-              id.line, id.column) ;
+              id.location) ;
 }
 

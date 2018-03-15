@@ -57,7 +57,7 @@ s::Stmt ::= sl::'select' v::Expr lower::Expr upper::Expr step::Expr
    ) ;
   local op::Op = mkOp("<", boolTypeExpr()) ;
   local opPlus::Op = mkOp("+", intTypeExpr()) ;
-  local label::ID = terminal(ID,"l"++toString(sl.line), sl.line, sl.column) ;
+  local label::ID = terminal(ID,"l"++toString(sl.line), sl.location) ;
 }
 
 
