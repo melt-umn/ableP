@@ -44,7 +44,7 @@ aspect production init_c
 i::Init_c ::= it::INIT op::OptPriority_c body::Body_c
 { i.pp = i.ppi ++ "init" ++ op.pp ++ body.pp;
   body.ppi = "  " ++ i.ppi ;
-  i.ast = init(op.ast, body.ast);
+  i.ast = initConstruct(op.ast, body.ast);
 }
 
 --Claim  

@@ -45,18 +45,20 @@ u::PUnit ::= ds::Decls
                      unitDecls(ds.transformed));
 }
 
-abstract production init
+-- This is called initConstruct instead of init since init is a built-in
+-- function.
+abstract production initConstruct
 i::PUnit ::= op::Priority body::Stmt
 { i.pp = "init " ++ op.pp ++ body.pp ;
   body.ppi = "  ";
   i.errors := body.errors;
   i.defs = body.defs ;
   i.uses = body.uses ;
-  i.host = init(op.host, body.host) ;
-  i.inlined = init(op.inlined, body.inlined) ;
+  i.host = initConstruct(op.host, body.host) ;
+  i.inlined = initConstruct(op.inlined, body.inlined) ;
 
   i.transformed = applyARewriteRule(i.rwrules_Unit, i,
-                    init(op, body.transformed));
+                    initConstruct(op, body.transformed));
 }
 
 abstract production commentedUnit
