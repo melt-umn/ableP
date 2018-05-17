@@ -22,7 +22,8 @@ ignore terminal LineComment_P  /[\/][\/].*/
  lexer classes {promela, p_WS_Comments} ; 
 
 ignore terminal CPPDirectiveLayout_P /[#].*/ 
- lexer classes {promela, p_WS_Comments} ; 
+ lexer classes {promela, p_WS_Comments},
+ submits to {CPP_Location_Tag_t} ; -- NOTE: I'm just making this build again. Not sure what we should be doing here. TODO How should this interact with AbleC's handling of location information from the preprocessor?
 
 
 terminal ASSERT       'assert'       lexer classes {promela,promela_kwd};
