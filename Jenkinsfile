@@ -2,7 +2,7 @@
 
 library "github.com/melt-umn/jenkins-lib"
 
-melt.setProperties(silverBase: true)
+melt.setProperties(silverBase: true, ablecBase: true)
 
 melt.trynode("ableP") {
 
