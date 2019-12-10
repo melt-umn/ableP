@@ -6,7 +6,7 @@ import edu:umn:cs:melt:ableC:concretesyntax ;
 lexer class promela_kwd;
 lexer class promela;
 
-lexer class p_WS_Comments dominates Ccomment ;
+lexer class p_WS_Comments dominates Comment ;
                         
 -- White space and comments --
 ------------------------------
