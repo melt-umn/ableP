@@ -4,7 +4,7 @@ library "github.com/melt-umn/jenkins-lib"
 
 melt.setProperties(silverBase: true)
 
-melt.trynode {
+melt.trynode("ableP") {
 
   def newenv
 
