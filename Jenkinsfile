@@ -16,7 +16,7 @@ melt.trynode("ableP") {
     def silver_base = silver.resolveSilver()
 
     // Get AbleC
-    def ablec_base = resolveAbleC()
+    def ablec_base = ablec.resolveAbleC()
     
     // Checkout AbleP
     checkout([$class: 'GitSCM',
