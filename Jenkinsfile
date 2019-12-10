@@ -4,20 +4,20 @@ library "github.com/melt-umn/jenkins-lib"
 
 melt.setProperties(silverBase: true)
 
-node {
-try {
+melt.trynode {
 
-  def newenv = silver.getSilverEnv()
+  def newenv
 
   stage ("Checkout") {
-    // Checkout AbleC
-    checkout([$class: 'GitSCM',
-              branches: [[name: '*/develop']], // Right now we always checkout develop, because this repo uses 'master' and we don't want to always checkout 'master'
-              doGenerateSubmoduleConfigurations: false,
-              extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'ableC'],
-                           [$class: 'CleanCheckout']],
-              submoduleCfg: [],
-              userRemoteConfigs: [[url: 'https://github.com/melt-umn/ableC.git']]])
+    // Clean Silver-generated files from previous builds in this workspace
+    melt.clearGenerated()
+    
+    // Get Silver
+    def silver_base = silver.resolveSilver()
+
+    // Get AbleC
+    def ablec_base = resolveAbleC()
+    
     // Checkout AbleP
     checkout([$class: 'GitSCM',
               branches: scm.branches,
@@ -28,9 +28,18 @@ try {
               ],
               submoduleCfg: scm.submoduleCfg,
               userRemoteConfigs: scm.userRemoteConfigs
-              ])
+      ])
 
-    melt.clearGenerated()
+    newenv = silver.getSilverEnv(silver_base) + [
+      "ABLEC_BASE=${ablec_base}",
+      // libcord, libgc, cilk headers:
+      "C_INCLUDE_PATH=/project/melt/Software/ext-libs/usr/local/include",
+      "LIBRARY_PATH=/project/melt/Software/ext-libs/usr/local/lib"
+    ]
+    if (params.ABLEC_GEN != 'no') {
+    echo "Using existing ableC generated files: ${params.ABLEC_GEN}"
+      newenv << "SILVER_HOST_GEN=${params.ABLEC_GEN}"
+    }
   }
 
   stage ("Build") {
@@ -47,11 +56,3 @@ try {
   /* If we've gotten all this way with a successful build, don't take up disk space */
   melt.clearGenerated()
 }
-catch (e) {
-  melt.handle(e)
-}
-finally {
-  melt.notify(job: 'ableP')
-}
-} // node
-
