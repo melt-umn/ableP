@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eu
+set -e
 
 if ! which silver > /dev/null; then
   echo "Requires a silver installation to use. ('silver' should be in PATH)"
@@ -11,14 +11,16 @@ fi
 
 ARGS=$@
 
-if [ -d ../ableC ]; then
+if [[ -d "$ABLEC_BASE" ]]; then
+  echo "Found AbleC at $ABLEC_BASE"
+elif [[ -d ../ableC ]]; then
   echo "Found AbleC at ../ableC"
-  ARGS="$ARGS -I ../ableC/grammars"
-elif [ -d edu.umn.cs.melt.ableC ]; then
-  echo "Found AbleC at edu.umn.cs.melt.ableC"
+  ABLEC_BASE=../ableC
 else
   echo "Did not spot AbleC, build will likely fail."
 fi
+
+ARGS="$ARGS -I $ABLEC_BASE/grammars"
 
 silver $ARGS edu:umn:cs:melt:ableP:artifacts:promelaCore
 silver $ARGS edu:umn:cs:melt:ableP:artifacts:promelaCore:tests
