@@ -94,9 +94,9 @@ c::Ccode_c ::= dcls::C_DECL_nt_c
 --       "c_code { int *x; int *y; }"
 -- Similar terminals and nonterminals are created for C_DECL and C_EXPR.
 
-nonterminal C_CODE_nt_c with pp, ast<Ccmpd> ;
-nonterminal C_DECL_nt_c with pp, ast<Cdcls> ;
-nonterminal C_EXPR_nt_c with pp, ast<Expr> ;
+nonterminal C_CODE_nt_c layout {CLineComment, CBlockComment, CSpaces, CNewLine} with pp, ast<Ccmpd> ;
+nonterminal C_DECL_nt_c layout {CLineComment, CBlockComment, CSpaces, CNewLine} with pp, ast<Cdcls> ;
+nonterminal C_EXPR_nt_c layout {CLineComment, CBlockComment, CSpaces, CNewLine} with pp, ast<Expr> ;
 
 concrete productions c::Ccode_c
 (p_C_CODE_nt_c) | cmpd::C_CODE_nt_c  { }
@@ -185,6 +185,7 @@ String ::= d::a
 --------------------------------------------------
 terminal BOGUS_C_ROOT_t '!!!!!!BOGUSCROOT' ;
 concrete production bogus_C_Root
-p::Program_c ::= t::BOGUS_C_ROOT_t cr::Ansi_C_Root
+p::Program_c ::= BOGUS_C_ROOT_t cr::Ansi_C_Root BOGUS_C_ROOT_t
+layout {CLineComment, CBlockComment, CSpaces, CNewLine}
 { }
 

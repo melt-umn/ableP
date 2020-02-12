@@ -2,7 +2,6 @@ grammar edu:umn:cs:melt:ableP:host:extensions:typeChecking ;
 
 imports edu:umn:cs:melt:ableP:host:core:concretesyntax ;
 imports edu:umn:cs:melt:ableP:host:core:abstractsyntax ;
-imports edu:umn:cs:melt:ableP:host:core:terminals ;
 
 function show_env
 String ::= e::Env

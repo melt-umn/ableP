@@ -1,6 +1,5 @@
 grammar edu:umn:cs:melt:ableP:host:driver;
 
-import edu:umn:cs:melt:ableP:host:core:terminals;
 import edu:umn:cs:melt:ableP:host:core:concretesyntax
    only Program_c, ast, cst_Program_c ;
 import edu:umn:cs:melt:ableP:host:core:abstractsyntax ; 
