@@ -1,7 +1,9 @@
 grammar edu:umn:cs:melt:ableP:host:extensions:embeddedC;
 
 import silver:langutil:pp as fancypp;
-import silver:langutil only pp with pp as c_pp;
+import silver:langutil only ast, pp, pps with ast as c_ast, pp as c_pp, pps as c_pps;
+import edu:umn:cs:melt:ableC:abstractsyntax:host as c;
+import edu:umn:cs:melt:ableC:abstractsyntax:construction as c;
 
 aspect production unit_c_fcts_c
 u::Unit_c ::= cf::C_Fcts_c
@@ -114,15 +116,15 @@ concrete productions st::C_CODE_nt_c
   }
 | kwd::C_CODE '[' ce::Ansi_C_Expr ']' '{' cmpd::C_CmpdStmt '}'
   { 
-    st.pp  = kwd.lexeme ++ " [ " ++ ansi_c_pp(ce) ++ " ] { " ++ cmpd.pp ++ " } " ;
-    st.ast = cExprCmpd(kwd, ansi_c_pp(ce), cmpd.pp) ;
+    st.pp  = kwd.lexeme ++ " [ " ++ fancypp:show(80, ce.c_ast.c_pp) ++ " ] { " ++ cmpd.pp ++ " } " ;
+    st.ast = cExprCmpd(kwd, fancypp:show(80, ce.c_ast.c_pp), cmpd.pp) ;
   }
 
 concrete productions st::C_DECL_nt_c
 | kwd::C_DECL '{' cd::Ansi_C_DeclarationList '}' 
   { 
-    st.pp  = kwd.lexeme ++ " { " ++ ansi_c_pp(cd) ++ " } " ;
-    st.ast = cDcls(kwd, ansi_c_pp(cd));
+    st.pp  = kwd.lexeme ++ " { " ++ fancypp:show(80, fancypp:terminate(fancypp:line(), c:foldDecl(cd.c_ast).c_pps)) ++ " } " ;
+    st.ast = cDcls(kwd, fancypp:show(80, fancypp:terminate(fancypp:line(), c:foldDecl(cd.c_ast).c_pps)));
   }
 
 
@@ -131,7 +133,7 @@ nonterminal C_CmpdStmt with pp ;
 
 concrete productions c::C_CmpdStmt
 | stmt::Ansi_C_StmtList
-  { c.pp = ansi_c_pp(stmt) ; }
+  { c.pp = fancypp:show(80, c:foldStmt(stmt.c_ast).c_pp) ; }
 |
   { c.pp = "" ; }
 
@@ -155,26 +157,16 @@ st::Cexpr_c ::= cc::C_EXPR_nt_c
 -- in the rules.  We have the following rules to do a better job.
 concrete productions ce::C_EXPR_nt_c
 | kwd::C_EXPR '{' e::Ansi_C_Expr  '}'
-{ ce.pp  = kwd.lexeme ++ " { " ++ ansi_c_pp(e) ++ " } " ;
-  ce.ast = exprCExpr (kwd, ansi_c_pp(e)) ;   }
+{ ce.pp  = kwd.lexeme ++ " { " ++ fancypp:show(80, e.c_ast.c_pp) ++ " } " ;
+  ce.ast = exprCExpr (kwd, fancypp:show(80, e.c_ast.c_pp)) ;   }
 
 | kwd::C_EXPR '{' cmpd::C_CmpdStmt  '}'
 { ce.pp  = kwd.lexeme ++ " { " ++ cmpd.pp ++ " } " ;
   ce.ast = exprCCmpd (kwd, cmpd.pp ) ;   }
 
 | kwd::C_EXPR '[' e::Ansi_C_Expr ']' '{' cmpd::C_CmpdStmt '}'
-{ ce.pp  = kwd.lexeme ++ " [ " ++ ansi_c_pp(e) ++ " ] { " ++ cmpd.pp ++ " } " ;
-  ce.ast = exprCExprCmpd (kwd, ansi_c_pp(e), cmpd.pp ) ;   }
-
-
-{-- TODO: current version of ableC does not have pretty prints!
- -}
-function ansi_c_pp
-String ::= d::a
-{
-  return "TODO";
-}
-
+{ ce.pp  = kwd.lexeme ++ " [ " ++ fancypp:show(80, e.c_ast.c_pp) ++ " ] { " ++ cmpd.pp ++ " } " ;
+  ce.ast = exprCExprCmpd (kwd, fancypp:show(80, e.c_ast.c_pp), cmpd.pp ) ;   }
 
 {-- This production is used to make all productions and nonterminals
     in the ableC grammar not be useless - thus avoiding an error
