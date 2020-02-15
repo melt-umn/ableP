@@ -1,6 +1,5 @@
 grammar edu:umn:cs:melt:ableP:host ;
 
-exports edu:umn:cs:melt:ableP:host:core:terminals ;
 exports edu:umn:cs:melt:ableP:host:core:concretesyntax ;
 exports edu:umn:cs:melt:ableP:host:core:abstractsyntax ;
 

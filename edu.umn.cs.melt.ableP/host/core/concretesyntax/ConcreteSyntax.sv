@@ -16,7 +16,7 @@ licensing and copyright designations, given below:
 
 grammar edu:umn:cs:melt:ableP:host:core:concretesyntax ;
 
-imports edu:umn:cs:melt:ableP:host:core:terminals ;
+exports edu:umn:cs:melt:ableP:host:core:terminals ;
 
 -- All productions in this file are derived from the spin.y grammar
 -- and have the same form as in v4.2.9 and v6.
