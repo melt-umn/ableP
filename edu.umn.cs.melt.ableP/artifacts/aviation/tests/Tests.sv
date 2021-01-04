@@ -3,8 +3,6 @@ grammar edu:umn:cs:melt:ableP:artifacts:aviation:tests ;
 import silver:testing with msg as test_msg ;
 import silver:testing:bin ;
 
-import lib:extcore ;
-
 import edu:umn:cs:melt:ableP:host ;
 import edu:umn:cs:melt:ableP:extensions:tables ;
 import edu:umn:cs:melt:ableP:extensions:enhancedSelect ;

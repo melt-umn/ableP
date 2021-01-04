@@ -1,7 +1,6 @@
 grammar edu:umn:cs:melt:ableP:host:tests ;
 
 import silver:testing ;
-import lib:extcore ;
 import edu:umn:cs:melt:ableP:host:core:abstractsyntax hiding msg ;
 import edu:umn:cs:melt:ableP:host:core:concretesyntax ;
 import edu:umn:cs:melt:ableP:host:hostParser ;
