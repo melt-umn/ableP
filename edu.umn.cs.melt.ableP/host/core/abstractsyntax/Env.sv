@@ -9,7 +9,7 @@ synthesized attribute name :: String ;
 synthesized attribute bindings::[ Binding ];
 synthesized attribute dcl::Decorated Decls ;
 
-abstract production bind
+abstract production binding
 b::Binding ::= n::String d::Decorated Decls
 { b.name = n;
   b.dcl = d;
@@ -24,7 +24,7 @@ e::Env ::=
 abstract production valueBinding
 e::Env ::= n::String d::Decorated Decls
 {
- e.bindings = [bind(n,d)];
+ e.bindings = [binding(n,d)];
 }
 abstract production mergeDefs
 e::Env ::= e1::Env e2::Env
