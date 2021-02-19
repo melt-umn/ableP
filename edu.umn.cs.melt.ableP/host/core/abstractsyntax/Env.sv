@@ -44,8 +44,9 @@ EnvResult ::= n::String e::Env
 function lookup_name_helper
 EnvResult ::= n::String bs::[Binding]
 {
+ local eDcl::Decls = emptyDecl();
  return if   null(bs) 
-        then env_res(false, decorate emptyDecl() with {} )
+        then env_res(false, eDcl)
         else if   n == head(bs).name
              then env_res(true, head(bs).dcl)
              else lookup_name_helper(n, tail(bs)) ;
