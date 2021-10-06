@@ -75,9 +75,9 @@ s::Stmt ::= sl::'select' v::Expr lower::CONST upper::CONST step::CONST
   {- if ::v = lower;  ::v = lower+step;  ... ::v = upper;  fi;  -}
   forwards to ifStmt (mkOptions(v, lw, up, by)) ;
 
-  local lw::Integer = toInt(lower.lexeme);  
-  local up::Integer = toInt(upper.lexeme);  
-  local by::Integer = toInt(step.lexeme);  
+  local lw::Integer = toInteger(lower.lexeme);  
+  local up::Integer = toInteger(upper.lexeme);  
+  local by::Integer = toInteger(step.lexeme);  
 }
 
 function mkOptions
