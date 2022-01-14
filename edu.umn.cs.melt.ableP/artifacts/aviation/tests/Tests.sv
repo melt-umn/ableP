@@ -12,7 +12,7 @@ import edu:umn:cs:melt:ableP:host:tests ;
 import edu:umn:cs:melt:ableP:artifacts:promela:tests ;
 
 function main
-IOVal<Integer> ::= args::[String] mainIO::IO
+IOVal<Integer> ::= args::[String] mainIO::IOToken
 {
  local attribute testResults :: TestSuite ;
  testResults = consolidateTestSuite( [
@@ -22,7 +22,7 @@ IOVal<Integer> ::= args::[String] mainIO::IO
                  ] ) ;
  testResults.ioIn = semanticsOKTestsIO.io;
 
- return ioval ( print (
+ return ioval ( printT (
        "Test results: \n" ++ testResults.test_msg ++ "\n\n" ++ 
        "Passed " ++ toString (testResults.numPassed) ++
        " tests out of " ++ toString (testResults.numTests) ++ "\n\n"

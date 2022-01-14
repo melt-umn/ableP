@@ -12,5 +12,5 @@ parser aviationParser :: Program_c {
  edu:umn:cs:melt:ableP:extensions:discreteTime ;       
 }
 
-function main  IOVal<Integer> ::= args::[String] mainIO::IO
+function main  IOVal<Integer> ::= args::[String] mainIO::IOToken
 { return driver (args, aviationParser, mainIO) ;  }

@@ -10,12 +10,12 @@ import edu:umn:cs:melt:ableP:host:hostParser
 function driver
 IOVal<Integer> ::= args::[String]
                    ext_parser::(ParseResult<Program_c>::=String String) 
-                   driverIO::IO 
+                   driverIO::IOToken 
 {
   local debugMode::Boolean = head(args) == "--debug" ;
   local filename::String = if debugMode then head(tail(args)) else head(args) ;
-  production fileExists :: IOVal<Boolean>  = isFile(filename, driverIO);
-  production text::IOVal<String> = readFile(filename, fileExists.io);
+  production fileExists :: IOVal<Boolean>  = isFileT(filename, driverIO);
+  production text::IOVal<String> = readFileT(filename, fileExists.io);
 
   local result::ParseResult<Program_c> = ext_parser(text.iovalue, filename);
 
@@ -37,11 +37,11 @@ IOVal<Integer> ::= args::[String]
     = ext_parser(r_ast.inlined.pp, "parseInlinedpp") ;
   local r_inlined_cst::Program_c = parsedInlined.parseTree ;
    
-  local attribute print_debug :: IO ;
+  local attribute print_debug :: IOToken ;
   print_debug = 
     if ! debugMode && parseHOSTpp.parseSuccess then text.io 
     else
-    print( "\n" ++
+    printT( "\n" ++
            "Command line arguments: " ++ implode (" ", args) ++
            "\n\n" ++
            "CST pretty print: \n================= \n" ++ r_cst.pp ++
@@ -80,9 +80,9 @@ IOVal<Integer> ::= args::[String]
            ++ "\n\n"
            , text.io ) ;
 
-  local attribute print_success :: IO ;
+  local attribute print_success :: IOToken ;
   print_success = 
-    print( (if null(ast_warnings)  then "" --" No warnings to report.\n" 
+    printT( (if null(ast_warnings)  then "" --" No warnings to report.\n" 
             else "Warnings: \n" ++ showErrors(ast_warnings) ++ "\n"
            ) ++
            (if null(ast_errors)  then "No semantic errors detected.\n" 
@@ -91,38 +91,38 @@ IOVal<Integer> ::= args::[String]
            "\n"
            , print_debug ) ;
 
-  local splitFileName::Pair<String String> = splitFileNameAndExtension(filename) ;
+  local splitFileName::Pair<String String> = splitFileNameAndExtensionT(filename) ;
 
-  local writeHostIO::IO
+  local writeHostIO::IOToken
     = if   splitFileName.snd == "xpml" && parseHOSTpp.parseSuccess
-      then writeFile( splitFileName.fst ++ ".pml", r_host_cst.pp,
-                      print ("Writing pure-Promela version as \"" ++ 
+      then writeFileT( splitFileName.fst ++ ".pml", r_host_cst.pp,
+                      printT ("Writing pure-Promela version as \"" ++ 
                              splitFileName.fst ++ ".pml\" \n",
                              print_success ) )
       else print_success ;
 
   local inlinedFileName::String = splitFileName.fst ++ "_inlined." ++
                                   splitFileName.snd ;
-  local writeInlinedIO::IO 
+  local writeInlinedIO::IOToken 
     = if   parseHOSTpp.parseSuccess
-      then writeFile ( inlinedFileName, r_inlined_cst.pp, 
-                      print ("Writing inlined version as \"" ++ 
+      then writeFileT ( inlinedFileName, r_inlined_cst.pp, 
+                      printT ("Writing inlined version as \"" ++ 
                              inlinedFileName ++ "\" \n",
                              writeHostIO ) )
       else writeHostIO ;
       -- Write the inlined version of a .xpml or .pml file with the same 
       -- extension.
 
-  local writeFilesIO::IO = writeInlinedIO ;
+  local writeFilesIO::IOToken = writeInlinedIO ;
 
   local attribute print_failure :: IOVal<Integer>;
   print_failure =
    ioval (
-    print("Encountered a parse error:\n" ++ result.parseErrors ++ "\n", 
+    printT("Encountered a parse error:\n" ++ result.parseErrors ++ "\n", 
           text.io) , 1 ) ;
 
   return if   ! fileExists.iovalue 
-         then ioval(print ("\n\nFile \"" ++ filename ++ "\" not found.\n" ++
+         then ioval(printT ("\n\nFile \"" ++ filename ++ "\" not found.\n" ++
                            "usage:  java -jar <nameOfAblePjar>.jar " ++
                            " [ --debug ] <filename>\n\n", fileExists.io ),
                     -1 )

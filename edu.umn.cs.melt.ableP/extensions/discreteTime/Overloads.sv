@@ -17,7 +17,7 @@ ds::Decls ::= vis::Vis t::TypeExpr v::Declarator
 
  ds.defs = valueBinding(v.name, ds) ;
  ds.uses = [ ] ;
- ds.idNum = genInt();
+ ds.idNum = genIntT();
  ds.typerep = v.typerep ;
  v.typerep_in = t.typerep;
 

@@ -13,7 +13,7 @@ grammar edu:umn:cs:melt:ableP:artifacts:promelaCore ;
 import edu:umn:cs:melt:ableP:host:core ;
 
 function main
-IOVal<Integer> ::= args::[String] mainIO::IO
+IOVal<Integer> ::= args::[String] mainIO::IOToken
 { 
   return 
     if   length(args) != 1
@@ -42,13 +42,13 @@ IOVal<Integer> ::= args::[String] mainIO::IO
   local fileNameExtension::String = splitFileName.snd ;
   local fileNameBase::String = splitFileName.fst ;
   local splitFileName::Pair<String String>
-    = splitFileNameAndExtension(fileName) ;
+    = splitFileNameAndExtensionT(fileName) ;
   
-  local fileExists :: IOVal<Boolean> = isFile(fileName, mainIO);
+  local fileExists :: IOVal<Boolean> = isFileT(fileName, mainIO);
 
   -- attributes to read and parse the file, and generate the concrete and
   -- abstract syntax trees
-  local text::IOVal<String> = readFile(fileName, fileExists.io);
+  local text::IOVal<String> = readFileT(fileName, fileExists.io);
   local parseText::ParseResult<Program_c> = promelaCoreParser(text.iovalue, fileName);
 
   local r_cst::Program_c = parseText.parseTree ;
@@ -58,17 +58,17 @@ IOVal<Integer> ::= args::[String] mainIO::IO
   local ast_warnings::[Error] = getWarnings(r_ast.errors) ;
   local ast_errors::[Error] = getErrors(r_ast.errors) ;
 
-  local displayWarnings::IO =
-    print( if   null(ast_warnings)
+  local displayWarnings::IOToken =
+    printT( if   null(ast_warnings)
            then "" --" No warnings to report.\n" 
            else "Warnings: \n" ++ showErrors(ast_warnings) ++ "\n"
            , text.io ) ;
 
   -- attributes to compute the inlined version and write it to a file.
-  local writeInlined::IO 
+  local writeInlined::IOToken 
     = if   parsedInlined.parseSuccess
-      then writeFile ( inlinedFileName, r_inlined_cst.pp, displayWarnings )
-      else print ("Internal error: parsing generated inlined program failed.",
+      then writeFileT ( inlinedFileName, r_inlined_cst.pp, displayWarnings )
+      else printT ("Internal error: parsing generated inlined program failed.",
                   displayWarnings) ;
   local inlinedFileName::String = splitFileName.fst ++ "_inlined." ++
                                   splitFileName.snd ;
@@ -78,12 +78,12 @@ IOVal<Integer> ::= args::[String] mainIO::IO
 }
 
 function exitWithErrors
-IOVal<Integer> ::= msg::String eIO::IO
+IOVal<Integer> ::= msg::String eIO::IOToken
 {
-  return ioval ( print (msg ++"\n\n", eIO), 1) ;
+  return ioval ( printT (msg ++"\n\n", eIO), 1) ;
 }
 function exitWithoutErrors
-IOVal<Integer> ::= eIO::IO
+IOVal<Integer> ::= eIO::IOToken
 {
   return ioval (eIO, 0) ;
 }

@@ -7,7 +7,7 @@ import edu:umn:cs:melt:ableP:host:core hiding msg ;
 import edu:umn:cs:melt:ableP:host:tests ;
 
 function main
-IOVal<Integer> ::= args::[String] mainIO::IO
+IOVal<Integer> ::= args::[String] mainIO::IOToken
 {
  local attribute testResults :: TestSuite ;
  testResults = consolidateTestSuite( 
@@ -26,7 +26,7 @@ IOVal<Integer> ::= args::[String] mainIO::IO
       ] ) ;
  testResults.ioIn = noErrorsTestsIO.io;
 
- return ioval ( print (
+ return ioval ( printT (
        "Test results: \n" ++ testResults.msg ++ "\n\n" ++ 
        "Passed " ++ toString (testResults.numPassed) ++
        " tests out of " ++ toString (testResults.numTests) ++ "\n\n"

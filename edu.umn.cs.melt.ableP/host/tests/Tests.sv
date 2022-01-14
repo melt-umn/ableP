@@ -41,8 +41,8 @@ abstract production postParsingTest
 t::Test ::= fn::String parseF::(ParseResult<a> ::= String String)
             custom::(Test ::= a String (ParseResult<a> ::= String String))
 {
- local exists::IOVal<Boolean> = isFile(fn, t.ioIn);
- local text::IOVal<String> = readFile(fn, exists.io);
+ local exists::IOVal<Boolean> = isFileT(fn, t.ioIn);
+ local text::IOVal<String> = readFileT(fn, exists.io);
  local pr1::ParseResult<a> = parseF(text.iovalue, fn) ;
 
  local result :: Maybe<String> 
@@ -71,7 +71,7 @@ abstract production postCPPParsingTest
 t::Test ::= fn::String parseF::(ParseResult<a> ::= String String)
             custom::(Test ::= a String (ParseResult<a> ::= String String))
 {
- local exists::IOVal<Boolean> = isFile(fn, t.ioIn);
+ local exists::IOVal<Boolean> = isFileT(fn, t.ioIn);
 
  local cppCommand :: String
    = "cpp -P " ++ fn ++ " > " ++ fn ++ ".cpp" ;
@@ -88,8 +88,8 @@ t::Test ::= fn::String parseF::(ParseResult<a> ::= String String)
    moves to a newer version.
 
  -}
- local mkCPPfile::IOVal<Integer> = system (cppCommand, exists.io ) ;
- local text::IOVal<String> = readFile(fn++".cpp", mkCPPfile.io);
+ local mkCPPfile::IOVal<Integer> = systemT (cppCommand, exists.io ) ;
+ local text::IOVal<String> = readFileT(fn++".cpp", mkCPPfile.io);
 
  local pr1::ParseResult<a> = parseF(text.iovalue, fn) ;
 
@@ -169,10 +169,10 @@ t::Test ::= tree::Program_c fn::String
  local p2_ast_pp_cst::Program_c = pr3.parseTree ;
  local p2_unparse::String = p2_ast_pp_cst.pp ;
 
- local wr1::IO = writeFile("d1", p1_unparse, t.ioIn) ;
- local wr2::IO = writeFile("d2", p2_unparse, wr1) ;
- local dff::IOVal<Integer> = system("rm -f diff_res; diff d1 d2 > diff_res", wr2) ;
- local rd::IOVal<String> = readFile("diff_res", dff.io);
+ local wr1::IOToken = writeFileT("d1", p1_unparse, t.ioIn) ;
+ local wr2::IOToken = writeFileT("d2", p2_unparse, wr1) ;
+ local dff::IOVal<Integer> = systemT("rm -f diff_res; diff d1 d2 > diff_res", wr2) ;
+ local rd::IOVal<String> = readFileT("diff_res", dff.io);
 
  local result :: Maybe<String>
   = if   ! pr1.parseSuccess

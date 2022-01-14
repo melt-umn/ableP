@@ -57,7 +57,7 @@ ds::Decls ::= vis::Vis t::TypeExpr v::Declarator
 
   ds.defs = valueBinding(v.name, ds) ;
   ds.uses = [ ] ;
-  ds.idNum = genInt();
+  ds.idNum = genIntT();
 
   ds.transformed = applyARewriteRule(ds.rwrules_Decls, ds,
                      defaultVarDecl(vis.transformed, t.transformed, v.transformed));
@@ -76,7 +76,7 @@ ds::Decls ::= vis::Vis t::TypeExpr v::Declarator e::Expr
 
   ds.defs = valueBinding(v.name, ds) ;
   ds.uses = e.uses ;
-  ds.idNum = genInt();
+  ds.idNum = genIntT();
 
   ds.transformed = applyARewriteRule(ds.rwrules_Decls, ds,
                      defaultVarAssignDecl(vis.transformed, t.transformed, 
