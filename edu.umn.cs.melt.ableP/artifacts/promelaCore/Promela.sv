@@ -42,7 +42,7 @@ IOVal<Integer> ::= args::[String] mainIO::IOToken
   local fileNameExtension::String = splitFileName.snd ;
   local fileNameBase::String = splitFileName.fst ;
   local splitFileName::Pair<String String>
-    = splitFileNameAndExtensionT(fileName) ;
+    = splitFileNameAndExtension(fileName) ;
   
   local fileExists :: IOVal<Boolean> = isFileT(fileName, mainIO);
 

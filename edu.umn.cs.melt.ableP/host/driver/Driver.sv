@@ -91,7 +91,7 @@ IOVal<Integer> ::= args::[String]
            "\n"
            , print_debug ) ;
 
-  local splitFileName::Pair<String String> = splitFileNameAndExtensionT(filename) ;
+  local splitFileName::Pair<String String> = splitFileNameAndExtension(filename) ;
 
   local writeHostIO::IOToken
     = if   splitFileName.snd == "xpml" && parseHOSTpp.parseSuccess
