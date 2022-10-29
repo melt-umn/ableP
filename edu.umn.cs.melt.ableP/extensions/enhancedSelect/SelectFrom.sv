@@ -52,8 +52,9 @@ s::Stmt ::= sl::'select' v::Expr exprs::Exprs
 
 -- A "traditional" AG approach, using inherited and synthesized attributes.
 synthesized attribute selectErrors :: [ Error ] with ++ ;
-autocopy attribute selectLoc :: Loc ;
+inherited attribute selectLoc :: Loc ;
 attribute selectErrors, selectLoc occurs on Exprs ;
+propagate selectLoc on Exprs;
 
 inherited attribute vrefTypeRep :: TypeRep occurs on Exprs ;
 aspect production noneExprs  es::Exprs ::=
