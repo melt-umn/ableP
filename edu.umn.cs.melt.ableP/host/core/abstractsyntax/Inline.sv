@@ -32,6 +32,7 @@ e::Expr ::= id::ID
 abstract production inlineDecl
 d::Decls ::= n::ID formals::InlineArgs stmt::Stmt
 { d.pp = "inline " ++ n.lexeme ++ "(" ++ formals.pp ++ ")\n" ++ stmt.pp;
+  stmt.env = d.env;
   stmt.ppi = "   ";
   stmt.ppsep = "; \n";
   stmt.alluses = d.alluses;
@@ -70,13 +71,21 @@ ia::InlineArgs ::= id::ID  rest::InlineArgs
 abstract production inlineStmt
 st::Stmt ::= n_ref::INAME actuals::Exprs
 { st.pp = n_ref.lexeme ++ "(" ++ actuals.pp ++ ") ;\n";
+  actuals.env = st.env;
   -- st.errors := forward.errors ;
   st.defs = emptyDefs() ;
   st.host = inlineStmt(n_ref, actuals.host);
 
   local res::EnvResult = lookup_name(n_ref.lexeme, st.env) ;
  
-  forwards to body with { env = mergeDefs( (decorate asDecl with {ppi = st.ppi; ppsep = st.ppsep; alluses = st.alluses;}).defs , st.env) ; } ;
+  forwards to body with { env =
+    mergeDefs(
+      (decorate asDecl with
+        {ppi = st.ppi;
+         ppsep = st.ppsep;
+         alluses = st.alluses;
+         env = st.env; })
+       .defs , st.env); };
    -- we bind a formal to a Decl
    -- this Decl has the actual Expr that is to be inlined.
 

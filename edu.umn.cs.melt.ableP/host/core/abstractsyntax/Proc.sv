@@ -12,6 +12,7 @@ proc::Decls ::= i::Inst procty::ProcType nm::ID dcl::Decls
             end ;
   dcl.ppsep = "; " ;
   b.ppsep = "; \n" ;
+  ena.env = proc.env;
   proc.errors := dcl.errors ++ b.errors ;
   proc.host = procDecl(i.host, procty.host, nm, dcl.host,
                        pri.host, ena.host, b.host);

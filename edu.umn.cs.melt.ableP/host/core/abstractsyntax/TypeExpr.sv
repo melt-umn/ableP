@@ -1,6 +1,7 @@
 grammar edu:umn:cs:melt:ableP:host:core:abstractsyntax;
 
 nonterminal TypeExpr with pp, errors, host<TypeExpr>, inlined<TypeExpr>, env ;
+propagate env on TypeExpr;
 
 abstract production intTypeExpr
 t::TypeExpr ::=
@@ -102,7 +103,8 @@ nonterminal TypeExprs with pp, errors, host<TypeExprs>, inlined<TypeExprs> ;
 abstract production oneTypeExpr
 tes::TypeExprs::= te::TypeExpr
 { tes.pp = te.pp;
-  tes.errors := te.errors;
+  te.env = EmptyDefs();
+  te.errors := te.errors;
   tes.host = oneTypeExpr(te.host) ;
   tes.inlined = oneTypeExpr(te.inlined) ;
   tes.transformed = applyARewriteRule(tes.rwrules_TypeExprs, tes,
@@ -112,6 +114,7 @@ tes::TypeExprs::= te::TypeExpr
 abstract production consTypeExpr
 tes::TypeExprs ::= te::TypeExpr rest::TypeExprs
 { tes.pp = te.pp ++ "," ++ rest.pp ;
+  te.env = EmptyDefs();
   tes.errors := te.errors ++ rest.errors;
   tes.host = consTypeExpr(te.host, rest.host);
   tes.inlined = consTypeExpr(te.inlined, rest.inlined);

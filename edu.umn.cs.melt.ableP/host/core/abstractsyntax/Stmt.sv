@@ -6,8 +6,8 @@ propagate ppsep on Stmt excluding blockStmt,one_decl;
 
 
 flowtype Stmt =
-  decorate {pp,ppi,ppsep,alluses},
-  forward {pp,ppi,ppsep,alluses};
+  decorate {pp,ppi,ppsep,alluses,env},
+  forward {pp,ppi,ppsep,alluses,env};
 
 
 -- Grouping: sequence, block ...
@@ -283,6 +283,8 @@ s::Stmt ::= b::Stmt
 abstract production assign
 s::Stmt ::= lhs::Expr op::'=' rhs::Expr 
 { s.pp = s.ppi ++ lhs.pp ++ " = " ++ rhs.pp ;
+  rhs.env = s.env;
+  lhs.env = s.env;
   production attribute overloads :: [Stmt] with ++ ;
   overloads := [ ] ;
 

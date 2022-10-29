@@ -3,7 +3,7 @@ grammar edu:umn:cs:melt:ableP:host:core:abstractsyntax;
 nonterminal Env with bindings;
 nonterminal Binding with name, dcl;
 
-autocopy attribute env::Env;
+inherited attribute env::Env;
 synthesized attribute defs::Env;
 synthesized attribute name :: String ;
 synthesized attribute bindings::[ Binding ];
@@ -81,6 +81,13 @@ attribute env
   occurs on PUnit, Stmt, Options, Expr, Exprs, Enabler,
             Decls, Declarator, IDList,
             MArgs, RArgs, RArg ;
+
+propagate env
+  on PUnit, Stmt, Options, Expr, Exprs, Enabler,
+            Decls, Declarator, IDList,
+            MArgs, RArgs, RArg
+  excluding seqDecls, seqUnit, blockStmt, one_decl,
+            consOption, procDecl, seqStmt;
 
 attribute defs
   occurs on PUnit, Stmt, Options,

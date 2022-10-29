@@ -16,6 +16,7 @@ es::Exprs ::=
 abstract production oneExprs
 es::Exprs ::= e::Expr
 { es.pp = e.pp ;
+  e.env = es.env;
   es.host = oneExprs(e.host);
   forwards to consExprs(e,noneExprs()) ;
 }
@@ -187,6 +188,7 @@ op::Op ::= n::String te::TypeExpr
 { op.pp = n;   
   op.host = mkOp(n, te.host) ;
   op.inlined = mkOp(n, te.inlined) ;
+  te.env = emptyDefs();
   op.transformed = applyARewriteRule(op.rwrules_Op, op,
                     mkOp(n, te.transformed));
 }
