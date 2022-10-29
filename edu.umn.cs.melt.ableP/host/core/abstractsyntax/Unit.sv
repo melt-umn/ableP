@@ -2,6 +2,7 @@ grammar edu:umn:cs:melt:ableP:host:core:abstractsyntax;
 
 nonterminal PUnit with pp, ppi, ppterm, errors, host<PUnit>, inlined<PUnit> ;
 propagate ppi on PUnit excluding seqUnit,unitDecls,initConstruct;
+propagate ppterm on PUnit excluding seqUnit;
 
 
 abstract production seqUnit
