@@ -13,7 +13,7 @@ synthesized attribute asList<a>::[a] ;
 
 -- ToDo, remove this as we will now do pp from the CST.
 inherited attribute ppi::String;
-autocopy attribute ppsep::String;
+inherited attribute ppsep::String;
 autocopy attribute ppterm::String;
 
 

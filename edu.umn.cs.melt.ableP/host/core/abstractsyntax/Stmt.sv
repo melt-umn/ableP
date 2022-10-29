@@ -2,6 +2,8 @@ grammar edu:umn:cs:melt:ableP:host:core:abstractsyntax ;
 
 nonterminal Stmt with pp, ppi, ppsep, errors, host<Stmt>, inlined<Stmt> ;
 propagate ppi on Stmt excluding blockStmt,one_decl,ifStmt,doStmt,labeledStmt;
+propagate ppsep on Stmt excluding blockStmt,one_decl;
+
 
 flowtype Stmt =
   decorate {pp,ppi,ppsep},
@@ -184,6 +186,7 @@ s::Stmt ::=
 
 -- Options --
 nonterminal Options with pp, ppi, ppsep, errors, host<Options>, inlined<Options> ;
+propagate ppsep on Options;
 abstract production oneOption
 ops::Options ::= s::Stmt
 { ops.pp = ":: " ++ s.pp;

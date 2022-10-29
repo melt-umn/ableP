@@ -3,6 +3,7 @@ grammar edu:umn:cs:melt:ableP:host:core:abstractsyntax;
 nonterminal PUnit with pp, ppi, ppterm, errors, host<PUnit>, inlined<PUnit> ;
 propagate ppi on PUnit excluding seqUnit,unitDecls,initConstruct;
 
+
 abstract production seqUnit
 u::PUnit ::= u1::PUnit u2::PUnit
 { u.pp = u1.pp ++ u2.pp;
@@ -52,6 +53,7 @@ abstract production initConstruct
 i::PUnit ::= op::Priority body::Stmt
 { i.pp = "init " ++ op.pp ++ body.pp ;
   body.ppi = "  ";
+  body.ppsep = "; \n";
   i.errors := body.errors;
   i.defs = body.defs ;
   i.uses = body.uses ;
@@ -91,6 +93,7 @@ u::PUnit ::= comm::String
 abstract production claim
 c::PUnit ::= body::Stmt
 { c.pp = "never " ++ body.pp ;
+  body.ppsep = "; \n";
   c.errors := body.errors;
   c.defs = body.defs;
   c.host = claim(body.host);
@@ -104,6 +107,7 @@ abstract production events
 e::PUnit ::= body::Stmt
 { e.pp = "trace " ++ body.pp ;
   e.errors := body.errors;
+  body.ppsep = "; \n";
   e.defs = body.defs;
   e.host = events(body.host);
   e.inlined = events(body.inlined);

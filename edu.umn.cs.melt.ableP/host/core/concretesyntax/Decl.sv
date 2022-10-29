@@ -2,6 +2,7 @@ grammar edu:umn:cs:melt:ableP:host:core:concretesyntax;
 
 --Decl_c
 attribute pp, ppi, ppsep, ast<Decls> occurs on Decl_c ;
+propagate ppsep on Decl_c;
 
 
 aspect production empty_Decl_c
@@ -19,6 +20,7 @@ dcl::Decl_c ::= dcls::DeclList_c
 
 --DeclList_c
 attribute pp, ppi, ppsep, ast<Decls> occurs on DeclList_c ;
+propagate ppsep on DeclList_c;
 
 
 aspect production single_Decl_c
