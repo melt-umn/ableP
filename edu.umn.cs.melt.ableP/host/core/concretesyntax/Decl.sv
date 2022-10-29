@@ -75,7 +75,7 @@ a::Asgn_c ::=
 -- VarList
 attribute pp, ast<Decls>, inTypeExpr, inVis occurs on VarList_c ;
 inherited attribute inTypeExpr::TypeExpr ;
-propagate inTypeExpr on VarList_c;
+propagate inTypeExpr,inVis on VarList_c;
 
 aspect production one_var_c
 vl::VarList_c ::= iv::IVar_c
@@ -90,7 +90,7 @@ vl::VarList_c ::= iv::IVar_c ',' rest::VarList_c
 
 -- IVar
 attribute pp, ast<Decls>, inTypeExpr, inVis occurs on IVar_c ;
-propagate inTypeExpr on IVar_c;
+propagate inTypeExpr,inVis on IVar_c;
 
 aspect production ivar_vardcl_c
 iv::IVar_c ::= vd::VarDcl_c

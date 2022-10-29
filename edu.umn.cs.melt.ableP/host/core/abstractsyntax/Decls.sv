@@ -181,7 +181,8 @@ ds::Decls ::= v::Vis t::TypeExpr names::IDList
 }
 
 nonterminal IDList with pp, errors, host<IDList>, inlined<IDList> ;
-autocopy attribute inVis :: Vis occurs on IDList ;
+inherited attribute inVis :: Vis occurs on IDList ;
+propagate inVis on IDList;
 synthesized attribute decls :: Decls occurs on IDList ;
 
 nonterminal VarList with pp;
