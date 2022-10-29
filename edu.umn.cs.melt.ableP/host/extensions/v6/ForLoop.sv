@@ -164,7 +164,8 @@ vd::Declarator ::= id::ID cnt::CONST
 
 -- Aspects on concrete syntax for for-loops --
 ----------------------------------------------
-attribute pp, ppi occurs on ForPre_c ; 
+attribute pp, ppi occurs on ForPre_c ;
+propagate ppi on ForPre_c;
 attribute ast<Expr> occurs on ForPre_c ; 
 attribute forTerminal occurs on ForPre_c ; 
 
@@ -176,6 +177,7 @@ fp::ForPre_c ::= f::FOR '(' v::Varref_c
 }
 
 attribute pp, ppi occurs on ForPost_c ;
+propagate ppi on ForPost_c;
 attribute ast<Stmt> occurs on ForPost_c ;
 
 aspect production forPost_c

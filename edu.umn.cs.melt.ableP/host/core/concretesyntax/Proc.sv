@@ -2,6 +2,7 @@ grammar edu:umn:cs:melt:ableP:host:core:concretesyntax;
 
 attribute pp, ppi, ast<Decls> occurs on Proc_c ;
 
+
 aspect production proc_decl_c
 proc::Proc_c ::= i::Inst_c procty::ProcType_c nm::ID 
                  lp::LPAREN dcl::Decl_c rp::RPAREN 
@@ -19,6 +20,8 @@ proc::Proc_c ::= i::Inst_c procty::ProcType_c nm::ID
 -- ProcType --
 --------------
 attribute pp, ppi, ast<ProcType> occurs on ProcType_c ;
+propagate ppi on ProcType_c;
+
 
 aspect production just_procType_c
 procty::ProcType_c ::= pt::PROCTYPE
@@ -35,6 +38,8 @@ procty::ProcType_c ::= dpt::D_PROCTYPE
 -- Inst --
 ----------
 attribute pp, ppi, ast<Inst> occurs on Inst_c ;
+propagate ppi on Inst_c;
+
 
 aspect production empty_inst_c
 i::Inst_c ::= {-empty-}
@@ -60,6 +65,7 @@ i::Inst_c ::= a::ACTIVE lbr::LSQUARE id::ID rbr::RSQUARE
 -- OptPriority --
 -----------------
 attribute pp, ppi, ast<Priority> occurs on OptPriority_c ;
+propagate ppi on OptPriority_c;
 
 aspect production none_priority_c
 op::OptPriority_c ::=
@@ -76,6 +82,8 @@ op::OptPriority_c ::= p::PRIORITY ct::CONST
 -- OptEnabler --
 ----------------
 attribute pp, ppi, ast<Enabler> occurs on OptEnabler_c ;
+propagate ppi on OptEnabler_c;
+
 
 aspect production none_enabler_c
 oe::OptEnabler_c ::= 

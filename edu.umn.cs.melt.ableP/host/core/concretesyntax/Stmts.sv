@@ -2,6 +2,7 @@ grammar edu:umn:cs:melt:ableP:host:core:concretesyntax;
 
 attribute pp, ppi, ast<Stmt> occurs on Stmt_c ;
 
+
 aspect production special_stmt_c
 stmt::Stmt_c ::= sc::Special_c
 { stmt.pp = sc.pp;
@@ -19,6 +20,7 @@ stmt::Stmt_c ::= st::Statement_c
 
 --Special
 attribute pp, ppi, ast<Stmt> occurs on Special_c ;
+
 
 aspect production rcv_special_c
 sc::Special_c ::= vref::Varref_c '?' ra::RArgs_c
@@ -65,6 +67,7 @@ sc::Special_c ::= id::ID ':' st::Stmt_c
 
 -- Statement
 attribute pp, ppi, ast<Stmt> occurs on Statement_c ;
+
 
 aspect production assign_stmt_c
 st::Statement_c ::= vref::Varref_c op::'=' exp::Expr_c
@@ -197,6 +200,7 @@ ops::Options_c ::= op::Option_c rest::Options_c
 
 --Option
 attribute pp, ppi, ast<Stmt> occurs on Option_c ;
+
 
 aspect production op_seq_c
 op::Option_c ::= '::' seq::Sequence_c os::OS_c

@@ -75,7 +75,7 @@ st::Stmt ::= n_ref::INAME actuals::Exprs
 
   local res::EnvResult = lookup_name(n_ref.lexeme, st.env) ;
  
-  forwards to body with { env = mergeDefs( asDecl.defs, st.env) ; } ;
+  forwards to body with { env = mergeDefs( (decorate asDecl with {ppi = st.ppi;}).defs , st.env) ; } ;
    -- we bind a formal to a Decl
    -- this Decl has the actual Expr that is to be inlined.
 

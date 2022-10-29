@@ -14,6 +14,7 @@ p::Program_c ::= u::Units_c
 }
  
 attribute pp, ppi, ast<PUnit> occurs on Units_c ;
+propagate ppi on Units_c;
 
 aspect production units_one_c
 us::Units_c ::= u::Unit_c

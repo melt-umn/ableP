@@ -1,6 +1,8 @@
 grammar edu:umn:cs:melt:ableP:host:core:concretesyntax ;
 
 attribute pp, ppi, ast<PUnit> occurs on Unit_c ;
+propagate ppi on Unit_c;
+
 
 aspect production unit_proc_c
 u::Unit_c ::= p::Proc_c
@@ -82,6 +84,7 @@ u::Utype_c ::= td::TYPEDEF id::ID '{' dl::DeclList_c '}'
 
 -- NM
 attribute pp, ppi occurs on NM_c ;
+propagate ppi on NM_c;
 aspect production nameNM_c
 nm::NM_c ::= n::ID     { nm.pp = n.lexeme ; }
 aspect production unameNM_c

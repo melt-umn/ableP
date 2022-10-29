@@ -293,6 +293,7 @@ exp::Expr ::= pn::ID args::Exprs p::Priority
 
   exp.host = run(pn, args.host, p.host);
   exp.inlined = run(pn, args.inlined, p.inlined);
+  p.ppi = "";
   exp.transformed = applyARewriteRule(exp.rwrules_Expr, exp, 
                       run(pn, args.transformed, p.transformed));
 }

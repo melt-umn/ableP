@@ -1,6 +1,12 @@
 grammar edu:umn:cs:melt:ableP:host:core:abstractsyntax ;
 
 nonterminal Stmt with pp, ppi, ppsep, errors, host<Stmt>, inlined<Stmt> ;
+propagate ppi on Stmt excluding blockStmt,one_decl,ifStmt,doStmt,labeledStmt;
+
+flowtype Stmt =
+  decorate {pp,ppi,ppsep},
+  forward {pp,ppi,ppsep};
+
 
 -- Grouping: sequence, block ...
 abstract production seqStmt

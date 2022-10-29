@@ -3,6 +3,7 @@ grammar edu:umn:cs:melt:ableP:host:core:concretesyntax;
 --Decl_c
 attribute pp, ppi, ppsep, ast<Decls> occurs on Decl_c ;
 
+
 aspect production empty_Decl_c
 dcl::Decl_c ::= 
 { dcl.pp = "";
@@ -18,6 +19,7 @@ dcl::Decl_c ::= dcls::DeclList_c
 
 --DeclList_c
 attribute pp, ppi, ppsep, ast<Decls> occurs on DeclList_c ;
+
 
 aspect production single_Decl_c
 dcls::DeclList_c ::= dcl::OneDecl_c
@@ -36,6 +38,8 @@ dcls::DeclList_c ::= dcl::OneDecl_c sc::SEMI rest::DeclList_c
 
 --OneDecl_c
 attribute pp, ppi, ast<Decls> occurs on OneDecl_c ;
+propagate ppi on OneDecl_c;
+
 
 aspect production varDcls_c
 d::OneDecl_c ::= v::Vis_c t::Type_c vars::VarList_c
@@ -120,6 +124,7 @@ ch::ChInit_c ::= '[' c::CONST ']' o::OF '{' tl::TypList_c '}'
 
 --VarDcl_c
 attribute pp, ppi, ast<Declarator> occurs on VarDcl_c ;
+propagate ppi on VarDcl_c;
 
 aspect production vd_id_c
 vd::VarDcl_c ::= id::ID

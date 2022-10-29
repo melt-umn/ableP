@@ -3,6 +3,7 @@ grammar edu:umn:cs:melt:ableP:host:core:concretesyntax ;
 -- Step
 attribute pp, ppi, ast<Stmt> occurs on Step_c ;
 
+
 aspect production one_decl_c
 s::Step_c ::= od::OneDecl_c
 { s.pp = od.pp ;   od.ppi = s.ppi;
@@ -36,6 +37,8 @@ s::Step_c ::= id::ID ':' xu::XU
 aspect production unless_c
 s::Step_c ::= st1::Stmt_c un::UNLESS st2::Stmt_c
 { s.pp = st1.pp ++ "\n unless \n" ++ st2.pp ++ "\n";
+  st1.ppi = s.ppi;
+  st2.ppi = s.ppi;
   s.ast = unlessStmt( st1.ast, st2.ast );
 }
 

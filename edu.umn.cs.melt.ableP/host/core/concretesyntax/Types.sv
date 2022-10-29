@@ -1,6 +1,8 @@
 grammar edu:umn:cs:melt:ableP:host:core:concretesyntax ;
 
 attribute pp, ppi, ast<TypeExpr> occurs on BaseType_c ;
+propagate ppi on BaseType_c;
+
 
 aspect production bt_uname_c
 bt::BaseType_c ::= un::UNAME
@@ -52,6 +54,7 @@ t::Type_c ::= 'unsigned'
 
 --TypList
 attribute pp, ppi, ast<TypeExprs> occurs on TypList_c ;
+propagate ppi on TypList_c;
 
 aspect production tl_basetype_c
 tl::TypList_c ::= bt::BaseType_c

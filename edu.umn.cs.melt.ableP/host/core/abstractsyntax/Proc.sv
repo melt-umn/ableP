@@ -10,7 +10,6 @@ proc::Decls ::= i::Inst procty::ProcType nm::ID dcl::Decls
               blockStmt(_) -> b.pp
             | _ -> "\n{\n" ++ b.pp ++ "\n}\n" 
             end ;
-  b.ppi = proc.ppi;
   dcl.ppsep = "; " ;
   b.ppsep = "; \n" ;
   proc.errors := dcl.errors ++ b.errors ;

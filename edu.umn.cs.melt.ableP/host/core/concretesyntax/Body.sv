@@ -3,6 +3,7 @@ grammar edu:umn:cs:melt:ableP:host:core:concretesyntax ;
 -- Body
 attribute pp, ppi, ast<Stmt> occurs on Body_c ;
 
+
 aspect production body_statements_c 
 b::Body_c ::= '{' s::Sequence_c os::OS_c '}'
 { b.pp = "{\n" ++ s.ppi ++ s.pp ++ os.pp ++ "\n" ++ b.ppi ++ "}" ;
@@ -12,6 +13,7 @@ b::Body_c ::= '{' s::Sequence_c os::OS_c '}'
 
 -- Sequence
 attribute pp, ppi, ast<Stmt> occurs on Sequence_c ;
+
 
 aspect production single_step_c 
 s::Sequence_c ::= st::Step_c

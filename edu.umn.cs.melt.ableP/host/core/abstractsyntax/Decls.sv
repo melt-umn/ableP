@@ -1,6 +1,7 @@
 grammar edu:umn:cs:melt:ableP:host:core:abstractsyntax;
 
-nonterminal Decls with pp, ppi, ppsep, errors, host<Decls>, inlined<Decls> ; 
+nonterminal Decls with pp, ppi, ppsep, errors, host<Decls>, inlined<Decls> ;
+propagate ppi on Decls;
 
 abstract production seqDecls
 ds::Decls ::= ds1::Decls ds2::Decls
