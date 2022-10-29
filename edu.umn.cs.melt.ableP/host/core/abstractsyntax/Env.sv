@@ -67,10 +67,15 @@ synthesized attribute uses::[Use]
             Decls, Declarator, 
             MArgs, RArgs, RArg ;
 
-autocopy attribute alluses::[Use]
+inherited attribute alluses::[Use]
   occurs on PUnit, Stmt, Options, Expr, Exprs,
             Decls, Declarator, 
             MArgs, RArgs, RArg ;
+
+propagate alluses on PUnit, Stmt, Options, Expr, Exprs,
+        Decls, Declarator,
+        MArgs, RArgs, RArg;
+
 
 attribute env
   occurs on PUnit, Stmt, Options, Expr, Exprs, Enabler,

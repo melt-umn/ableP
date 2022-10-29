@@ -113,6 +113,7 @@ en::Enabler ::= e::Expr
 { en.pp = "provided " ++ "(" ++ e.pp ++ ")";
   en.host = optEnabler(e.host);
   en.inlined = optEnabler(e.inlined);
+  e.alluses = [];
   en.transformed = applyARewriteRule(en.rwrules_Enabler, en, 
                      optEnabler(e.transformed));
 }
