@@ -14,6 +14,32 @@ ds::Decls ::= vis::Vis t::TypeExpr v::Declarator
 {
  ds.pp = ds.ppi ++ vis.pp ++ t.pp ++ " " ++ v.pp ; 
  ds.errors := t.errors ++ v.errors ;
+ propagate alluses,
+            ppsep,
+            env,
+            rwrules_ChInit,
+            rwrules_Declarator,
+            rwrules_Decls,
+            rwrules_Enabler,
+            rwrules_Expr,
+            rwrules_Exprs,
+            rwrules_IDList,
+            rwrules_Inst,
+            rwrules_MArgs,
+            rwrules_Op,
+            rwrules_Options,
+            rwrules_Priority,
+            rwrules_ProcType,
+            rwrules_Program,
+            rwrules_RArg,
+            rwrules_RArgs,
+            rwrules_Stmt,
+            rwrules_TypeExpr,
+            rwrules_TypeExprs,
+            rwrules_Unit,
+            rwrules_Vis;
+
+
 
  ds.defs = valueBinding(v.name, ds) ;
  ds.uses = [ ] ;
@@ -38,5 +64,30 @@ abstract production timerAssign
 s::Stmt ::= lhs::Expr op::'=' rhs::Expr 
 { -- This is just syntactic sugar for the set operation.
   s.pp = lhs.pp ++ " = " ++ rhs.pp ;
+  propagate alluses,
+            ppsep,
+            env,
+            rwrules_ChInit,
+            rwrules_Declarator,
+            rwrules_Decls,
+            rwrules_Enabler,
+            rwrules_Expr,
+            rwrules_Exprs,
+            rwrules_IDList,
+            rwrules_Inst,
+            rwrules_MArgs,
+            rwrules_Op,
+            rwrules_Options,
+            rwrules_Priority,
+            rwrules_ProcType,
+            rwrules_Program,
+            rwrules_RArg,
+            rwrules_RArgs,
+            rwrules_Stmt,
+            rwrules_TypeExpr,
+            rwrules_TypeExprs,
+            rwrules_Unit,
+            rwrules_Vis;
+
   forwards to set(terminal(SET, "set", op.location), lhs, rhs) ;
 }

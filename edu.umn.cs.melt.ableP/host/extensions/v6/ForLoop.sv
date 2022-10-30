@@ -10,6 +10,33 @@ s::Stmt ::= f::FOR vr::Expr lower::Expr upper::Expr body::Stmt
 { s.pp = "for ( " ++ vr.pp ++ " : " ++ lower.pp ++ " .. " ++ upper.pp ++ ")" ++
          " {\n" ++ body.pp ++ "\n} ;" ;
 
+  propagate alluses,
+            ppsep,
+            ppi,
+            ppterm,
+            env,
+            rwrules_ChInit,
+            rwrules_Declarator,
+            rwrules_Decls,
+            rwrules_Enabler,
+            rwrules_Expr,
+            rwrules_Exprs,
+            rwrules_IDList,
+            rwrules_Inst,
+            rwrules_MArgs,
+            rwrules_Op,
+            rwrules_Options,
+            rwrules_Priority,
+            rwrules_ProcType,
+            rwrules_Program,
+            rwrules_RArg,
+            rwrules_RArgs,
+            rwrules_Stmt,
+            rwrules_TypeExpr,
+            rwrules_TypeExprs,
+            rwrules_Unit,
+            rwrules_Vis;
+
   s.errors := vr.errors ++ lower.errors ++ upper.errors ++ body.errors ;
 
   {- do :: $vr <= $upper ->  $body
@@ -42,6 +69,33 @@ s::Stmt ::= f::FOR vr::Expr e::Expr body::Stmt
   s.errors := vr.errors ++ e.errors ++ body.errors ;
   -- ToDo - verify that e is an array.
   local tr::TypeRep = e.typerep ;
+
+  propagate alluses,
+            ppsep,
+            ppi,
+            ppterm,
+            env,
+            rwrules_ChInit,
+            rwrules_Declarator,
+            rwrules_Decls,
+            rwrules_Enabler,
+            rwrules_Expr,
+            rwrules_Exprs,
+            rwrules_IDList,
+            rwrules_Inst,
+            rwrules_MArgs,
+            rwrules_Op,
+            rwrules_Options,
+            rwrules_Priority,
+            rwrules_ProcType,
+            rwrules_Program,
+            rwrules_RArg,
+            rwrules_RArgs,
+            rwrules_Stmt,
+            rwrules_TypeExpr,
+            rwrules_TypeExprs,
+            rwrules_Unit,
+            rwrules_Vis;
 
   {- $vr = 0 ;
      do :: ( $vr <= $array_size ) ->
@@ -177,7 +231,6 @@ fp::ForPre_c ::= f::FOR '(' v::Varref_c
 }
 
 attribute pp, ppi occurs on ForPost_c ;
-propagate ppi on ForPost_c;
 attribute ast<Stmt> occurs on ForPost_c ;
 
 aspect production forPost_c
@@ -190,13 +243,15 @@ fp::ForPost_c ::= '{' s::Sequence_c os::OS_c '}'
 aspect production forRange_c
 s::Special_c ::= fpre::ForPre_c ':' lower::Expr_c '..' upper::Expr_c ')' 
                  fpost::ForPost_c 
-{ s.pp = fpre.pp ++ " : " ++ lower.pp ++ " .. " ++ upper.pp ++ ") " ++ fpost.pp ; 
+{ s.pp = fpre.pp ++ " : " ++ lower.pp ++ " .. " ++ upper.pp ++ ") " ++ fpost.pp ;
+  propagate ppi;
   s.ast = forRange ( fpre.forTerminal, fpre.ast, lower.ast, upper.ast, fpost.ast ) ;
 }
 
 aspect production forIn_c
 s::Special_c ::= fpre::ForPre_c 'in' v::Varref_c ')' fpost::ForPost_c 
-{ s.pp = fpre.pp ++ " in " ++ v.pp ++ ") " ++ fpost.pp ; 
+{ s.pp = fpre.pp ++ " in " ++ v.pp ++ ") " ++ fpost.pp ;
+  propagate ppi;
   s.ast = forIn(fpre.forTerminal, fpre.ast, v.ast, fpost.ast) ;
 }
 

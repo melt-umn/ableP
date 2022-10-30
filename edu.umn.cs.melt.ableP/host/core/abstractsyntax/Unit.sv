@@ -4,6 +4,10 @@ nonterminal PUnit with pp, ppi, ppterm, errors, host<PUnit>, inlined<PUnit> ;
 propagate ppi on PUnit excluding seqUnit,unitDecls,initConstruct;
 propagate ppterm on PUnit excluding seqUnit;
 
+flowtype PUnit =
+  decorate {ppi,ppterm,env},
+  forward {ppi,ppterm,env};
+
 
 abstract production seqUnit
 u::PUnit ::= u1::PUnit u2::PUnit

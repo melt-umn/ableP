@@ -30,6 +30,31 @@ s::Stmt ::= sl::'select' v::Expr lower::Expr upper::Expr step::Expr
 { s.pp = "select ( " ++ v.pp ++ ":" ++ lower.pp ++ " .. " ++ upper.pp ++
                    " step " ++ step.pp ++ " ); \n" ;
   s.errors := v.errors ++ lower.errors ++ upper.errors ++ step.errors ;
+  propagate alluses,
+            ppi,
+            ppterm,
+            env,
+            rwrules_ChInit,
+            rwrules_Declarator,
+            rwrules_Decls,
+            rwrules_Enabler,
+            rwrules_Expr,
+            rwrules_Exprs,
+            rwrules_IDList,
+            rwrules_Inst,
+            rwrules_MArgs,
+            rwrules_Op,
+            rwrules_Options,
+            rwrules_Priority,
+            rwrules_ProcType,
+            rwrules_Program,
+            rwrules_RArg,
+            rwrules_RArgs,
+            rwrules_Stmt,
+            rwrules_TypeExpr,
+            rwrules_TypeExprs,
+            rwrules_Unit,
+            rwrules_Vis;
 
   {- $v = $lower ; 
      do :: goto $label ;
@@ -65,6 +90,32 @@ abstract production selectStepConst
 s::Stmt ::= sl::'select' v::Expr lower::CONST upper::CONST step::CONST
 { s.pp = "select ( " ++ v.pp ++ ":" ++ lower.lexeme ++ " .. " ++ upper.lexeme ++
                    " step " ++ step.lexeme ++ " ); " ;
+
+  propagate alluses,
+            ppi,
+            ppterm,
+            env,
+            rwrules_ChInit,
+            rwrules_Declarator,
+            rwrules_Decls,
+            rwrules_Enabler,
+            rwrules_Expr,
+            rwrules_Exprs,
+            rwrules_IDList,
+            rwrules_Inst,
+            rwrules_MArgs,
+            rwrules_Op,
+            rwrules_Options,
+            rwrules_Priority,
+            rwrules_ProcType,
+            rwrules_Program,
+            rwrules_RArg,
+            rwrules_RArgs,
+            rwrules_Stmt,
+            rwrules_TypeExpr,
+            rwrules_TypeExprs,
+            rwrules_Unit,
+            rwrules_Vis;
   s.errors := if   lw > up
               then [ mkError ("Select statement requires lower bound to be " ++ 
                               "less than or equal to upper bound.",

@@ -6,8 +6,62 @@ propagate ppsep on Stmt excluding blockStmt,one_decl;
 
 
 flowtype Stmt =
-  decorate {pp,ppi,ppsep,alluses,env,rwrules_Program},
-  forward {pp,ppi,ppsep,alluses,env,rwrules_Program};
+  decorate {
+    ppi,
+    ppsep,
+    alluses,
+    env,
+    rwrules_Program,
+    rwrules_ChInit,
+    rwrules_Declarator,
+    rwrules_Decls,
+    rwrules_Enabler,
+    rwrules_Expr,
+    rwrules_Exprs,
+    rwrules_IDList,
+    rwrules_Inst,
+    rwrules_MArgs,
+    rwrules_Op,
+    rwrules_Options,
+    rwrules_Priority,
+    rwrules_ProcType,
+    rwrules_Program,
+    rwrules_RArg,
+    rwrules_RArgs,
+    rwrules_Stmt,
+    rwrules_TypeExpr,
+    rwrules_TypeExprs,
+    rwrules_Unit,
+    rwrules_Vis
+  },
+  forward {
+    ppi,
+    ppsep,
+    alluses,
+    env,
+    rwrules_Program,
+    rwrules_ChInit,
+    rwrules_Declarator,
+    rwrules_Decls,
+    rwrules_Enabler,
+    rwrules_Expr,
+    rwrules_Exprs,
+    rwrules_IDList,
+    rwrules_Inst,
+    rwrules_MArgs,
+    rwrules_Op,
+    rwrules_Options,
+    rwrules_Priority,
+    rwrules_ProcType,
+    rwrules_Program,
+    rwrules_RArg,
+    rwrules_RArgs,
+    rwrules_Stmt,
+    rwrules_TypeExpr,
+    rwrules_TypeExprs,
+    rwrules_Unit,
+    rwrules_Vis
+  };
 
 
 -- Grouping: sequence, block ...

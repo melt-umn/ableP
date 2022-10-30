@@ -14,6 +14,7 @@ imports edu:umn:cs:melt:ableP:host:extensions ;
 ---------------------     
 nonterminal ExprRows_c with pp, ppi, ast<ExprRows> ;
 nonterminal ExprRow_c with pp, ppi, ast<ExprRow> ;
+propagate ppi on ExprRow_c;
 nonterminal TruthValueList_c with pp, ppi, ast<TruthValueList> ;
 
 terminal TABLE     'tbl' lexer classes { promela,promela_kwd};
@@ -98,7 +99,9 @@ tv::TruthValue ::= startv::STAR
 -- Abstract Syntax --
 ---------------------     
 nonterminal ExprRows with pp, ppi, rlen, exprss, errors, lineno, env ;
+propagate env,ppi on ExprRows;
 nonterminal ExprRow with pp, ppi, rlen, exprs, errors, lineno, env ;
+propagate env,ppi on ExprRow;
 nonterminal TruthValueList with pp, rlen, rowexpr, exprs, lineno ;
 nonterminal TruthValue with pp, rowexpr, fexpr, lineno ;
 
@@ -148,7 +151,6 @@ ers::ExprRows ::= er::ExprRow
 { ers.rlen = er.rlen;
   ers.exprss = [er.exprs];
   ers.lineno = er.lineno;
---  er.env = ers.env;
   ers.errors := er.errors;
 }
 

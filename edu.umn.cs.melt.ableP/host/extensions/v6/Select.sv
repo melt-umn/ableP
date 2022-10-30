@@ -10,6 +10,11 @@ s::Stmt ::= sk::SELECT v::Expr lower::Expr upper::Expr
 { s.pp = "select ( " ++ v.pp ++ " : " ++ lower.pp ++ " .. " ++ upper.pp ++ ") ;\n" ;
   s.errors := v.errors ++ lower.errors ++ upper.errors ;
 
+  v.env = s.env;
+  lower.env = s.env;
+  upper.env = s.env;
+
+
   {- $v = $lower ;
      do :: goto $label ;
         :: ($v < $upper) ; $v = $v + 1 ;

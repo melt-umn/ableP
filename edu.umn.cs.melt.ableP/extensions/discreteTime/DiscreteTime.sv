@@ -52,6 +52,31 @@ st::Statement_c ::= d::'delay' '(' t::Varref_c ',' e::Expr_c ')'
 abstract production delay
 st::Stmt ::= d::DELAY tmr::Expr val::Expr
 { st.pp = "delay (" ++ tmr.pp ++ ", " ++ val.pp ++ ")" ;
+
+
+  propagate alluses,
+            env,
+            rwrules_ChInit,
+            rwrules_Declarator,
+            rwrules_Decls,
+            rwrules_Enabler,
+            rwrules_Expr,
+            rwrules_Exprs,
+            rwrules_IDList,
+            rwrules_Inst,
+            rwrules_MArgs,
+            rwrules_Op,
+            rwrules_Options,
+            rwrules_Priority,
+            rwrules_ProcType,
+            rwrules_Program,
+            rwrules_RArg,
+            rwrules_RArgs,
+            rwrules_Stmt,
+            rwrules_TypeExpr,
+            rwrules_TypeExprs,
+            rwrules_Unit,
+            rwrules_Vis;
   st.errors := 
 {-             case tmr.typerep of
                  timerTypeRep() -> [ ] 
@@ -75,6 +100,29 @@ st::Statement_c ::= s::'set' '(' t::Varref_c ',' e::Expr_c ')'
 abstract production set
 st::Stmt ::= s::'set' t::Expr e::Expr
 { st.pp = "set (" ++ t.pp ++ ", " ++ e.pp ++ ")" ;
+  propagate alluses,
+            env,
+            rwrules_ChInit,
+            rwrules_Declarator,
+            rwrules_Decls,
+            rwrules_Enabler,
+            rwrules_Expr,
+            rwrules_Exprs,
+            rwrules_IDList,
+            rwrules_Inst,
+            rwrules_MArgs,
+            rwrules_Op,
+            rwrules_Options,
+            rwrules_Priority,
+            rwrules_ProcType,
+            rwrules_Program,
+            rwrules_RArg,
+            rwrules_RArgs,
+            rwrules_Stmt,
+            rwrules_TypeExpr,
+            rwrules_TypeExprs,
+            rwrules_Unit,
+            rwrules_Vis;
   st.errors
    := if   e.typerep.isArithmetic
       then [ ]
@@ -94,6 +142,29 @@ st::Statement_c ::= 'expire' '(' e::Expr_c ')'
 abstract production expire
 st::Stmt ::= t::Expr
 { st.pp = "expire (" ++ t.pp ++ ")" ;
+  propagate alluses,
+            env,
+            rwrules_ChInit,
+            rwrules_Declarator,
+            rwrules_Decls,
+            rwrules_Enabler,
+            rwrules_Expr,
+            rwrules_Exprs,
+            rwrules_IDList,
+            rwrules_Inst,
+            rwrules_MArgs,
+            rwrules_Op,
+            rwrules_Options,
+            rwrules_Priority,
+            rwrules_ProcType,
+            rwrules_Program,
+            rwrules_RArg,
+            rwrules_RArgs,
+            rwrules_Stmt,
+            rwrules_TypeExpr,
+            rwrules_TypeExprs,
+            rwrules_Unit,
+            rwrules_Vis;
   st.errors := case t.typerep of
                  timerTypeRep() -> [ ]
                | _ -> [ mkErrorNoLoc ("on expire; expression \"" ++ t.pp ++
@@ -111,6 +182,29 @@ st::Statement_c ::= 'tick' '(' e::Expr_c ')'
 abstract production tick
 st::Stmt ::= tmr::Expr
 { st.pp = "tick (" ++ tmr.pp ++ ")" ;
+  propagate alluses,
+            env,
+            rwrules_ChInit,
+            rwrules_Declarator,
+            rwrules_Decls,
+            rwrules_Enabler,
+            rwrules_Expr,
+            rwrules_Exprs,
+            rwrules_IDList,
+            rwrules_Inst,
+            rwrules_MArgs,
+            rwrules_Op,
+            rwrules_Options,
+            rwrules_Priority,
+            rwrules_ProcType,
+            rwrules_Program,
+            rwrules_RArg,
+            rwrules_RArgs,
+            rwrules_Stmt,
+            rwrules_TypeExpr,
+            rwrules_TypeExprs,
+            rwrules_Unit,
+            rwrules_Vis;
   forwards to ifStmt ( consOption ( -- tmr>=0 -> tmr=tmr-1
                              seqStmt ( exprStmt(gteExpr(tmr, zero)) ,
                                        assign(tmr, '=', minus(tmr,one)) ) ,

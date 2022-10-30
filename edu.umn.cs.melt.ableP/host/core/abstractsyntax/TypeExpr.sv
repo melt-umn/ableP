@@ -103,8 +103,8 @@ nonterminal TypeExprs with pp, errors, host<TypeExprs>, inlined<TypeExprs> ;
 abstract production oneTypeExpr
 tes::TypeExprs::= te::TypeExpr
 { tes.pp = te.pp;
-  te.env = EmptyDefs();
-  te.errors := te.errors;
+  te.env = emptyDefs();
+  tes.errors := te.errors;
   tes.host = oneTypeExpr(te.host) ;
   tes.inlined = oneTypeExpr(te.inlined) ;
   tes.transformed = applyARewriteRule(tes.rwrules_TypeExprs, tes,
@@ -114,7 +114,7 @@ tes::TypeExprs::= te::TypeExpr
 abstract production consTypeExpr
 tes::TypeExprs ::= te::TypeExpr rest::TypeExprs
 { tes.pp = te.pp ++ "," ++ rest.pp ;
-  te.env = EmptyDefs();
+  te.env = emptyDefs();
   tes.errors := te.errors ++ rest.errors;
   tes.host = consTypeExpr(te.host, rest.host);
   tes.inlined = consTypeExpr(te.inlined, rest.inlined);

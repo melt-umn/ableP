@@ -32,31 +32,32 @@ e::Expr ::= id::ID
 abstract production inlineDecl
 d::Decls ::= n::ID formals::InlineArgs stmt::Stmt
 { d.pp = "inline " ++ n.lexeme ++ "(" ++ formals.pp ++ ")\n" ++ stmt.pp;
-  stmt.env = d.env;
-  stmt.ppi = "   ";
-  stmt.ppsep = "; \n";
-  stmt.alluses = d.alluses;
-  stmt.rwrules_Program = d.rwrules_Program;
-  stmt.rwrules_Unit = d.rwrules_Unit;
-  stmt.rwrules_Decls = d.rwrules_Decls;
-  stmt.rwrules_Declarator = d.rwrules_Declarator;
-  stmt.rwrules_Stmt = d.rwrules_Stmt;
-  stmt.rwrules_Options = d.rwrules_Options;
-  stmt.rwrules_Expr = d.rwrules_Expr;
-  stmt.rwrules_Exprs = d.rwrules_Exprs;
-  stmt.rwrules_MArgs = d.rwrules_MArgs;
-  stmt.rwrules_RArgs = d.rwrules_RArgs;
-  stmt.rwrules_RArg = d.rwrules_RArg;
-  stmt.rwrules_Vis = d.rwrules_Vis;
-  stmt.rwrules_TypeExpr = d.rwrules_TypeExpr;
-  stmt.rwrules_TypeExprs = d.rwrules_TypeExprs;
-  stmt.rwrules_IDList = d.rwrules_IDList;
-  stmt.rwrules_Op = d.rwrules_Op;
-  stmt.rwrules_ChInit = d.rwrules_ChInit;
-  stmt.rwrules_ProcType = d.rwrules_ProcType;
-  stmt.rwrules_Inst = d.rwrules_Inst;
-  stmt.rwrules_Priority = d.rwrules_Priority;
-  stmt.rwrules_Enabler = d.rwrules_Enabler;
+  propagate alluses,
+            ppsep,
+            ppi,
+            ppterm,
+            env,
+            rwrules_ChInit,
+            rwrules_Declarator,
+            rwrules_Decls,
+            rwrules_Enabler,
+            rwrules_Expr,
+            rwrules_Exprs,
+            rwrules_IDList,
+            rwrules_Inst,
+            rwrules_MArgs,
+            rwrules_Op,
+            rwrules_Options,
+            rwrules_Priority,
+            rwrules_ProcType,
+            rwrules_Program,
+            rwrules_RArg,
+            rwrules_RArgs,
+            rwrules_Stmt,
+            rwrules_TypeExpr,
+            rwrules_TypeExprs,
+            rwrules_Unit,
+            rwrules_Vis;
 
   -- d.errors := forward.errors ;
   d.defs = valueBinding(n.lexeme, d) ;
@@ -93,7 +94,32 @@ ia::InlineArgs ::= id::ID  rest::InlineArgs
 abstract production inlineStmt
 st::Stmt ::= n_ref::INAME actuals::Exprs
 { st.pp = n_ref.lexeme ++ "(" ++ actuals.pp ++ ") ;\n";
-  actuals.env = st.env;
+  propagate alluses,
+            ppsep,
+            ppi,
+            ppterm,
+            env,
+            rwrules_ChInit,
+            rwrules_Declarator,
+            rwrules_Decls,
+            rwrules_Enabler,
+            rwrules_Expr,
+            rwrules_Exprs,
+            rwrules_IDList,
+            rwrules_Inst,
+            rwrules_MArgs,
+            rwrules_Op,
+            rwrules_Options,
+            rwrules_Priority,
+            rwrules_ProcType,
+            rwrules_Program,
+            rwrules_RArg,
+            rwrules_RArgs,
+            rwrules_Stmt,
+            rwrules_TypeExpr,
+            rwrules_TypeExprs,
+            rwrules_Unit,
+            rwrules_Vis;
   -- st.errors := forward.errors ;
   st.defs = emptyDefs() ;
   st.host = inlineStmt(n_ref, actuals.host);
@@ -108,6 +134,26 @@ st::Stmt ::= n_ref::INAME actuals::Exprs
          alluses = st.alluses;
          env = st.env;
          rwrules_Program = st.rwrules_Program;
+         rwrules_Unit = st.rwrules_Unit;
+         rwrules_Decls = st.rwrules_Decls;
+         rwrules_Declarator = st.rwrules_Declarator;
+         rwrules_Stmt = st.rwrules_Stmt;
+         rwrules_Options = st.rwrules_Options;
+         rwrules_Expr = st.rwrules_Expr;
+         rwrules_Exprs = st.rwrules_Exprs;
+         rwrules_MArgs = st.rwrules_MArgs;
+         rwrules_RArgs = st.rwrules_RArgs;
+         rwrules_RArg = st.rwrules_RArg;
+         rwrules_Vis = st.rwrules_Vis;
+         rwrules_TypeExpr = st.rwrules_TypeExpr;
+         rwrules_TypeExprs = st.rwrules_TypeExprs;
+         rwrules_IDList = st.rwrules_IDList;
+         rwrules_Op = st.rwrules_Op;
+         rwrules_ChInit = st.rwrules_ChInit;
+         rwrules_ProcType = st.rwrules_ProcType;
+         rwrules_Inst = st.rwrules_Inst;
+         rwrules_Priority = st.rwrules_Priority;
+         rwrules_Enabler = st.rwrules_Enabler;
          })
        .defs , st.env); };
    -- we bind a formal to a Decl

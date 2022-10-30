@@ -19,6 +19,28 @@ s::Special_c ::= sl::'select' '(' v::Varref_c ':' exprs::Arg_c ')'
 abstract production selectFrom
 s::Stmt ::= sl::'select' v::Expr exprs::Exprs
 { s.pp = "select ( " ++ v.pp ++ ":" ++ exprs.pp ++ " ); \n" ;
+  propagate alluses,
+            rwrules_ChInit,
+            rwrules_Declarator,
+            rwrules_Decls,
+            rwrules_Enabler,
+            rwrules_Expr,
+            rwrules_Exprs,
+            rwrules_IDList,
+            rwrules_Inst,
+            rwrules_MArgs,
+            rwrules_Op,
+            rwrules_Options,
+            rwrules_Priority,
+            rwrules_ProcType,
+            rwrules_Program,
+            rwrules_RArg,
+            rwrules_RArgs,
+            rwrules_Stmt,
+            rwrules_TypeExpr,
+            rwrules_TypeExprs,
+            rwrules_Unit,
+            rwrules_Vis;
   forwards to ifStmt( mkOptionsExprs (v, exprs) ) ;
 }
 
@@ -45,6 +67,7 @@ s::Stmt ::= sl::'select' v::Expr exprs::Exprs
                    exprs.selectErrors 
               else [ ] ;
  exprs.vrefTypeRep = v.typerep ;
+ propagate env;
 
  local thisLoc::Loc = mkLoc(sl.line, sl.column) ;
  exprs.selectLoc = thisLoc ;
