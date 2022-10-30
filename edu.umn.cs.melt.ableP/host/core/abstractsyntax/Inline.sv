@@ -36,6 +36,28 @@ d::Decls ::= n::ID formals::InlineArgs stmt::Stmt
   stmt.ppi = "   ";
   stmt.ppsep = "; \n";
   stmt.alluses = d.alluses;
+  stmt.rwrules_Program = d.rwrules_Program;
+  stmt.rwrules_Unit = d.rwrules_Unit;
+  stmt.rwrules_Decls = d.rwrules_Decls;
+  stmt.rwrules_Declarator = d.rwrules_Declarator;
+  stmt.rwrules_Stmt = d.rwrules_Stmt;
+  stmt.rwrules_Options = d.rwrules_Options;
+  stmt.rwrules_Expr = d.rwrules_Expr;
+  stmt.rwrules_Exprs = d.rwrules_Exprs;
+  stmt.rwrules_MArgs = d.rwrules_MArgs;
+  stmt.rwrules_RArgs = d.rwrules_RArgs;
+  stmt.rwrules_RArg = d.rwrules_RArg;
+  stmt.rwrules_Vis = d.rwrules_Vis;
+  stmt.rwrules_TypeExpr = d.rwrules_TypeExpr;
+  stmt.rwrules_TypeExprs = d.rwrules_TypeExprs;
+  stmt.rwrules_IDList = d.rwrules_IDList;
+  stmt.rwrules_Op = d.rwrules_Op;
+  stmt.rwrules_ChInit = d.rwrules_ChInit;
+  stmt.rwrules_ProcType = d.rwrules_ProcType;
+  stmt.rwrules_Inst = d.rwrules_Inst;
+  stmt.rwrules_Priority = d.rwrules_Priority;
+  stmt.rwrules_Enabler = d.rwrules_Enabler;
+
   -- d.errors := forward.errors ;
   d.defs = valueBinding(n.lexeme, d) ;
   d.host = inlineDecl(n, formals.host, stmt.host) ;
@@ -84,7 +106,9 @@ st::Stmt ::= n_ref::INAME actuals::Exprs
         {ppi = st.ppi;
          ppsep = st.ppsep;
          alluses = st.alluses;
-         env = st.env; })
+         env = st.env;
+         rwrules_Program = st.rwrules_Program;
+         })
        .defs , st.env); };
    -- we bind a formal to a Decl
    -- this Decl has the actual Expr that is to be inlined.

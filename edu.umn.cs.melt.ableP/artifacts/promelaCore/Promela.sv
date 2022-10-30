@@ -53,6 +53,7 @@ IOVal<Integer> ::= args::[String] mainIO::IOToken
 
   local r_cst::Program_c = parseText.parseTree ;
   local r_ast::Program = r_cst.ast ;
+  r_ast.rwrules_Program = [];
 
   -- attributes to compute warning and errors and display the warnings
   local ast_warnings::[Error] = getWarnings(r_ast.errors) ;
